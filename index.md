@@ -1,37 +1,72 @@
-## Welcome to GitHub Pages
+# OpenTerrainGenerator
 
-You can use the [editor on GitHub](https://github.com/PG85/OpenTerrainGenerator/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+OpenTerrainGenerator is an advanced, fully customizable world generation utility. Through its various configuration files it gives the user control over almost every aspect of Minecraft's world generation, allowing you to generate anything from floating islands to cave worlds with no knowledge of Java required. OTG is just an engine, to make use of its functions you must either install a World Preset (see Installing Worlds) or make your own custom World Preset (see Configuration below or in Navigation bar at the top). OTG supports both Spigot (servers) and Forge (servers and single-player).
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Main Features
 
-### Markdown
+* Control horizontal and vertical noise, terrain height and volatility
+* Create new biomes and control the size of biomes, islands and continents
+* Import custom trees and other objects (BO2 and BO3)
+* Control over mob spawning rules and climate settings per biome
+* Generate large custom structures with custom mobs and loot
+* Options for vanilla structures like mineshafts, strongholds and villages
+* Full control of all blocks placed during world generation: ores, plants, dungeons, ponds and many more
+* Customizable options for caves & canyons
+* Visual settings like custom foliage, water and sky colors (OTG client required)
+* Generating biome maps from images
+* Forge Multi-dimension support (create your own dimension!)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Installation
+### Installing OTG
+* Forge Installation Instructions
+* Spigot Installation Instructions
+* Versions & Platforms
+* Mod Compatibility
+### Installing readymade custom worlds
+* Installing a world preset (e.g. Biome Bundle, Skylands, etc)
+* Manually installing a (non-jar) preset
+* Generating a default 'vanilla worldgen' preset to edit
 
-```markdown
-Syntax highlighted code block
+## Tools & Commands
+### GUI and Commands
+* Using the OTG World Creation GUI
+* Using the map pre-generator
+* Console commands
 
-# Header 1
-## Header 2
-### Header 3
+## Config Files Overview
+* OpenTerrainGenerator.ini
+* WorldConfig.ini
+* Biome Configs
+* Bo3 Configs
+* Creating and spawning basic custom objects
 
-- Bulleted
-- List
+## Downloads & Links
+* Useful tools and resources
 
-1. Numbered
-2. List
+## Tutorials
+### Getting started creating your own custom world
+* What can OTG do? (Overall description of the different things you can do with OTG)
+* Set up & understanding the basics (installation, folder structure, creating a default preset to edit)
+* Your first custom biome (walkthrough of deciding global settings & creating a simple custom biome including finishing touches like mob spawning, temperature)
+* Ores, plants and other resources (deep dive on the resource queue)    
+* Adding your first custom object (using /otg export)
+* Tips for making terrain more interesting and varied (fracture settings, volatility settings, custom height control, isle biomes)
+* Dos and Don'ts for worldgen performance
 
-**Bold** and _Italic_ and `Code` text
+### OTG worlds as dimensions
+* Overview (walkthrough of the different dimension features)
+* Adding an OTG world as a dimension (using the o menu, worldconfig settings and/or modpack config)
+* Getting to a dimension (portals, dim up / down)
+* Gamerules and other settings    
 
-[Link](url) and ![Image](src)
-```
+### Custom structures
+* bo3 and bo4 customstructures (Explain it's one or the other per world, what are the pros and cons of each, why you would use one over the other)
+* Making a bo3 customstructure
+* Making a bo4 customstructure
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+### Mod compatibility
+* Explanation of the settings that help with mod compatibility
+* OTGs compatibility limitations
 
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/PG85/OpenTerrainGenerator/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+### Publishing a preset
+* Packing your preset in a .jar file for distribution as a mod
