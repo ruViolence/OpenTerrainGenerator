@@ -17,14 +17,14 @@ OpenTerrainGenerator is a fully customizable world generation mod/plugin for For
 * Forge Multi-dimension support (create your own dimension!)
 
 ## Installation
-### [Installing OTG](installation/installing-otg.md)
+### [Installing OTG](installation/installing-otg)
 * Forge Installation Instructions
 * Spigot Installation Instructions
 * Versions & Platforms
 * Mod Compatibility
 
 ### Installing ready-made custom worlds
-* [Installing a world preset (e.g. Biome Bundle, Skylands, etc)](installation/installing-worlds.md)
+* [Installing a world preset (e.g. Biome Bundle, Skylands, etc)](installation/installing-worlds)
 * Manually installing a (non-jar) preset
 * Generating a default 'vanilla worldgen' preset to edit
 
