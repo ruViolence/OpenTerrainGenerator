@@ -7,7 +7,7 @@ Below is an outline of the different methods of installation for the various pla
 1. Go to [files.minecraftforge.net](https://files.minecraftforge.net/) to download & install the latest recommended forge corresponding to the version of Minecraft you want to use.
 2. Run Minecraft once to create the `/mods` folder (usually found at `C:\Users\[USERNAME]\AppData\Roaming\.minecraft\mods\` ).
 3. [Download OpenTerrainGenerator.jar](https://minecraft.curseforge.com/projects/open-terrain-generator) and put it in the `.minecraft/mods` folder.
-4. [[Install a world preset|Installing Worlds]]
+4. [Install a world preset](installation/installing-worlds.md)
 
 *Note: OTG usually requires 2gb+ memory to be assigned to Minecraft (depending on world preset). If you experience long/never ending world loading times, increase memory allocation.*
 
@@ -25,7 +25,8 @@ The tutorial for setting up a Spigot server for the first time is [here](https:/
 1. Set up the server in the normal way.
 2. Download and put the Open Terrain Generator .jar into the server's plugins folder.
 3. Run the server once to create the /plugins/OpenTerrainGenerator folder (delete the world afterwards).
-4. [[Install a world preset|Installing Worlds]]t
+4. [Install a world preset](installation/installing-worlds.md)
+
 [Spigot Installation Video Tutorial](https://www.youtube.com/watch?v=ThYH_YsX4EU)
 
 Although clients do not require Forge or OTG installed when joining a Spigot server running OTG, it is recommended that clients do install them if the world preset in use makes heavy use of custom foliage, grass or sky colors.
@@ -43,7 +44,7 @@ The following console commands can be be used with Spigot permissions plugins:
 * cmd.help
 * cmd.reload
 
-For a description of each of them see [[Console Commands]].
+For a description of each of them see [the usage page](usage/gui-and-commands.md).
 
 ## Other Tips
 * OTG for Spigot doesn't require your players to have the singleplayer (forge) version installed (meaning vanilla clients can connect), but they will get some more features if they have it.
@@ -69,11 +70,11 @@ OTG does not officially support Sponge. The mod is not tested with Sponge, nor d
 
 If you're running Sponge alongside a permissions plugin (like LuckPerms), then you should be extra careful which version of OTG you use. OTG v9 contains a vital fix for permissions for Sponge, and using any version below v9 opens your world up to serious damage from players. OTG v9 adds the following permissions for Sponge servers:
 
-* openterraingenerator.command.<command name>
-  * Gives a player access to a given command. Not all commands require permissions. To see a list of commands, do /otg help, or see [[Console Commands]]
-* openterraingenerator.ui.create
+* `openterraingenerator.command.<command name>`
+  * Gives a player access to a given command. Not all commands require permissions. To see a list of commands, do /otg help, or see [Console Commands](usage/gui-and-commands.md)
+* `openterraingenerator.ui.create`
   * Allows a player to create or delete a dimension using the GUI
-* openterraingenerator.ui.update
+* `openterraingenerator.ui.update`
   * Allows a player to update world settings using the GUI
-* openterraingenerator.ui.teleport
+* `openterraingenerator.ui.teleport`
   * Allows a player to teleport between dimensions using the GUI
