@@ -24,7 +24,7 @@ OpenTerrainGenerator is an advanced, fully customizable world generation utility
 * Mod Compatibility
 
 ### Installing ready-made custom worlds
-* Installing a world preset (e.g. Biome Bundle, Skylands, etc)
+* [Installing a world preset (e.g. Biome Bundle, Skylands, etc)](installation/installing-worlds.md)
 * Manually installing a (non-jar) preset
 * Generating a default 'vanilla worldgen' preset to edit
 
