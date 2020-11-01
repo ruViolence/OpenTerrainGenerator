@@ -1,13 +1,13 @@
 OTG can be installed both as a Spigot plugin and as a Forge mod. As a Forge mod, players are required to have the mod installed client-side. The Spigot plugin does not require the single player mod to be installed, however certain features (foliage/grass/sky/fog colours & biome names in F3 menu) will not function properly for custom biomes.
 
-Below is an outline of the different methods of installation for the various platforms, be aware that without [installing a world preset](/installation/installing-worlds.md) OTG will replace the overworld with an approximation of vanilla worldgen and the configs OTG driving that in `mods/openterraingenerator/worlds` or `plugins/openterraingenerator/worlds`.
+Below is an outline of the different methods of installation for the various platforms, be aware that without [installing a world preset](/OpenTerrainGenerator/installation/installing-worlds.md) OTG will replace the overworld with an approximation of vanilla worldgen and the configs OTG driving that in `mods/openterraingenerator/worlds` or `plugins/openterraingenerator/worlds`.
 
 ## Forge Installation Instructions
 ### Forge Single Player Edit
 1. Go to [files.minecraftforge.net](https://files.minecraftforge.net/) to download & install the latest recommended forge corresponding to the version of Minecraft you want to use.
 2. Run Minecraft once to create the `/mods` folder (usually found at `C:\Users\[USERNAME]\AppData\Roaming\.minecraft\mods\` ).
 3. [Download OpenTerrainGenerator.jar](https://minecraft.curseforge.com/projects/open-terrain-generator) and put it in the `.minecraft/mods` folder.
-4. [Install a world preset](/installation/installing-worlds.md)
+4. [Install a world preset](/OpenTerrainGenerator/installation/installing-worlds.md)
 
 *Note: OTG usually requires 2gb+ memory to be assigned to Minecraft (depending on world preset). If you experience long/never ending world loading times, increase memory allocation.*
 
@@ -25,7 +25,7 @@ The tutorial for setting up a Spigot server for the first time is [here](https:/
 1. Set up the server in the normal way.
 2. Download and put the Open Terrain Generator .jar into the server's plugins folder.
 3. Run the server once to create the /plugins/OpenTerrainGenerator folder (delete the world afterwards).
-4. [Install a world preset](/installation/installing-worlds.md)
+4. [Install a world preset](/OpenTerrainGenerator/installation/installing-worlds.md)
 
 [Spigot Installation Video Tutorial](https://www.youtube.com/watch?v=ThYH_YsX4EU)
 
@@ -44,7 +44,7 @@ The following console commands can be be used with Spigot permissions plugins:
 * cmd.help
 * cmd.reload
 
-For a description of each of them see [the usage page](/usage/gui-and-commands.md).
+For a description of each of them see [the usage page](/OpenTerrainGenerator/usage/gui-and-commands.md).
 
 ## Other Tips
 * OTG for Spigot doesn't require your players to have the singleplayer (forge) version installed (meaning vanilla clients can connect), but they will get some more features if they have it.
@@ -71,7 +71,7 @@ OTG does not officially support Sponge. The mod is not tested with Sponge, nor d
 If you're running Sponge alongside a permissions plugin (like LuckPerms), then you should be extra careful which version of OTG you use. OTG v9 contains a vital fix for permissions for Sponge, and using any version below v9 opens your world up to serious damage from players. OTG v9 adds the following permissions for Sponge servers:
 
 * `openterraingenerator.command.<command name>`
-  * Gives a player access to a given command. Not all commands require permissions. To see a list of commands, do /otg help, or see [Console Commands](/usage/gui-and-commands.md)
+  * Gives a player access to a given command. Not all commands require permissions. To see a list of commands, do /otg help, or see [Console Commands](/OpenTerrainGenerator/usage/gui-and-commands.md)
 * `openterraingenerator.ui.create`
   * Allows a player to create or delete a dimension using the GUI
 * `openterraingenerator.ui.update`
