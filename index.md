@@ -1,6 +1,6 @@
 # OpenTerrainGenerator
 
-OpenTerrainGenerator is an advanced, fully customizable world generation utility. Through its various configuration files it gives the user control over almost every aspect of Minecraft's world generation, allowing you to generate anything from floating islands to cave worlds with no knowledge of Java required. OTG is just an engine, to make use of its functions you must either install a World Preset (see Installing Worlds) or make your own custom World Preset (see Configuration below or in Navigation bar at the top). OTG supports both Spigot (servers) and Forge (servers and single-player).
+OpenTerrainGenerator is a fully customizable world generation mod/plugin for Forge and Spigot. Through its various configuration files it gives the user control over almost every aspect of Minecraft's world generation, allowing you to generate anything from floating islands to cave worlds with no knowledge of Java required. OTG is just an engine, to make use of its functions you must either install a World Preset (see Installing Worlds) or make your own custom World Preset (see Configuration below or in Navigation bar at the top). OTG supports both Spigot (servers) and Forge (servers and single-player).
 
 ## Main Features
 
