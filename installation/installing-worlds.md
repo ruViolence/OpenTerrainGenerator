@@ -22,13 +22,13 @@ _Note: Both servers and clients running OTG will require more memory than vanill
 
 ### Forge Single Player
 
-1. [Install OTG](installation/installing-otg)
+1. [Install OTG](/OpenTerrainGenerator/installation/installing-otg)
 2. Download the .jar for your desired world preset from the links above and put it in the `/mods` folder.
 3. Select the world from the world creation menu in-game.
 
 ### Forge Server
 
-1. [Install OTG](installation/installing-otg)
+1. [Install OTG](/OpenTerrainGenerator/installation/installing-otg)
 2. Download the .jar for your desired world preset from the links above and put it in the `/mods` folder.
 3. Go to the server.properties file and change the following two settings (replacing <worldname> with the name of the world preset (ie, level-name=Biome Bundle):
 
@@ -42,7 +42,7 @@ _Note: If you have already generated any chunks with vanilla or other world sett
 
 Watch the [video tutorial](https://youtu.be/3n0bFhnFERE) or follow the instructions below
 
-1. [Install OTG](installation/installing-otg)
+1. [Install OTG](/OpenTerrainGenerator/installation/installing-otg)
 2. Run the server once to create the /plugins/OpenTerrainGenerator folder
 3. Delete the world folders for the world that was generated
 4. Download the .jar for your desired world preset from the links above and open it with WinRaR or 7zip 
