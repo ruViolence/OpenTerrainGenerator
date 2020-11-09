@@ -45,10 +45,10 @@ import com.pg85.otg.configuration.dimensions.DimensionsConfig;
 import com.pg85.otg.configuration.standard.PluginStandardValues;
 import com.pg85.otg.configuration.world.WorldConfig;
 import com.pg85.otg.forge.blocks.portal.PortalColors;
-import com.pg85.otg.forge.dimensions.DimensionData;
 import com.pg85.otg.forge.dimensions.OTGDimensionManager;
 import com.pg85.otg.forge.gui.GuiHandler;
 import com.pg85.otg.logging.LogMarker;
+import com.pg85.otg.worldsave.DimensionData;
 
 import net.minecraft.client.gui.GuiListExtended;;
 
@@ -100,7 +100,7 @@ public class OTGGuiListWorldSelectionEntry implements GuiListExtended.IGuiListEn
     	if(this.lastSelectedWorldName == null || !this.getSelectedWorldName().equals(this.lastSelectedWorldName))
     	{
     		lastSelectedWorldName = this.getSelectedWorldName();
-    		cachedDimData = OTGDimensionManager.GetDimensionData(new File(Minecraft.getMinecraft().gameDir + File.separator + "saves" + File.separator + this.getSelectedWorldName()));
+    		cachedDimData = DimensionData.loadDimensionData(new File(Minecraft.getMinecraft().gameDir + File.separator + "saves" + File.separator + this.getSelectedWorldName()));
     	}
     	boolean bFound = cachedDimData != null && cachedDimData.size() > 0;
 
@@ -321,7 +321,7 @@ public class OTGGuiListWorldSelectionEntry implements GuiListExtended.IGuiListEn
     {
     	// If this world has OTG overworld/dimensions then check if it has a DimensionsConfig
     	// If this is a legacy world then we'll need to create a new one.
-    	ArrayList<DimensionData> dimensionDatas = OTGDimensionManager.GetDimensionData(new File(clientHandler.getSavesDir() + File.separator + this.worldSummary.getFileName()));
+    	ArrayList<DimensionData> dimensionDatas = DimensionData.loadDimensionData(new File(clientHandler.getSavesDir() + File.separator + this.worldSummary.getFileName()));
     	DimensionsConfig dimsConfig = DimensionsConfig.loadFromFile(new File(clientHandler.getSavesDir(), comparator.getFileName()), OTG.getEngine().getOTGRootFolder());
     	if(dimsConfig == null && dimensionDatas != null && dimensionDatas.size() > 0)
     	{

@@ -16,7 +16,6 @@ import com.pg85.otg.configuration.dimensions.DimensionConfigGui;
 import com.pg85.otg.configuration.dimensions.DimensionsConfig;
 import com.pg85.otg.configuration.standard.PluginStandardValues;
 import com.pg85.otg.forge.ForgeEngine;
-import com.pg85.otg.forge.dimensions.DimensionData;
 import com.pg85.otg.forge.dimensions.OTGDimensionInfo;
 import com.pg85.otg.forge.dimensions.OTGDimensionManager;
 import com.pg85.otg.forge.gui.GuiHandler;
@@ -28,6 +27,7 @@ import com.pg85.otg.logging.LogMarker;
 import com.pg85.otg.network.ClientConfigProvider;
 import com.pg85.otg.network.ConfigToNetworkSender;
 import com.pg85.otg.util.helpers.StreamHelper;
+import com.pg85.otg.worldsave.DimensionData;
 
 import io.netty.buffer.ByteBuf;
 

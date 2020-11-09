@@ -21,6 +21,7 @@ public abstract class DimensionConfigBase
 	public String PresetName;
 	public int DimensionId;
 	public boolean ShowInWorldCreationGUI = true;
+	public int LowestSupportedModPackConfigVersion;
 	public String Seed = WorldStandardValues.WORLD_SEED.getDefaultValue();
     public String GameType = "Survival";
     public boolean BonusChest = false;
