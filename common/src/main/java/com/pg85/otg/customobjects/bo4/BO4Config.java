@@ -2268,7 +2268,7 @@ public class BO4Config extends CustomObjectConfigFile
 
     	return this;
     }
-           
+
     private void loadBlockArrays(ArrayList<BO4BlockFunction> newBlocks, short[][] columnSizes)
     {
         // Store blocks in arrays instead of BO4BlockFunctions,

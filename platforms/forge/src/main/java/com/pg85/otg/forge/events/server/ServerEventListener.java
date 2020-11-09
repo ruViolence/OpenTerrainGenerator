@@ -99,7 +99,7 @@ public class ServerEventListener
 			}
 	
 		    // Load any saved dimensions.
-		    OTGDimensionManager.LoadCustomDimensionData();	
+		    OTGDimensionManager.loadCustomDimensionData();	
 		    for(DimensionConfig dimConfig : OTG.getDimensionsConfig().Dimensions)
 		    {
 		    	if(!OTGDimensionManager.isDimensionNameRegistered(dimConfig.PresetName))
@@ -118,7 +118,6 @@ public class ServerEventListener
 		    		}
 	    		}
 		    }
-
 		    OTGDimensionManager.SaveDimensionData();
 		}
     }

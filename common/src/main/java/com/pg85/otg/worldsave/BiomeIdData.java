@@ -36,10 +36,23 @@ public class BiomeIdData
     // Saving / Loading
     // TODO: It's crude but it works, can improve later
     
+	public static void saveBiomeIdData(File worldSaveDir, ArrayList<BiomeIdData> loadedBiomeIdData)
+	{		
+		saveBiomeIdData(worldSaveDir, null, null, loadedBiomeIdData);
+	}
+
 	public static void saveBiomeIdData(File worldSaveDir, ServerConfigProvider serverConfigProvider, LocalWorld world)
+	{		
+		saveBiomeIdData(worldSaveDir, serverConfigProvider, world, null);
+	}
+	
+	private static void saveBiomeIdData(File worldSaveDir, ServerConfigProvider serverConfigProvider, LocalWorld world, ArrayList<BiomeIdData> loadedBiomeIdData)
 	{
         // If this is a previously created world then register biomes to the same OTG biome id as before.
-        ArrayList<BiomeIdData> loadedBiomeIdData = loadBiomeIdData(worldSaveDir);
+		if(loadedBiomeIdData == null)
+		{
+			loadedBiomeIdData = loadBiomeIdData(worldSaveDir);
+		}
 		
 		File biomeIdDataFile = new File(worldSaveDir + File.separator + PluginStandardValues.PLUGIN_NAME + File.separator + WorldStandardValues.BiomeIdDataFileName);
 		File biomeIdDataBackupFile = new File(worldSaveDir + File.separator + PluginStandardValues.PLUGIN_NAME + File.separator + WorldStandardValues.BiomeIdDataBackupFileName);
@@ -54,28 +67,31 @@ public class BiomeIdData
 			}
         }
 
-        boolean bFound = false;
-		for(LocalBiome biome : serverConfigProvider.getBiomeArrayByOTGId())
-		{
-			if(biome != null)
+        if(serverConfigProvider != null && world != null)
+        {
+	        boolean bFound = false;
+			for(LocalBiome biome : serverConfigProvider.getBiomeArrayByOTGId())
 			{
-				bFound = false;
-				if(loadedBiomeIdData != null)
+				if(biome != null)
 				{
-					for(BiomeIdData biomeIdData : loadedBiomeIdData)
+					bFound = false;
+					if(loadedBiomeIdData != null)
 					{
-						if(biomeIdData.biomeName.equals(world.getName() + "_" + biome.getName()))
+						for(BiomeIdData biomeIdData : loadedBiomeIdData)
 						{
-							bFound = true;
+							if(biomeIdData.biomeName.equals(world.getName() + "_" + biome.getName()))
+							{
+								bFound = true;
+							}
 						}
 					}
-				}
-				if(!bFound)
-				{
-					stringbuilder.append((stringbuilder.length() == 0 ? "" : ",") + world.getName() + "_" + biome.getName() + "," + biome.getIds().getSavedId() + "," + biome.getIds().getOTGBiomeId());
-				}
-			}			 
-		}
+					if(!bFound)
+					{
+						stringbuilder.append((stringbuilder.length() == 0 ? "" : ",") + world.getName() + "_" + biome.getName() + "," + biome.getIds().getSavedId() + "," + biome.getIds().getOTGBiomeId());
+					}
+				}			 
+			}
+        }
 		
 		BufferedWriter writer = null;
         try

@@ -14,7 +14,7 @@ public class DimensionConfig extends DimensionConfigBase
 	
 	public DimensionConfig(String presetName, int dimensionId, boolean showInWorldCreationGUI)
 	{
-		super(presetName, dimensionId, showInWorldCreationGUI);
+		super(presetName, dimensionId, showInWorldCreationGUI, null);
 	}
 
 	public DimensionConfig(DimensionConfigGui dimConfig)
@@ -47,6 +47,7 @@ public class DimensionConfig extends DimensionConfigBase
 		clone.AllowCheats = this.AllowCheats;
 		clone.BonusChest = this.BonusChest;
 		clone.GameType = this.GameType;
+		clone.LowestSupportedModPackConfigVersion = this.LowestSupportedModPackConfigVersion;
 		
 		clone.Settings = this.Settings.clone();
 		clone.GameRules = this.GameRules.clone();
