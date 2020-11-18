@@ -34,6 +34,7 @@ import com.pg85.otg.util.minecraft.defaults.BiomeRegistryNames;
 import com.pg85.otg.util.minecraft.defaults.DefaultBiome;
 import com.pg85.otg.worldsave.BiomeIdData;
 import com.pg85.otg.worldsave.WorldSaveData;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Holds the WorldConfig and all BiomeConfigs.
@@ -654,7 +655,7 @@ public final class ServerConfigProvider implements ConfigProvider
         {
         	createAndRegisterBiome(loadedBiomeIdData, biomeConfig, isReload);
         }
-        
+
         BiomeIdData.saveBiomeIdData(worldSaveFolder, this, this.world);
         
         // Forge dimensions are seperate worlds that can share biome configs so
@@ -713,57 +714,16 @@ public final class ServerConfigProvider implements ConfigProvider
     		OTG.log(LogMarker.FATAL, "Biome was not registered, most likely there were no id's available.");
     		throw new RuntimeException("Biome was not registered, most likely there were no id's available.");
     	}
-  	
+
         // Get correct saved id (defaults to generation id, but can be set to use the generation id of another biome)
         if (!biomeConfig.replaceToBiomeName.isEmpty())
         {
-        	// This won't work when trying to replacetobiomename a replacetobiomename biome. ReplaceToBiomeName biome must be non-virtual. 
-        	for(int i = 0; i < otgIds2.length; i++)
-        	{
-        		if(otgIds2[i] != null && otgIds2[i].getName() == biomeConfig.replaceToBiomeName)
-        		{
-        			savedBiomeId = i;
-        			break;
-    			}
-        	}
-        	if(savedBiomeId == -1)
-        	{
-        		savedBiomeId = getRequestedSavedId(biomeConfig.replaceToBiomeName);
-        	}
-        	
-        	if(savedBiomeId == -1)
-        	{
-            	String[] replaceToBiomeNameArr = biomeConfig.replaceToBiomeName.split(",");
-        		if(replaceToBiomeNameArr.length == 1)
-        		{
-	        		// This may be a legacy world that doesn't use resourcelocation notation, get the correct registry name
-	        		String replaceToBiomeNameNew = BiomeRegistryNames.getRegistryNameForDefaultBiome(biomeConfig.replaceToBiomeName);
-	        		
-	        		if(replaceToBiomeNameNew != null)
-	        		{
-		        		savedBiomeId = getRequestedSavedId(replaceToBiomeNameNew);
-		        		if(savedBiomeId != -1)
-		        		{
-		        			biomeConfig.replaceToBiomeName = replaceToBiomeNameNew;
-		        		}
-	        		}
-        		}
-        	}
-        	
-        	if(savedBiomeId == -1 || savedBiomeId > 255)
-        	{
-        		LocalBiome biome = world.getBiomeByNameOrNull(worldConfig.defaultOceanBiome);
-        		if(biome != null)
-        		{
-        			savedBiomeId = biome.getIds().getOTGBiomeId(); // TODO: Re-implement replacetobiomename:virtualbiome
-        		} else {
-            		savedBiomeId = getRequestedSavedId(biomeConfig.replaceToBiomeName);
-            		OTG.log(LogMarker.FATAL, "ReplaceToBiomeName: " + biomeConfig.replaceToBiomeName + " for biome " + biomeConfig.getName() + " could not be found. Please note that it is not possible to ReplaceToBiomeName to a ReplaceToBiomeName biome. Please update your biome configs.");
-        			throw new RuntimeException("ReplaceToBiomeName: " + biomeConfig.replaceToBiomeName + " for biome " + biomeConfig.getName() + " could not be found. Please note that it is not possible to ReplaceToBiomeName to a ReplaceToBiomeName biome. Please update your biome configs.");
-        		}
-    		}
+			// Recursively fetch the saved ID from replacetobiomename, allowing chain replace
+			// The counter ensures it doesn't endlessly recurse
+			savedBiomeId = findSavedBiomeId(biomeConfig, otgIds2, 0);
+
         }
-               
+
         // Create biome
         LocalBiome biome = world.createBiomeFor(biomeConfig, new BiomeIds(otgBiomeId, savedBiomeId), this, isReload);
         
@@ -798,8 +758,64 @@ public final class ServerConfigProvider implements ConfigProvider
             int color = biomeConfig.biomeColor;
             this.worldConfig.biomeColorMap.put(color, biome.getIds().getOTGBiomeId());
         }
-    }   
-    
+    }
+
+	/** Recursive method to get saved ID from ReplaceToBiomeName, allows chain replacing to virtual biomes.
+	 *
+	 * @param biomeConfig The biomeconfig we want to find the saved ID for
+	 * @param configArray An array of all the biome configs
+	 * @param counter Simple recursion counter to make sure it doesn't endlessly recurse
+	 * @return The saved ID of a registered biome
+	 */
+	private int findSavedBiomeId(BiomeConfig biomeConfig, BiomeConfig[] configArray, int counter) {
+    	if (counter > 100) {
+    		OTG.log(LogMarker.FATAL, "Failed to replace, recursion went deeper than 100 layers. Did you create a replace loop at "+biomeConfig.replaceToBiomeName+"?");
+    		throw new RuntimeException("Failed to replace, recursion went deeper than 100 layers. Did you create a replace loop at "+biomeConfig.replaceToBiomeName+"?");
+		}
+
+    	// If replace is resource location, don't need to search any longer
+		// This should mean it's a vanilla or modded biome
+		if (biomeConfig.replaceToBiomeName.contains(":"))
+		{
+			return getRequestedSavedId(biomeConfig.replaceToBiomeName);
+		}
+
+		// Find next biomeconfig from the array
+		BiomeConfig nextConfig = null;
+		for (BiomeConfig b : configArray)
+		{
+			if (b == null) continue;
+			if (b.getName().equalsIgnoreCase(biomeConfig.replaceToBiomeName)) {
+				nextConfig = b;
+				break;
+			}
+		}
+		// When it fails to find a config, it either doesn't exist, or it's a legacy world with the old notation for default biomes.
+		if (nextConfig == null)
+		{
+			// This may be a legacy world that doesn't use resourcelocation notation, get the correct registry name
+			String defaultBiome = BiomeRegistryNames.getRegistryNameForDefaultBiome(biomeConfig.replaceToBiomeName);
+			if (defaultBiome != null)
+			{
+				return getRequestedSavedId(defaultBiome);
+			}
+			// Once we get here, the config doesn't exist
+			// Try one last time, if that doesn't work, we throw an error
+			int id = getRequestedSavedId(biomeConfig.replaceToBiomeName);
+			if (0 <= id && id <= 255) {
+				// It has a valid ID, let's just return that
+				return id;
+			}
+			OTG.log(LogMarker.FATAL, "Could not find replacing biome '" + biomeConfig.replaceToBiomeName + "' for biome '" + biomeConfig.getName()+"'");
+			throw new RuntimeException("Could not find replacing biome '" + biomeConfig.replaceToBiomeName + "' for biome '" + biomeConfig.getName()+"'");
+		}
+		// If this biome is a generation biome, return its ID. Else, continue the recursion.
+		if (nextConfig.replaceToBiomeName.isEmpty()) {
+			return getRequestedSavedId(nextConfig.getName());
+		}
+		return findSavedBiomeId(nextConfig, configArray, counter+1);
+	}
+
 	@Override
 	public List<LocalBiome> getBiomeArrayLegacy()
 	{        
