@@ -701,7 +701,18 @@ public class OTGTeleporter
                                         int k5 = l2 + (k4 - 1) * i4 - j4 * l3;
                                         blockpos$mutableblockpos.setPos(i5, j5, k5);
 
-                                        if (l4 < 0 && !destinationWorld.getBlockState(blockpos$mutableblockpos).getMaterial().isSolid() || l4 >= 0 && !destinationWorld.isAirBlock(blockpos$mutableblockpos))
+                                        if (
+                                    		(
+                                				l4 < 0 &&
+                                				(
+                            						!destinationWorld.getBlockState(blockpos$mutableblockpos).getMaterial().isSolid() &&
+                            						!destinationWorld.getBlockState(blockpos$mutableblockpos).getMaterial().isLiquid()
+                                				)
+                            				) || (
+                        						l4 >= 0 && 
+                        						!destinationWorld.isAirBlock(blockpos$mutableblockpos)
+                                    		)
+                                		)
                                         {
                                             continue label146;
                                         }
@@ -760,7 +771,18 @@ public class OTGTeleporter
                                         int j13 = j6 + (j10 - 1) * j9;
                                         blockpos$mutableblockpos.setPos(j12, i13, j13);
 
-                                        if (j11 < 0 && !destinationWorld.getBlockState(blockpos$mutableblockpos).getMaterial().isSolid() || j11 >= 0 && !destinationWorld.isAirBlock(blockpos$mutableblockpos))
+                                        if (
+                                        	(
+                                    			j11 < 0 && 
+                                    			(
+                                					!destinationWorld.getBlockState(blockpos$mutableblockpos).getMaterial().isSolid() &&
+                                					!destinationWorld.getBlockState(blockpos$mutableblockpos).getMaterial().isLiquid()
+                                    			)
+                                    		) || (
+                                				j11 >= 0 && 
+                                				!destinationWorld.isAirBlock(blockpos$mutableblockpos)
+                                    		)
+                                		)
                                         {
                                             continue label567;
                                         }
