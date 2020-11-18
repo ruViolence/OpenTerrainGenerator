@@ -48,6 +48,7 @@ public class DimensionConfig extends DimensionConfigBase
 		clone.BonusChest = this.BonusChest;
 		clone.GameType = this.GameType;
 		clone.LowestSupportedModPackConfigVersion = this.LowestSupportedModPackConfigVersion;
+		clone.RemoveOnUpdate = this.RemoveOnUpdate;
 		
 		clone.Settings = this.Settings.clone();
 		clone.GameRules = this.GameRules.clone();
