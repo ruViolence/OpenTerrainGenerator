@@ -267,6 +267,7 @@ public class DimensionsConfig
 						{
 	   						if(dimConfig.PresetName.equals(modPackDimConfig.PresetName))
 	   						{
+	   							boolean deleteDim = false;
 	   							if(worldSaveDir != null)
 	   							{
 		   							// Delete existing dimension on modpack config update if the new modpack 
@@ -277,28 +278,32 @@ public class DimensionsConfig
 		   								if(currentVersion < modPackDimConfig.LowestSupportedModPackConfigVersion)
 		   								{
 		   									DimensionData.deleteDimSavedData(worldSaveDir, dimConfig);
+		   									deleteDim = modPackDimConfig.RemoveOnUpdate;
 			   							}
 		   							}
 	   							}
 	   							
 	   							bFound = true;
 	   							dimsConfig.Dimensions.remove(dimConfig);
-	   							seed = dimConfig.Seed;
-	   							gameType = dimConfig.GameType;
-	   							bonusChest = dimConfig.BonusChest;
-	   							allowCheats = dimConfig.AllowCheats;	   							
-	   							dimId = dimConfig.DimensionId;
-	   							pregenerationRadius = dimConfig.PregeneratorRadiusInChunks;
-	   							worldBorderRadius = dimConfig.WorldBorderRadiusInChunks;
-	   							modPackDimConfigClone = modPackDimConfig.clone();
-	   							modPackDimConfigClone.Seed = seed;
-	   							modPackDimConfigClone.GameType = gameType;
-	   							modPackDimConfigClone.BonusChest = bonusChest;
-	   							modPackDimConfigClone.AllowCheats = allowCheats;
-	   							modPackDimConfigClone.DimensionId = dimId;
-	   							modPackDimConfigClone.PregeneratorRadiusInChunks = pregenerationRadius;
-	   							modPackDimConfigClone.WorldBorderRadiusInChunks = worldBorderRadius;	
-	   							dimsConfig.Dimensions.add(modPackDimConfigClone);
+	   							if(!deleteDim)
+	   							{
+		   							seed = dimConfig.Seed;
+		   							gameType = dimConfig.GameType;
+		   							bonusChest = dimConfig.BonusChest;
+		   							allowCheats = dimConfig.AllowCheats;	   							
+		   							dimId = dimConfig.DimensionId;
+		   							pregenerationRadius = dimConfig.PregeneratorRadiusInChunks;
+		   							worldBorderRadius = dimConfig.WorldBorderRadiusInChunks;
+		   							modPackDimConfigClone = modPackDimConfig.clone();
+		   							modPackDimConfigClone.Seed = seed;
+		   							modPackDimConfigClone.GameType = gameType;
+		   							modPackDimConfigClone.BonusChest = bonusChest;
+		   							modPackDimConfigClone.AllowCheats = allowCheats;
+		   							modPackDimConfigClone.DimensionId = dimId;
+		   							modPackDimConfigClone.PregeneratorRadiusInChunks = pregenerationRadius;
+		   							modPackDimConfigClone.WorldBorderRadiusInChunks = worldBorderRadius;
+		   							dimsConfig.Dimensions.add(modPackDimConfigClone);
+	   							}
 	   						}
 						}
 						if(!bFound)

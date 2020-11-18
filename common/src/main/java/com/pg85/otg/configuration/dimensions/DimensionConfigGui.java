@@ -49,6 +49,7 @@ public class DimensionConfigGui extends DimensionConfigBase
 		clone.WorldBorderRadiusInChunks = this.WorldBorderRadiusInChunks;
 		clone.PregeneratorRadiusInChunks = this.PregeneratorRadiusInChunks;
 		clone.LowestSupportedModPackConfigVersion = this.LowestSupportedModPackConfigVersion;
+		clone.RemoveOnUpdate = this.RemoveOnUpdate;
 		
 		clone.Settings = this.Settings.clone();
 		clone.GameRules = this.GameRules.clone();
