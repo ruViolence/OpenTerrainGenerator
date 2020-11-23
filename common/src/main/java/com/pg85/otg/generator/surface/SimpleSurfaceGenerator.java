@@ -55,7 +55,7 @@ public class SimpleSurfaceGenerator implements SurfaceGenerator
         boolean useLayerSurfaceBlockForSurface = true;
         boolean useBiomeStoneBlockForGround = false;
         boolean useLayerGroundBlockForGround = true;
-        boolean useSandStoneForGround = true;
+        boolean useSandStoneForGround = false;
         boolean biomeGroundBlockIsSand = biomeConfig.getDefaultGroundBlock().isMaterial(DefaultMaterial.SAND);
         boolean layerGroundBlockIsSand = layer != null && layer.groundBlock.isMaterial(DefaultMaterial.SAND);
         final int currentWaterLevel = generatingChunk.getWaterLevel(x, z);

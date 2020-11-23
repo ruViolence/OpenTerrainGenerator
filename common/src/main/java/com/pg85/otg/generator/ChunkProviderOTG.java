@@ -145,7 +145,7 @@ public class ChunkProviderOTG
     private boolean generateTerrainA(int x, int z, ChunkBuffer chunkBuffer)
     {
         int[] biomeArray = null;
-        byte[] waterLevel = new byte[CHUNK_SIZE * CHUNK_SIZE];;
+        byte[] waterLevel = new byte[CHUNK_SIZE * CHUNK_SIZE];
     	
         ChunkCoordinate chunkCoord = chunkBuffer.getChunkCoordinate();
         int chunkX = chunkCoord.getChunkX();
