@@ -6,7 +6,6 @@ import com.pg85.otg.configuration.standard.PluginStandardValues;
 import com.pg85.otg.exception.InvalidConfigException;
 import com.pg85.otg.util.helpers.StringHelper;
 import com.pg85.otg.util.materials.MaterialHelper;
-import com.pg85.otg.util.minecraft.defaults.DefaultMaterial;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,8 +65,7 @@ public class ReplacedBlocksMatrix
             {
                 minHeight = StringHelper.readInt(values[2], 0, maxAllowedY);
                 maxHeight = StringHelper.readInt(values[3], minHeight, maxAllowedY);
-            } else
-            {
+            } else {
                 minHeight = 0;
                 maxHeight = maxAllowedY;
             }
