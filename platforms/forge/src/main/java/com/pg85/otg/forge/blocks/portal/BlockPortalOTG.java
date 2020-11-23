@@ -134,7 +134,8 @@ public class BlockPortalOTG extends BlockBreakableBase
         
     	ResourceLocation entityType = dimConfig == null ? new ResourceLocation("zombie_pigman") : new ResourceLocation(dimConfig.Settings.PortalMobType);
 
-        if (worldIn.provider.isSurfaceWorld() && worldIn.getGameRules().getBoolean("doMobSpawning") && rand.nextInt(dimConfig == null ? 2000 : dimConfig.Settings.PortalMobSpawnChance) < worldIn.getDifficulty().getId())
+	    int spawnChance = (dimConfig == null ? 2000 : dimConfig.Settings.PortalMobSpawnChance);
+        if (worldIn.provider.isSurfaceWorld() && worldIn.getGameRules().getBoolean("doMobSpawning") && spawnChance > 0 && rand.nextInt(spawnChance) < worldIn.getDifficulty().getId())
         {
             int i = pos.getY();
             BlockPos blockpos;
