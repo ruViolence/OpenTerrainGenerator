@@ -74,6 +74,7 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.commons.lang3.RandomUtils;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -1490,7 +1491,10 @@ public class ForgeWorld implements LocalWorld
             {
                 // Rotate with the BO3
                 NBTTagList list = nbttagcompound.getTagList("Rotation", 5);
-                list.set(0, new NBTTagFloat((list.getFloatAt(0)+ ((2 - entityData.rotation) % 4)*90) % 360));
+                float f = list.getFloatAt(0);
+                // If rotation is set to "1", it rotates randomly. Basically only useful for noAI and armorstands.
+                if (f == 1) f += RandomUtils.nextInt(0, 350);
+                list.set(0, new NBTTagFloat((f + ((2 - entityData.rotation) % 4)*90) % 360));
             }
 
             // Spawn entity, with potential passengers

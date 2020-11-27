@@ -96,7 +96,7 @@ public class LiquidGen extends Resource
         }
 
         worldMaterial = world.getMaterial(x, y, z, chunkBeingPopulated);
-        if (worldMaterial == null || !worldMaterial.isAir() || !sourceBlocks.contains(worldMaterial))
+        if (worldMaterial == null || (!worldMaterial.isAir() && !sourceBlocks.contains(worldMaterial)))
         {
             return;
         }
