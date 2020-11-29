@@ -232,6 +232,15 @@ public class BO4 implements StructuredCustomObject
     	}
     	biomeConfig = biome.getBiomeConfig();
 
+    	// See if replaceBelow matches the replacing blocks
+		boolean followGround = false, followStone = false, followSurface = false;
+		if (replaceBelowMaterial != null)
+		{
+			if (replaceBelowMaterial.equals(bo3GroundBlock)) followGround = true;
+			else if (replaceBelowMaterial.equals(bo3StoneBlock)) followStone = true;
+			else if (replaceBelowMaterial.equals(bo3SurfaceBlock)) followSurface = true;
+		}
+
     	// Get the right coordinates based on rotation
 
     	ArrayList<Object[]> coordsAboveDone = new ArrayList<Object[]>();
@@ -426,10 +435,19 @@ public class BO4 implements StructuredCustomObject
 		                					destChunk = ChunkCoordinate.fromBlockCoords(blockToQueueForSpawn.x, blockToQueueForSpawn.z);
 		                					if(chunkCoord.equals(destChunk))
 		                					{
-						                        // Apply sagc'd biome blocks
+												// Apply sagc'd biome blocks, or replaced stone block, or replaced replaceBelowMaterial
 				                				if(replaceWithBiomeBlocks)
 				                				{
-				                					blockToQueueForSpawn.material = biomeConfig.surfaceAndGroundControl.getGroundBlockAtHeight(world, biomeConfig, blockToQueueForSpawn.x, blockToQueueForSpawn.y, blockToQueueForSpawn.z);			                					
+				                					if (followGround)
+				                						blockToQueueForSpawn.material = biomeConfig.surfaceAndGroundControl.getGroundBlockAtHeight
+																(world, biomeConfig, blockToQueueForSpawn.x, blockToQueueForSpawn.y, blockToQueueForSpawn.z);
+				                					else if (followStone)
+				                						blockToQueueForSpawn.material = biomeConfig.getStoneBlockReplaced(world, y);
+				                					else if (followSurface)
+				                						blockToQueueForSpawn.material = biomeConfig.surfaceAndGroundControl.getSurfaceBlockAtHeight
+																(world, biomeConfig, blockToQueueForSpawn.x, blockToQueueForSpawn.y, blockToQueueForSpawn.z);
+				                					else
+														blockToQueueForSpawn.material = doBiomeConfigReplaceBlocks ? replaceBelowMaterial.parseWithBiomeAndHeight(world, biomeConfig, blockToQueueForSpawn.y) : replaceBelowMaterial;
 				                				} else {
 				                					blockToQueueForSpawn.material = doBiomeConfigReplaceBlocks ? replaceBelowMaterial.parseWithBiomeAndHeight(world, biomeConfig, blockToQueueForSpawn.y) : replaceBelowMaterial;
 						                            if(blockToQueueForSpawn.material == null)
@@ -617,10 +635,19 @@ public class BO4 implements StructuredCustomObject
 		                					destChunk = ChunkCoordinate.fromBlockCoords(blockToQueueForSpawn.x, blockToQueueForSpawn.z);
 		                					if(chunkCoord.equals(destChunk))
 		                					{
-						                        // Apply sagc'd biome blocks
+						                        // Apply sagc'd biome blocks, or replaced stone block, or replaced replaceBelowMaterial
 				                				if(replaceWithBiomeBlocks)
 				                				{
-				                					blockToQueueForSpawn.material = biomeConfig.surfaceAndGroundControl.getGroundBlockAtHeight(world, biomeConfig, blockToQueueForSpawn.x, blockToQueueForSpawn.y, blockToQueueForSpawn.z);		                					
+													if (followGround)
+														blockToQueueForSpawn.material = biomeConfig.surfaceAndGroundControl.getGroundBlockAtHeight
+																(world, biomeConfig, blockToQueueForSpawn.x, blockToQueueForSpawn.y, blockToQueueForSpawn.z);
+													else if (followStone)
+														blockToQueueForSpawn.material = biomeConfig.getStoneBlockReplaced(world, y);
+													else if (followSurface)
+														blockToQueueForSpawn.material = biomeConfig.surfaceAndGroundControl.getSurfaceBlockAtHeight
+																(world, biomeConfig, blockToQueueForSpawn.x, blockToQueueForSpawn.y, blockToQueueForSpawn.z);
+													else
+														blockToQueueForSpawn.material = doBiomeConfigReplaceBlocks ? replaceBelowMaterial.parseWithBiomeAndHeight(world, biomeConfig, blockToQueueForSpawn.y) : replaceBelowMaterial;
 				                				} else {
 				                					blockToQueueForSpawn.material = doBiomeConfigReplaceBlocks ? replaceBelowMaterial.parseWithBiomeAndHeight(world, biomeConfig, blockToQueueForSpawn.y) : replaceBelowMaterial;
 						                            if(blockToQueueForSpawn.material == null)

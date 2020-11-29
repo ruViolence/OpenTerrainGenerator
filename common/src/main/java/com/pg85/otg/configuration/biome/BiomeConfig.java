@@ -820,6 +820,7 @@ public class BiomeConfig extends ConfigFile
             "Well(BaseBlockName,HalfSlabBlockName,WaterBlockName,Frequency,Rarity,MinAltitude,MaxAltitude,BlockSource[,BlockSource2,..])",
             "Boulder(BlockName,Frequency,Rarity,MinAltitude,MaxAltitude,BlockSource[,BlockSource2,..]",
             "IceSpike(BlockName,IceSpikeType,Frequency,Rarity,MinAltitude,MaxAltitude,Blocksource[,BlockSource2,...])",
+            "Fossil(Rarity)",
             "",
             "BlockName:      must be the name of a block. May include block data, like \"WOOL:1\".",
             "BlockSource:    list of blocks the resource can spawn on/in. You can also use \"Solid\" or \"All\".",
