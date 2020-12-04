@@ -79,7 +79,6 @@ public class LayerMixWithRiver extends Layer
         int currentPiece;
         int currentRiver;
         int cachedId;
-        LocalBiome biome;
         for (int zi = 0; zi < zSize; zi++)
         {
             for (int xi = 0; xi < xSize; xi++)
@@ -103,10 +102,8 @@ public class LayerMixWithRiver extends Layer
                 } else {
                     cachedId = this.defaultOceanId;
                 }
-
-                biome = this.configs.getBiomeByOTGIdOrNull(cachedId);
                 
-                if (worldConfig.riversEnabled && (currentRiver & RiverBits) != 0 && !biome.getBiomeConfig().riverBiome.isEmpty())
+                if (worldConfig.riversEnabled && (currentRiver & RiverBits) != 0 && !this.configs.getBiomeByOTGIdOrNull(cachedId).getBiomeConfig().riverBiome.isEmpty())
                 {
                 	currentPiece = this.riverBiomes[cachedId];
                 } else {

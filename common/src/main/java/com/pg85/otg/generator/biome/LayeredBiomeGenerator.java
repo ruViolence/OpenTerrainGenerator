@@ -82,7 +82,6 @@ public abstract class LayeredBiomeGenerator extends BiomeGenerator
     @Override
     public boolean canGenerateUnZoomed()
     {
-        return true;
+    	return true;
     }
-
 }
