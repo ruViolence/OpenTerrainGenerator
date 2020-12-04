@@ -36,6 +36,14 @@ dependencies
     compile 'org.apache.logging.log4j:log4j-core:2.0-beta9'
 }
 
+compileJava {
+    sourceCompatibility = 11
+    targetCompatibility = 11
+    options.warnings = false
+    options.deprecation = false
+    options.compilerArgs += ["--add-exports=jdk.unsupported/sun.misc.Unsafe=ALL-UNNAMED"]
+}
+
 // Replace text in plugin.yml
 processResources
 {
