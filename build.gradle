@@ -9,7 +9,7 @@ allprojects
     group = "com.pg85.otg"
 
     // Version of the shadow plugin
-    ext.shadowVersion = '1.2.4'
+    ext.shadowVersion = '6.1.0'
 }
 
 // Information for all subprojects

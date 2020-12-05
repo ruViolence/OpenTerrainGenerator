@@ -73,3 +73,6 @@ Thumbs.db
 .DS_Store
 *.lock
 *.launch
+
+#IDE files
+.vscode
