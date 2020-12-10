@@ -98,6 +98,10 @@ public class SmoothingAreaColumn
 				OTG.log(LogMarker.WARN, "SmoothingSurfaceBlock: " + bo4Config.smoothingSurfaceBlock + " could not be parsed as a material for BO4 " + bo4Config.getName());
 			}
 		}
+		if(smoothingSurfaceBlock == null)
+		{
+			smoothingSurfaceBlock = biomeConfig.getDefaultSurfaceBlock();
+		}		
 		try {
 			smoothingGroundBlock = MaterialHelper.readMaterial(bo4Config.smoothingGroundBlock);
 		} catch (InvalidConfigException e) {
@@ -106,6 +110,11 @@ public class SmoothingAreaColumn
 				OTG.log(LogMarker.WARN, "SmoothingGroundBlock: " + bo4Config.smoothingGroundBlock + " could not be parsed as a material for BO4 " + bo4Config.getName());
 			}
 		}
+		if(smoothingGroundBlock == null)
+		{
+			smoothingGroundBlock = biomeConfig.getDefaultGroundBlock();
+		}
+		
 		boolean needsReplaceBlocks;
 		LocalMaterialData surfaceBlock;
 		LocalMaterialData groundBlock;
