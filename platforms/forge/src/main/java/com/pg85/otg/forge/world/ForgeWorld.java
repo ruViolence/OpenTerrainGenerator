@@ -378,7 +378,7 @@ public class ForgeWorld implements LocalWorld
 	// Only used for fog
 	public Biome getBiomeFromChunk(int blockX, int blockZ)
 	{
-		if(this.getWorld().isBlockLoaded(new BlockPos(blockX,255,blockZ)))
+		if(this.getWorld() != null && this.getWorld().isBlockLoaded(new BlockPos(blockX,255,blockZ)))
 		{
 			Chunk chunk = this.getWorld().getChunk(new BlockPos(blockX, 0, blockZ));
 			if(chunk != null && !(chunk instanceof EmptyChunk))
