@@ -335,7 +335,7 @@ public class MesaSurfaceGenerator implements SurfaceGenerator
 
             if (y < (int) bryceHeight && worldMaterial.isAir())
             {
-				chunkBuffer.setBlock(x, y, z, getBand(biomeConfig, x, y, z));
+				chunkBuffer.setBlock(x, y, z, getBand(world, biomeConfig, x, y, z));
             }
 
             if (generatingChunk.mustCreateBedrockAt(biomeConfig.worldConfig, y))
