@@ -71,8 +71,10 @@ import net.minecraft.world.gen.structure.StructureOceanMonument;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraft.world.gen.structure.template.TemplateManager;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.commons.lang3.RandomUtils;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -376,7 +378,7 @@ public class ForgeWorld implements LocalWorld
 	// Only used for fog
 	public Biome getBiomeFromChunk(int blockX, int blockZ)
 	{
-		if(this.getWorld().isBlockLoaded(new BlockPos(blockX,255,blockZ)))
+		if(this.getWorld() != null && this.getWorld().isBlockLoaded(new BlockPos(blockX,255,blockZ)))
 		{
 			Chunk chunk = this.getWorld().getChunk(new BlockPos(blockX, 0, blockZ));
 			if(chunk != null && !(chunk instanceof EmptyChunk))
@@ -1041,7 +1043,7 @@ public class ForgeWorld implements LocalWorld
         // Allow OTG structures to spawn on top of strongholds
         // Allow OTG structures to spawn on top of mine shafts
         // isInsideStructure only detects structures that have structure starts saved to world, using custom method ><.
-        return         		
+        return
     		(worldConfig.villagesEnabled && isStructureInRadius(chunkCoord, this.villageGen, 4)) || // TODO: Extra large villages aren't working?
     		(worldConfig.rareBuildingsEnabled && isStructureInRadius(chunkCoord, this.rareBuildingGen, 4)) ||
     		(worldConfig.netherFortressesEnabled && isStructureInRadius(chunkCoord, this.netherFortressGen, 4)) ||
@@ -1050,11 +1052,38 @@ public class ForgeWorld implements LocalWorld
 		;
 	}
 	
-	static Method canSpawnStructureAtCoordsMethod = ObfuscationReflectionHelper.findMethod(MapGenStructure.class, "func_75047_a", boolean.class, int.class, int.class);
+	
+	private static boolean inited = false;
+	private static Method canSpawnStructureAtCoordsMethodObf = null;
+	private static Method canSpawnStructureAtCoordsMethodDeObf = null;
     public boolean isStructureInRadius(ChunkCoordinate startChunk, MapGenStructure structure, int radiusInChunks)
-    {    	
+    {
+    	if(!inited)
+    	{   
+    		inited = true;
+    		try
+    		{
+    			canSpawnStructureAtCoordsMethodObf = ObfuscationReflectionHelper.findMethod(MapGenStructure.class, "func_75047_a", boolean.class, int.class, int.class);
+    		} catch(UnableToFindMethodException ex) { }
+    		try
+    		{
+    			canSpawnStructureAtCoordsMethodDeObf = ObfuscationReflectionHelper.findMethod(MapGenStructure.class, "canSpawnStructureAtCoords", boolean.class, int.class, int.class);
+    		} catch(UnableToFindMethodException ex) { }
+    		
+        	if(canSpawnStructureAtCoordsMethodObf == null && canSpawnStructureAtCoordsMethodDeObf == null)
+        	{
+    			OTG.log(LogMarker.ERROR, "Error, could not reflect MapGenStructure.canSpawnStructureAtCoords, BO4's may not be able to detect default/modded structures. OTG may not fully support your Forge version or modded structures.");
+    			return false;
+        	}
+    	}
+    	
+    	if(canSpawnStructureAtCoordsMethodObf == null && canSpawnStructureAtCoordsMethodDeObf == null)
+    	{
+			return false;
+    	}
+    	
         int chunkX = startChunk.getChunkX();
-        int chunkZ = startChunk.getChunkZ();        
+        int chunkZ = startChunk.getChunkZ();
         for (int cycle = 0; cycle <= radiusInChunks; ++cycle)
         {
             for (int xRadius = -cycle; xRadius <= cycle; ++xRadius)
@@ -1065,19 +1094,37 @@ public class ForgeWorld implements LocalWorld
                     if (distance == cycle)
                     {
                     	boolean canSpawnStructureAtCoords = false;
+						
+                    	try
+						{
+							if(canSpawnStructureAtCoordsMethodObf != null)
+							{
+								canSpawnStructureAtCoords = (boolean) canSpawnStructureAtCoordsMethodObf.invoke(structure, chunkX + xRadius, chunkZ + zRadius);
+		                    	if(canSpawnStructureAtCoords)
+		                    	{
+		                    		return true;
+		                    	}
+		                    	continue;
+							}
+						}
+						catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) { }
+						
 						try
 						{
-							canSpawnStructureAtCoords = (boolean) canSpawnStructureAtCoordsMethod.invoke(structure, chunkX + xRadius, chunkZ + zRadius);
+							if(canSpawnStructureAtCoordsMethodDeObf != null)
+							{
+								canSpawnStructureAtCoords = (boolean) canSpawnStructureAtCoordsMethodDeObf.invoke(structure, chunkX + xRadius, chunkZ + zRadius);
+		                    	if(canSpawnStructureAtCoords)
+		                    	{
+		                    		return true;
+		                    	}
+							}
 						}
 						catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 						{
-							OTG.log(LogMarker.ERROR, "Error, could not reflect canSpawnStructureAtCoords, BO4's may not be able to detect default/modded structures. OTG may not fully support your Forge version.");
-							e.printStackTrace();
+							OTG.log(LogMarker.ERROR, "Error, could not reflect MapGenStructure.canSpawnStructureAtCoords, BO4's may not be able to detect default/modded structures. OTG may not fully support your Forge version or modded structures.");
+							return false;
 						}
-                    	if(canSpawnStructureAtCoords)
-                    	{
-                    		return true;
-                    	}
                     }
                 }
             }
@@ -1444,7 +1491,10 @@ public class ForgeWorld implements LocalWorld
             {
                 // Rotate with the BO3
                 NBTTagList list = nbttagcompound.getTagList("Rotation", 5);
-                list.set(0, new NBTTagFloat((list.getFloatAt(0)+ ((2 - entityData.rotation) % 4)*90) % 360));
+                float f = list.getFloatAt(0);
+                // If rotation is set to "1", it rotates randomly. Basically only useful for noAI and armorstands.
+                if (f == 1) f += RandomUtils.nextInt(0, 350);
+                list.set(0, new NBTTagFloat((f + ((2 - entityData.rotation) % 4)*90) % 360));
             }
 
             // Spawn entity, with potential passengers

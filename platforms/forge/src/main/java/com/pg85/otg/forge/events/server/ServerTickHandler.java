@@ -48,6 +48,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.DerivedWorldInfo;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
@@ -780,7 +781,7 @@ public class ServerTickHandler
 		{
 			if(player.getPosition().getY() < dimConfig.Settings.DimensionBelowHeight)
 			{
-				ForgeWorld destinationWorld;
+				World destinationWorld = null;
 				// TODO: NullPointerException here, only happens sometimes when adding a dim with dimensionbelow that doesnt exist,
 				// then teleporting to the dim after having just created it, then falling down and trying to load the dim below.
 				// May be some race condition where the dimconfig isnt loaded yet?
@@ -794,25 +795,29 @@ public class ServerTickHandler
 					)
 				)
 				{
-					destinationWorld = (ForgeWorld)((ForgeEngine)OTG.getEngine()).getOverWorld();
+					destinationWorld = DimensionManager.getWorld(0);
 				} else {
-					destinationWorld = (ForgeWorld)((ForgeEngine)OTG.getEngine()).getWorld(dimConfig.Settings.DimensionBelow);
-					if(destinationWorld == null)
+					ForgeWorld destinationForgeWorld = (ForgeWorld)((ForgeEngine)OTG.getEngine()).getWorld(dimConfig.Settings.DimensionBelow);
+					if(destinationForgeWorld == null)
 					{
-						destinationWorld = (ForgeWorld)((ForgeEngine)OTG.getEngine()).getUnloadedWorld(dimConfig.Settings.DimensionBelow);
+						destinationForgeWorld = (ForgeWorld)((ForgeEngine)OTG.getEngine()).getUnloadedWorld(dimConfig.Settings.DimensionBelow);
+					}
+					if(destinationForgeWorld != null)
+					{
+						destinationWorld = destinationForgeWorld.getWorld();
 					}
 				}
 
 				if(destinationWorld != null) // Dimension does not exist
 				{
-					if(destinationWorld == playerWorld)
+					if(destinationWorld == playerWorld.getWorld())
 					{
 						// TODO:  Make this prettier.
 						player.world.setBlockToAir(new BlockPos(player.getPosition().getX(), 254, player.getPosition().getZ()));
 						player.world.setBlockToAir(new BlockPos(player.getPosition().getX(), 255, player.getPosition().getZ()));
 						player.setPositionAndUpdate(player.getPosition().getX(), 254, player.getPosition().getZ());
 					} else {
-						teleportPlayerToDimension(playerWorld.getWorld().provider.getDimension(), destinationWorld.getWorld().provider.getDimension(), player);
+						teleportPlayerToDimension(destinationWorld.provider.getDimension(), destinationWorld.provider.getDimension(), player);
 						return;
 					}
 				}
@@ -824,7 +829,8 @@ public class ServerTickHandler
 		{
 			if(player.getPosition().getY() > dimConfig.Settings.DimensionAboveHeight)
 			{
-				ForgeWorld destinationWorld;
+				ForgeWorld destinationForgeWorld;
+				World destinationWorld = null;
 				if(
 					(
 						OTG.getDimensionsConfig().Overworld.PresetName == null && 
@@ -835,18 +841,22 @@ public class ServerTickHandler
 					)
 				)
 				{
-					destinationWorld = (ForgeWorld)((ForgeEngine)OTG.getEngine()).getOverWorld();
+					destinationWorld = DimensionManager.getWorld(0);
 				} else {
-					destinationWorld = (ForgeWorld)((ForgeEngine)OTG.getEngine()).getWorld(dimConfig.Settings.DimensionAbove);
-					if(destinationWorld == null)
+					destinationForgeWorld = (ForgeWorld)((ForgeEngine)OTG.getEngine()).getWorld(dimConfig.Settings.DimensionAbove);
+					if(destinationForgeWorld == null)
 					{
-						destinationWorld = (ForgeWorld)((ForgeEngine)OTG.getEngine()).getUnloadedWorld(dimConfig.Settings.DimensionAbove);
+						destinationForgeWorld = (ForgeWorld)((ForgeEngine)OTG.getEngine()).getUnloadedWorld(dimConfig.Settings.DimensionAbove);
+					}
+					if(destinationForgeWorld != null)
+					{
+						destinationWorld = destinationForgeWorld.getWorld();
 					}
 				}
 
 				if(destinationWorld != null) // Dimension does not exist
 				{
-					if(destinationWorld == playerWorld)
+					if(destinationWorld == playerWorld.getWorld())
 					{
 						// TODO:  Make this prettier.
 						player.world.setBlockToAir(new BlockPos(player.getPosition().getX(), 1, player.getPosition().getZ()));
@@ -858,7 +868,7 @@ public class ServerTickHandler
 						player.world.setBlockToAir(new BlockPos(player.getPosition().getX() + 1, 2, player.getPosition().getZ()));
 						player.world.setBlockToAir(new BlockPos(player.getPosition().getX() + 1, 0, player.getPosition().getZ()));						
 					} else {
-						teleportPlayerToDimension(playerWorld.getWorld().provider.getDimension(), destinationWorld.getWorld().provider.getDimension(), player);
+						teleportPlayerToDimension(destinationWorld.provider.getDimension(), destinationWorld.provider.getDimension(), player);
 					}					
 				}
 			}

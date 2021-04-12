@@ -55,7 +55,7 @@ public class SimpleSurfaceGenerator implements SurfaceGenerator
         boolean useLayerSurfaceBlockForSurface = true;
         boolean useBiomeStoneBlockForGround = false;
         boolean useLayerGroundBlockForGround = true;
-        boolean useSandStoneForGround = true;
+        boolean useSandStoneForGround = false;
         boolean biomeGroundBlockIsSand = biomeConfig.getDefaultGroundBlock().isMaterial(DefaultMaterial.SAND);
         boolean layerGroundBlockIsSand = layer != null && layer.groundBlock.isMaterial(DefaultMaterial.SAND);
         final int currentWaterLevel = generatingChunk.getWaterLevel(x, z);
@@ -187,35 +187,40 @@ public class SimpleSurfaceGenerator implements SurfaceGenerator
                         	continue;
                         }
                         else if(useLayerGroundBlockForGround)
-                        {
-                        	chunkBuffer.setBlock(x, y, z, layer != null ? layer.getGroundBlockReplaced(world, biomeConfig, y) : biomeConfig.getGroundBlockReplaced(world, y));
+                        {                        	
+                        	if(useSandStoneForGround)
+                            {
+                            	chunkBuffer.setBlock(x, y, z,
+                					(layerGroundBlockIsSand ? layer.groundBlock : biomeConfig.getDefaultGroundBlock())
+                					.getBlockData() == 1 ? 
+    	    							biomeConfig.getRedSandStoneBlockReplaced(world, y) : 
+    									biomeConfig.getSandStoneBlockReplaced(world, y)
+                    			);
+                            } else {
+                            	chunkBuffer.setBlock(x, y, z, layer != null ? layer.getGroundBlockReplaced(world, biomeConfig, y) : biomeConfig.getGroundBlockReplaced(world, y));	
+                            }
                         	
-                            // When a ground layer of sand is done spawning, if the BiomeBlocksNoise is above 1 (?), <- In a desert every column should have sandstone?
-                        	// spawn layers of sandstone underneath. 
+                            // When a ground layer of sand is done spawning, if the BiomeBlocksNoise is above 1 
+                        	// spawn layers of sandstone underneath.
                         	// If we end up at (y >= currentWaterLevel - 4) && (y <= currentWaterLevel + 1)
                         	// after doing this, the groundblock is set back to sand and we repeat the process,
                         	// otherwise we stop and leave blocks as stone, until we're done or hit air.
+                        	
+                        	// BiomeBlocksNoise is used to create a pattern of sandstone vs stone columns.
+                        	// For waterlevel, the higher above it we are, the taller the sandstone sections become.
+                        	// For vanilla deserts, this makes the sand layer deeper around waterlevel, affecting
+                        	// mostly flat terrain, while hills have only a 1 block layer of sand and more sandstone.
+                        	
                             if (
                         		groundLayerDepth == 0 &&
                         		biomeBlocksNoise > 1 &&
                         		(layerGroundBlockIsSand || (layer == null && biomeGroundBlockIsSand))
                     		)
                             {
-                            	// The higher above waterlevel we are, the taller the sandstone sections become
-                            	// TODO: Why is waterlevel relevant here? Used as a base terrain height?
                                 groundLayerDepth = generatingChunk.random.nextInt(4) + Math.max(0, y - currentWaterLevel);
                                 useSandStoneForGround = true;
                             }
-                        }
-                        else if(useSandStoneForGround)
-                        {
-                        	chunkBuffer.setBlock(x, y, z,
-            					(layerGroundBlockIsSand ? layer.groundBlock : biomeConfig.getDefaultGroundBlock())
-            					.getBlockData() == 1 ? 
-	    							biomeConfig.getRedSandStoneBlockReplaced(world, y) : 
-									biomeConfig.getSandStoneBlockReplaced(world, y)
-                			);
-                        }
+                        } 
                     }
                 }
             }

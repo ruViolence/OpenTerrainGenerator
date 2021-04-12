@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import com.pg85.otg.configuration.standard.PluginStandardValues;
 import com.pg85.otg.configuration.standard.WorldStandardValues;
 import com.pg85.otg.configuration.world.WorldConfig;
 import com.pg85.otg.logging.LogMarker;
+import com.pg85.otg.worldsave.DimensionData;
 
 public class DimensionsConfig
 {	
@@ -194,16 +196,16 @@ public class DimensionsConfig
 			OTG.log(LogMarker.WARN, "Modpack Config " + file.getName() + " could not be read.");
 			e.printStackTrace();
 		}
-       	       	
+
        	if(presetsConfig != null)
        	{
-       		updateConfig(presetsConfig, otgRootFolder, isModPackConfig);
+       		updateConfig(presetsConfig, otgRootFolder, null, isModPackConfig);
        	}
        	
        	return presetsConfig;
 	}
 	
-	private static void updateConfig(DimensionsConfig dimsConfig, File otgRootFolder, boolean isModPackConfig)
+	private static void updateConfig(DimensionsConfig dimsConfig, File otgRootFolder, Path worldSaveDir, boolean isModPackConfig)
 	{
 		boolean doSave = false;
        	// Update the config if necessary
@@ -240,6 +242,7 @@ public class DimensionsConfig
 				if(modPackConfig.ModPackConfigName != null && modPackConfig.ModPackConfigVersion > dimsConfig.ModPackConfigVersion)
 				{
 					doSave = true;
+					int currentVersion = dimsConfig.ModPackConfigVersion;
 					dimsConfig.ModPackConfigName = modPackConfig.ModPackConfigName;
 					dimsConfig.ModPackConfigVersion = modPackConfig.ModPackConfigVersion;
 					String seed = dimsConfig.Overworld.Seed;
@@ -264,24 +267,43 @@ public class DimensionsConfig
 						{
 	   						if(dimConfig.PresetName.equals(modPackDimConfig.PresetName))
 	   						{
+	   							boolean deleteDim = false;
+	   							if(worldSaveDir != null)
+	   							{
+		   							// Delete existing dimension on modpack config update if the new modpack 
+		   							// config explicitly lists the current version as backwards incompatible.
+		   							// TODO: Do we really want to be handling this here? :/
+		   							if(modPackDimConfig.LowestSupportedModPackConfigVersion > 0)
+		   							{
+		   								if(currentVersion < modPackDimConfig.LowestSupportedModPackConfigVersion)
+		   								{
+		   									DimensionData.deleteDimSavedData(worldSaveDir, dimConfig);
+		   									deleteDim = modPackDimConfig.RemoveOnUpdate;
+			   							}
+		   							}
+	   							}
+	   							
 	   							bFound = true;
 	   							dimsConfig.Dimensions.remove(dimConfig);
-	   							seed = dimConfig.Seed;
-	   							gameType = dimConfig.GameType;
-	   							bonusChest = dimConfig.BonusChest;
-	   							allowCheats = dimConfig.AllowCheats;	   							
-	   							dimId = dimConfig.DimensionId;
-	   							pregenerationRadius = dimConfig.PregeneratorRadiusInChunks;
-	   							worldBorderRadius = dimConfig.WorldBorderRadiusInChunks;
-	   							modPackDimConfigClone = modPackDimConfig.clone();
-	   							modPackDimConfigClone.Seed = seed;
-	   							modPackDimConfigClone.GameType = gameType;
-	   							modPackDimConfigClone.BonusChest = bonusChest;
-	   							modPackDimConfigClone.AllowCheats = allowCheats;
-	   							modPackDimConfigClone.DimensionId = dimId;
-	   							modPackDimConfigClone.PregeneratorRadiusInChunks = pregenerationRadius;
-	   							modPackDimConfigClone.WorldBorderRadiusInChunks = worldBorderRadius;	
-	   							dimsConfig.Dimensions.add(modPackDimConfigClone);
+	   							if(!deleteDim)
+	   							{
+		   							seed = dimConfig.Seed;
+		   							gameType = dimConfig.GameType;
+		   							bonusChest = dimConfig.BonusChest;
+		   							allowCheats = dimConfig.AllowCheats;	   							
+		   							dimId = dimConfig.DimensionId;
+		   							pregenerationRadius = dimConfig.PregeneratorRadiusInChunks;
+		   							worldBorderRadius = dimConfig.WorldBorderRadiusInChunks;
+		   							modPackDimConfigClone = modPackDimConfig.clone();
+		   							modPackDimConfigClone.Seed = seed;
+		   							modPackDimConfigClone.GameType = gameType;
+		   							modPackDimConfigClone.BonusChest = bonusChest;
+		   							modPackDimConfigClone.AllowCheats = allowCheats;
+		   							modPackDimConfigClone.DimensionId = dimId;
+		   							modPackDimConfigClone.PregeneratorRadiusInChunks = pregenerationRadius;
+		   							modPackDimConfigClone.WorldBorderRadiusInChunks = worldBorderRadius;
+		   							dimsConfig.Dimensions.add(modPackDimConfigClone);
+	   							}
 	   						}
 						}
 						if(!bFound)
@@ -331,7 +353,7 @@ public class DimensionsConfig
 		       	presetsConfig.worldSavesDir = mcWorldSaveDir.getParentFile();
 		       	try
 		       	{
-			       	updateConfig(presetsConfig, otgRootFolder, false);
+			       	updateConfig(presetsConfig, otgRootFolder, mcWorldSaveDir.toPath(), false);
 					return presetsConfig;
 		       	}
 		       	catch(Exception ex)
@@ -359,7 +381,7 @@ public class DimensionsConfig
 		       	presetsConfig.worldSavesDir = mcWorldSaveDir.getParentFile();
 		       	try
 		       	{
-			       	updateConfig(presetsConfig, otgRootFolder, false);
+			       	updateConfig(presetsConfig, otgRootFolder, mcWorldSaveDir.toPath(), false);
 					return presetsConfig;
 		       	}
 		       	catch(Exception ex)
