@@ -7,6 +7,8 @@ import com.pg85.otg.OTG;
 import com.pg85.otg.forge.util.BO3Creator;
 import com.pg85.otg.forge.util.BO4Creator;
 import com.pg85.otg.forge.util.BOCreator;
+import com.pg85.otg.forge.world.ForgeWorld;
+import com.pg85.otg.logging.LogMarker;
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.forge.ForgeWorldEdit;
 import com.sk89q.worldedit.regions.Region;
@@ -111,6 +113,10 @@ public class ExportCommand extends BaseCommand
             }
         }
 
+        // Flush BO caches
+        OTG.log(LogMarker.INFO, "Unloading BO2/BO3/BO4 files");
+        OTG.getEngine().getCustomObjectManager().reloadCustomObjectFiles();
+        
         return true;
     }
 }

@@ -57,25 +57,22 @@ public class CustomObjectManager
 
         this.globalCustomObjects = new CustomObjectCollection();
                
-        if(!OTG.getPluginConfig().developerMode)
-        {
-	        new Thread() { 
-	    		public void run()
-	    		{
-	    			globalCustomObjects.indexGlobalObjectsFolder();
-	    			
-	    		    for(File file : OTG.getEngine().getWorldsDirectory().listFiles())
-	    		    {
-	    		    	if(file.isDirectory())
-	    		    	{
-	    		    		String worldName = file.getName();
-	    		    		globalCustomObjects.indexWorldObjectsFolder(worldName);
-	    		    	}
-	    		    }
-	    		    OTG.log(LogMarker.INFO, "All CustomObject files indexed.");
-	    		}
-	        }.start();
-        }
+        new Thread() { 
+    		public void run()
+    		{
+    			globalCustomObjects.indexGlobalObjectsFolder();
+    			
+    		    for(File file : OTG.getEngine().getWorldsDirectory().listFiles())
+    		    {
+    		    	if(file.isDirectory())
+    		    	{
+    		    		String worldName = file.getName();
+    		    		globalCustomObjects.indexWorldObjectsFolder(worldName);
+    		    	}
+    		    }
+    		    OTG.log(LogMarker.INFO, "All CustomObject files indexed.");
+    		}
+        }.start();
     }
     
     public void reloadCustomObjectFiles()
