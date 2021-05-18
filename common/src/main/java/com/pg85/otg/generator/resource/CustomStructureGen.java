@@ -56,6 +56,23 @@ public class CustomStructureGen extends Resource
         // Left blank, as spawnInChunk already handles this.
     }
 
+    @Override
+    public void process(LocalWorld world, Random random, boolean villageInChunk, ChunkCoordinate chunkCoord)
+    {
+    	// Don't process BO4's, they're plotted and spawned separately from other resources.
+    	if(!world.isBo4Enabled())
+    	{
+    		// Fire event
+	        if (!OTG.fireResourceProcessEvent(this, world, random, villageInChunk, chunkCoord.getChunkX(), chunkCoord.getChunkZ()))
+	        {
+	            return;
+	        }
+	
+	        // Spawn
+	        spawnInChunk(world, random, villageInChunk, chunkCoord);
+    	}
+    }
+    
     // Only used for BO3 CustomStructure
     @Override
     protected void spawnInChunk(LocalWorld world, Random random, boolean villageInChunk, ChunkCoordinate chunkCoord)

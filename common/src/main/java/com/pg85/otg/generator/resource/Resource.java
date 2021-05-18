@@ -148,7 +148,7 @@ public abstract class Resource extends ConfigFunction<BiomeConfig> implements Co
      * @param villageInChunk Whether there is a village in the chunk.
      * @param chunkCoord     The chunk coordinate.
      */
-    public final void process(LocalWorld world, Random random, boolean villageInChunk, ChunkCoordinate chunkCoord)
+    public void process(LocalWorld world, Random random, boolean villageInChunk, ChunkCoordinate chunkCoord)
     {
         // Fire event
         if (!OTG.fireResourceProcessEvent(this, world, random, villageInChunk, chunkCoord.getChunkX(), chunkCoord.getChunkZ()))
