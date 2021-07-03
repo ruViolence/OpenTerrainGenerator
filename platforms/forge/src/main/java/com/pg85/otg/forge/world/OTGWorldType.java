@@ -41,7 +41,7 @@ public class OTGWorldType extends WorldType
     }
 
     @Override
-    public BiomeProvider getBiomeProvider(World mcWorld)
+    public BiomeProvider getBiomeProvider(World mcWorld, String presetName)
     {   	
         // Ignore client worlds, no need to know about OTG biomes and biome id's on the client.
     	// TODO: What about fog colors?

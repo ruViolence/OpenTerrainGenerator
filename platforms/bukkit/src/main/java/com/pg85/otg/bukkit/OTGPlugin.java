@@ -16,7 +16,10 @@ import com.pg85.otg.generator.biome.VanillaBiomeGenerator;
 import com.pg85.otg.logging.LogMarker;
 import com.pg85.otg.network.ServerConfigProvider;
 import com.pg85.otg.util.minecraft.defaults.StructureNames;
-
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
 import net.minecraft.server.v1_12_R1.WorldGenFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -25,205 +28,181 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
+public class OTGPlugin extends JavaPlugin {
+	private OTGListener listener;
+	public OTGCommandExecutor commandExecutor;
 
-public class OTGPlugin extends JavaPlugin
-{
-    private OTGListener listener;
-    public OTGCommandExecutor commandExecutor;
-
-    /*
+	/*
      * Debug setting. Set it to true to make Open Terrain Generator try to disable
      * itself. However, terrain generators aren't cleaned up properly by
      * Bukkit, so this won't really work until that bug is fixed.
      */
-    private boolean cleanupOnDisable = false;
+	private boolean cleanupOnDisable = false;
 
-    public final HashMap<String, BukkitWorld> worlds = new HashMap<String, BukkitWorld>();
-    private final HashMap<String, BukkitWorld> notInitedWorlds = new HashMap<String, BukkitWorld>();
+	public final HashMap<String, BukkitWorld> worlds           = new HashMap<String, BukkitWorld> ();
+	private final HashMap<String, BukkitWorld> notInitedWorlds = new HashMap<String, BukkitWorld> ();
 
-    @Override
-    public void onDisable()
-    {
-        // Cleanup worlds
-        for (BukkitWorld world : worlds.values())
-        {
-        	((BukkitEngine)OTG.getEngine()).onSave(world);
-        }
-    	
-        if (cleanupOnDisable)
-        {
-            // Cleanup worlds
-            for (BukkitWorld world : worlds.values())
-            {
-                world.disable();
-            }
-            worlds.clear();
+	@Override
+	public void onDisable () {
+		// Cleanup worlds
+		for (BukkitWorld world : worlds.values ()) {
+			((BukkitEngine)OTG.getEngine ()).onSave (world);
+		}
 
-            OTG.stopEngine();
-        }
-    }
+		if (cleanupOnDisable) {
+			// Cleanup worlds
+			for (BukkitWorld world : worlds.values ()) {
+				world.disable ();
+			}
+			worlds.clear ();
 
-    @Override
-    public void onEnable()
-    {
-        OTG.setEngine(new BukkitEngine(this));
-        if (!Bukkit.getWorlds().isEmpty() && !cleanupOnDisable)
-        {
-            // Reload "handling"
-            // (worlds are already loaded and TC didn't clean up itself)
-            OTG.log(LogMarker.FATAL, Arrays.asList(
-                    "The server was just /reloaded! Open Terrain Generator has problems handling this, ",
-                    "as old parts from before the reload have not been cleaned up. ",
-                    "Unexpected things may happen! Please restart the server! ",
-                    "In the future, instead of /reloading, please restart the server, ",
-                    "or reload a plugin using it's built-in command (like /otg reload), ",
-                    "or use a plugin managing plugin that can reload one plugin at a time."));
-            setEnabled(false);
-        } else {
-            // Register vanilla generator
-            OTG.getBiomeModeManager().register(VanillaBiomeGenerator.GENERATOR_NAME, BukkitVanillaBiomeGenerator.class);
+			OTG.stopEngine ();
+		}
+	}
 
-            // Register structures
-            try
-            {
-                Method registerStructure = WorldGenFactory.class.getDeclaredMethod("b", Class.class, String.class);
-                registerStructure.setAccessible(true);
-                registerStructure.invoke(null, RareBuildingStart.class, StructureNames.RARE_BUILDING);
-                registerStructure.invoke(null, VillageStart.class, StructureNames.VILLAGE);
-            } catch (Exception e) {
-                OTG.log(LogMarker.FATAL, "Failed to register structures:");
-                OTG.printStackTrace(LogMarker.FATAL, e);
-            }
+	@Override
+	public void onEnable () {
+		OTG.setEngine (new BukkitEngine (this));
+		if (!Bukkit.getWorlds ().isEmpty () && !cleanupOnDisable) {
+			// Reload "handling"
+			// (worlds are already loaded and TC didn't clean up itself)
+			OTG.log (LogMarker.FATAL, Arrays.asList (
+										  "The server was just /reloaded! Open Terrain Generator has problems handling this, ",
+										  "as old parts from before the reload have not been cleaned up. ",
+										  "Unexpected things may happen! Please restart the server! ",
+										  "In the future, instead of /reloading, please restart the server, ",
+										  "or reload a plugin using it's built-in command (like /otg reload), ",
+										  "or use a plugin managing plugin that can reload one plugin at a time."));
+			setEnabled (false);
+		} else {
+			// Register vanilla generator
+			OTG.getBiomeModeManager ().register(VanillaBiomeGenerator.GENERATOR_NAME, BukkitVanillaBiomeGenerator.class);
 
-            // Start the engine
-            this.commandExecutor = new OTGCommandExecutor(this);
-            this.listener = new OTGListener(this);
-            Bukkit.getMessenger().registerOutgoingPluginChannel(this, PluginStandardValues.ChannelName);
+			// Register structures
+			try {
+				Method registerStructure = WorldGenFactory.class.getDeclaredMethod ("b", Class.class, String.class);
+				registerStructure.setAccessible (true);
+				registerStructure.invoke (null, RareBuildingStart.class, StructureNames.RARE_BUILDING);
+				registerStructure.invoke (null, VillageStart.class, StructureNames.VILLAGE);
+			} catch (Exception e) {
+				OTG.log (LogMarker.FATAL, "Failed to register structures:");
+				OTG.printStackTrace (LogMarker.FATAL, e);
+			}
 
-            OTG.log(LogMarker.DEBUG, "Global objects loaded, waiting for worlds to load");
+			// Start the engine
+			this.commandExecutor = new OTGCommandExecutor (this);
+			this.listener        = new OTGListener (this);
+			Bukkit.getMessenger ().registerOutgoingPluginChannel (this, PluginStandardValues.ChannelName);
 
-            // Start metrics
-            new BukkitMetricsHelper(this);
-        }
-    }
+			OTG.log (LogMarker.DEBUG, "Global objects loaded, waiting for worlds to load");
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
-    {
-        return this.commandExecutor.onCommand(sender, command, label, args);
-    }
+			// Start metrics
+			new BukkitMetricsHelper (this);
+		}
+	}
 
-    @Override
-    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id)
-    {
-        if (worldName.isEmpty())
-        {
-            OTG.log(LogMarker.WARN, "Ignoring empty world name. Is some generator plugin checking if \"OpenTerrainGenerator\" is a valid world name?");
-            return new OTGChunkGenerator(this, null);
-        }
+	@Override
+	public boolean onCommand (CommandSender sender, Command command, String label, String[] args) {
+		return this.commandExecutor.onCommand (sender, command, label, args);
+	}
 
-        // Check if not already enabled
-        BukkitWorld world = worlds.get(worldName);
-        if (world != null)
-        {
-            OTG.log(LogMarker.DEBUG, "Already enabled for ''{}''", (Object) worldName);
-            return world.getChunkGenerator();
-        }
+	@Override
+	public ChunkGenerator getDefaultWorldGenerator (String worldName, String id) {
+		if (worldName.isEmpty ()) {
+			OTG.log (LogMarker.WARN, "Ignoring empty world name. Is some generator plugin checking if \"OpenTerrainGenerator\" is a valid world name?");
+			return new OTGChunkGenerator (this, null);
+		}
 
-        OTG.log(LogMarker.DEBUG, "Starting to enable world ''{}''...", (Object) worldName);
+		// Check if not already enabled
+		BukkitWorld world = worlds.get (worldName);
+		if (world != null) {
+			OTG.log (LogMarker.DEBUG, "Already enabled for ''{}''", (Object)worldName);
+			return world.getChunkGenerator ();
+		}
+
+		OTG.log (LogMarker.DEBUG, "Starting to enable world ''{}''...", (Object)worldName);
 
 		// This is a vanilla overworld, a new OTG world or a legacy OTG world without a dimensionconfig
-	    if(OTG.getDimensionsConfig() == null)
-	    {
-	    	DimensionsConfig dimsConfig = new DimensionsConfig();
-			dimsConfig.Overworld = new DimensionConfig();
-			OTG.setDimensionsConfig(dimsConfig);
+		if (OTG.getDimensionsConfig () == null) {
+			DimensionsConfig dimsConfig = new DimensionsConfig ();
+			dimsConfig.Overworld        = new DimensionConfig ();
+			OTG.setDimensionsConfig (dimsConfig);
 		}
-        
-        // Create BukkitWorld instance
-        BukkitWorld localWorld = new BukkitWorld(worldName);
 
-        // Load settings
-        File baseFolder = getWorldSettingsFolder(worldName);
-        
-        // Check if world exists
-	    File worldSaveDir = new File("." + File.separator + worldName + File.separator);
-	    OTG.IsNewWorldBeingCreated = !new File(worldSaveDir, File.separator + "region").exists();
-        
-        ServerConfigProvider configs = new ServerConfigProvider(baseFolder, localWorld, worldSaveDir);
-        localWorld.setSettings(configs);
-        
-        OTG.IsNewWorldBeingCreated = false;
+		// Create BukkitWorld instance
+		BukkitWorld localWorld = new BukkitWorld (worldName);
 
-        // Add the world to the to-do list
-        this.notInitedWorlds.put(worldName, localWorld);
+		// Load settings
+		File baseFolder = getWorldSettingsFolder (worldName);
 
-        // Get the right chunk generator
-        OTGChunkGenerator generator = null;
-        switch (configs.getWorldConfig().modeTerrain)
-        {
-            case Normal:
-            case TerrainTest:
-            //case OldGenerator:
-            case NotGenerate:
-                generator = new OTGChunkGenerator(this, localWorld);
-                break;
-            //case Default:
-                //break;
-        }
+		// Check if world exists
+		File worldSaveDir          = new File ("." + File.separator + worldName + File.separator);
+		OTG.IsNewWorldBeingCreated = !new File (worldSaveDir, File.separator + "region").exists ();
 
-        // Set and return the generator
-        localWorld.setChunkGenerator(generator);
-        return generator;
-    }
+		ServerConfigProvider configs = new ServerConfigProvider (baseFolder, localWorld, worldSaveDir);
+		localWorld.setSettings (configs);
 
-    private File getWorldSettingsFolder(String worldName)
-    {
-        File baseFolder = new File(this.getDataFolder(), PluginStandardValues.PresetsDirectoryName + File.separator + worldName);
-        if (!baseFolder.exists())
-        {
-            if (!baseFolder.mkdirs())
-            {
-                OTG.log(LogMarker.FATAL, "Can't create folder ", baseFolder.getName());
-            }
-        }
-        return baseFolder;
-    }
+		OTG.IsNewWorldBeingCreated = false;
 
-    public void onWorldInit(World world)
-    {
-        if (this.notInitedWorlds.containsKey(world.getName()))
-        {
-            // Remove the world from the to-do list
-            BukkitWorld bukkitWorld = this.notInitedWorlds.remove(world.getName());
+		// Add the world to the to-do list
+		this.notInitedWorlds.put (worldName, localWorld);
 
-            // Enable and register the world
-            bukkitWorld.enable(world);
-            this.worlds.put(world.getName(), bukkitWorld);
+		// Get the right chunk generator
+		OTGChunkGenerator generator = null;
+		switch (configs.getWorldConfig ().modeTerrain) {
+		case Normal:
+		case TerrainTest:
+		//case OldGenerator:
+		case NotGenerate:
+			generator = new OTGChunkGenerator (this, localWorld);
+			break;
+			//case Default:
+			//break;
+		}
 
-            // Show message
-            OTG.log(LogMarker.INFO, "World {} is now enabled!", (Object) bukkitWorld.getName());
-        }
-    }
+		// Set and return the generator
+		localWorld.setChunkGenerator (generator);
+		return generator;
+	}
 
-    public void onWorldUnload(World world)
-    {
-        if (this.notInitedWorlds.containsKey(world.getName()))
-        {
-            // Remove the world from the to-do list
-            this.notInitedWorlds.remove(world.getName());
-        }
-        if (this.worlds.containsKey(world.getName()))
-        {
-            // Disable and Remove the world from enabled list
-            this.worlds.get(world.getName()).disable();
-            this.worlds.remove(world.getName());
-        }
-        // Show message
-        OTG.log(LogMarker.INFO, "World {} is now unloaded!", (Object) world.getName());
-    }
+	private File getWorldSettingsFolder (String worldName) {
+		File baseFolder = new File (this.getDataFolder (), PluginStandardValues.PresetsDirectoryName + File.separator + worldName);
+		if (!baseFolder.exists ()) {
+			baseFolder = new File (this.getDataFolder (), PluginStandardValues.PresetsDirectoryName + File.separator + "ALL_WORLDS");
+			if (!baseFolder.exists ()) {
+				if (!baseFolder.mkdirs ()) {
+					OTG.log (LogMarker.FATAL, "Can't create folder ", baseFolder.getName ());
+				}
+			}
+		}
+		return baseFolder;
+	}
+
+	public void onWorldInit (World world) {
+		if (this.notInitedWorlds.containsKey (world.getName ())) {
+			// Remove the world from the to-do list
+			BukkitWorld bukkitWorld = this.notInitedWorlds.remove (world.getName ());
+
+			// Enable and register the world
+			bukkitWorld.enable (world);
+			this.worlds.put (world.getName (), bukkitWorld);
+
+			// Show message
+			OTG.log (LogMarker.INFO, "World {} is now enabled!", (Object)bukkitWorld.getName ());
+		}
+	}
+
+	public void onWorldUnload (World world) {
+		if (this.notInitedWorlds.containsKey (world.getName ())) {
+			// Remove the world from the to-do list
+			this.notInitedWorlds.remove (world.getName ());
+		}
+		if (this.worlds.containsKey (world.getName ())) {
+			// Disable and Remove the world from enabled list
+			this.worlds.get (world.getName ()).disable ();
+			this.worlds.remove (world.getName ());
+		}
+		// Show message
+		OTG.log (LogMarker.INFO, "World {} is now unloaded!", (Object)world.getName ());
+	}
 }
