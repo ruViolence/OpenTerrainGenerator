@@ -757,6 +757,14 @@ public class SpigotLegacyMaterials
 					return getGlazedTerracottaWithData(14, data);
 				case "yellow_glazed_terracotta":
 					return getGlazedTerracottaWithData(15, data);
+				case "snow":
+					switch(data)
+					{
+						case 0:
+							return Blocks.SNOW.getBlockData().set(BlockSnow.LAYERS, 1);
+						default:
+							return Blocks.SNOW.getBlockData().set(BlockSnow.LAYERS, data);						
+					}					
 				default:
 					return null;
 			}
