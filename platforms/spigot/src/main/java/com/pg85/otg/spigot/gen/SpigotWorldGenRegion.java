@@ -528,12 +528,12 @@ public class SpigotWorldGenRegion extends LocalWorldGenRegion
 					tree = BiomeDecoratorGroups.OAK;
 					break;
 				case CrimsonFungi:
-					WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?> crimson_fungi = (WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?>) BiomeDecoratorGroups.CRIMSON_FUNGI;
-					crimson_fungi.e.generate(this.worldGenRegion, this.chunkGenerator, rand, blockPos, crimson_fungi.f);
+					WorldGenFeatureConfigured<WorldGenFeatureHugeFungiConfiguration, ?> crimsonFungi = BiomeDecoratorGroups.CRIMSON_FUNGI_PLANTED;
+					crimsonFungi.e.generate(worldGenRegion, chunkGenerator, rand, blockPos, WorldGenFeatureHugeFungiConfiguration.c);
 					return true;
 				case WarpedFungi:
-					WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?> warped_fungi = (WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?>) BiomeDecoratorGroups.WARPED_FUNGI;
-					warped_fungi.e.generate(this.worldGenRegion, this.chunkGenerator, rand, blockPos, warped_fungi.f);
+					WorldGenFeatureConfigured<WorldGenFeatureHugeFungiConfiguration, ?> warpedFungi = BiomeDecoratorGroups.WARPED_FUNGI_PLANTED;
+					warpedFungi.e.generate(worldGenRegion, chunkGenerator, rand, blockPos, WorldGenFeatureHugeFungiConfiguration.e);
 					return true;
 				case ChorusPlant:
 					WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?> chorus_plant = (WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?>) BiomeDecoratorGroups.CHORUS_PLANT;

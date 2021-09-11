@@ -53,6 +53,7 @@ import net.minecraft.world.gen.feature.BaseTreeFeatureConfig;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.Features;
+import net.minecraft.world.gen.feature.HugeFungusConfig;
 import net.minecraft.world.gen.feature.IFeatureConfig;
 
 // TODO: Split up worldgenregion into separate classes, one for decoration/worldgen, one for non-worldgen.
@@ -564,12 +565,12 @@ public class ForgeWorldGenRegion extends LocalWorldGenRegion
 					mega_spruce.feature.place(this.worldGenRegion, this.chunkGenerator, rand, blockPos, mega_spruce.config);
 					return true;
 				case CrimsonFungi:
-					ConfiguredFeature<IFeatureConfig, ?> crimson_fungi = (ConfiguredFeature<IFeatureConfig, ?>) Features.CRIMSON_FUNGI;
-					crimson_fungi.feature.place(this.worldGenRegion, this.chunkGenerator, rand, blockPos, crimson_fungi.config);
+					ConfiguredFeature<HugeFungusConfig, ?> crimson_fungi = Features.CRIMSON_FUNGI_PLANTED;
+					crimson_fungi.feature.place(this.worldGenRegion, this.chunkGenerator, rand, blockPos, HugeFungusConfig.HUGE_CRIMSON_FUNGI_NOT_PLANTED_CONFIG);
 					return true;
 				case WarpedFungi:
-					ConfiguredFeature<IFeatureConfig, ?> warped_fungi = (ConfiguredFeature<IFeatureConfig, ?>) Features.WARPED_FUNGI;
-					warped_fungi.feature.place(this.worldGenRegion, this.chunkGenerator, rand, blockPos, warped_fungi.config);
+					ConfiguredFeature<HugeFungusConfig, ?> waped_fungi = Features.WARPED_FUNGI_PLANTED;
+					waped_fungi.feature.place(this.worldGenRegion, this.chunkGenerator, rand, blockPos, HugeFungusConfig.HUGE_WARPED_FUNGI_NOT_PLANTED_CONFIG);
 					return true;
 				case ChorusPlant:
 					ConfiguredFeature<IFeatureConfig, ?> chorus_plant = (ConfiguredFeature<IFeatureConfig, ?>) Features.CHORUS_PLANT;
