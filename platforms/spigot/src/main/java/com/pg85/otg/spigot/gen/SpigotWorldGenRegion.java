@@ -527,6 +527,18 @@ public class SpigotWorldGenRegion extends LocalWorldGenRegion
 				case Tree:
 					tree = BiomeDecoratorGroups.OAK;
 					break;
+				case CrimsonFungi:
+					WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?> crimson_fungi = (WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?>) BiomeDecoratorGroups.CRIMSON_FUNGI;
+					crimson_fungi.e.generate(this.worldGenRegion, this.chunkGenerator, rand, blockPos, crimson_fungi.f);
+					return true;
+				case WarpedFungi:
+					WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?> warped_fungi = (WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?>) BiomeDecoratorGroups.WARPED_FUNGI;
+					warped_fungi.e.generate(this.worldGenRegion, this.chunkGenerator, rand, blockPos, warped_fungi.f);
+					return true;
+				case ChorusPlant:
+					WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?> chorus_plant = (WorldGenFeatureConfigured<WorldGenFeatureConfiguration, ?>) BiomeDecoratorGroups.CHORUS_PLANT;
+					chorus_plant.e.generate(this.worldGenRegion, this.chunkGenerator, rand, blockPos, chorus_plant.f);
+					return true;		
 				default:
 					throw new RuntimeException("Failed to handle tree of type " + type.toString());
 			}
