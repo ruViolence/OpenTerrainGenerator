@@ -84,6 +84,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import static com.pg85.otg.forge.biomes.ForgeBiomeRegistryManager.JEID;
+
 // TODO: Change localworld into abstract class and implement common logic there 
 public class ForgeWorld implements LocalWorld
 {
@@ -506,8 +508,7 @@ public class ForgeWorld implements LocalWorld
 	}
     
     @Override
-    public int getMaxBiomesCount()
-    {
+    public int getMaxBiomesCount() {
         return MAX_BIOMES_COUNT;
     }
 

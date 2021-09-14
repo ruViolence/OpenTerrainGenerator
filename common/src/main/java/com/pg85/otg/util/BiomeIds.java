@@ -35,7 +35,7 @@ public class BiomeIds
      */
     public boolean isVirtual()
     {
-    	return otgBiomeId > 255;
+    	return otgBiomeId != savedId;
     }
 
     /**

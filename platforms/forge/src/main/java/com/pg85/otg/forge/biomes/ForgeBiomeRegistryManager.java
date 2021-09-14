@@ -149,7 +149,7 @@ public class ForgeBiomeRegistryManager
 
 		 if(JEID) {
 			 if (biomeIds.getSavedId() < 0) {
-				 throw new RuntimeException("Could not allocate the requested id " + biomeIds.getSavedId() + " for biome " + biomeConfig.getName() + ". All available id's under Integer.MAX_VALUE have been allocated\n" + ". Please report this to JEID issue tracker.");
+				 throw new RuntimeException("Could not allocate the requested id " + biomeIds.getSavedId() + " for biome " + biomeConfig.getName() + ". a biome id under 0 have been allocated\n" + ". Please report this to JEID issue tracker.");
 			 }
 		 } else {
 			 if (biomeIds.getSavedId() >= 256 || biomeIds.getSavedId() < 0) {

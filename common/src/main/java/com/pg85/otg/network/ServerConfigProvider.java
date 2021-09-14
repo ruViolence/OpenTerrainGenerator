@@ -34,7 +34,6 @@ import com.pg85.otg.util.minecraft.defaults.BiomeRegistryNames;
 import com.pg85.otg.util.minecraft.defaults.DefaultBiome;
 import com.pg85.otg.worldsave.BiomeIdData;
 import com.pg85.otg.worldsave.WorldSaveData;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Holds the WorldConfig and all BiomeConfigs.
@@ -53,7 +52,7 @@ import org.apache.commons.lang3.StringUtils;
 public final class ServerConfigProvider implements ConfigProvider
 {
     private static final int MAX_INHERITANCE_DEPTH = 15;
-    private LocalWorld world;
+	private LocalWorld world;
     private File settingsDir;
     private WorldConfig worldConfig;
 
@@ -469,7 +468,7 @@ public final class ServerConfigProvider implements ConfigProvider
         			new BiomeIdData(
     					world.getName() + "_" + worldBiome.getKey(), 
     					worldBiome.getValue(), 
-    					worldBiome.getValue() > 255 || (
+    					worldBiome.getValue() > worldBiomes.size() || (
 							biomeConfig.replaceToBiomeName != null && 
 							biomeConfig.replaceToBiomeName.trim().length() > 0
 						) ? -1 : worldBiome.getValue()
@@ -552,7 +551,7 @@ public final class ServerConfigProvider implements ConfigProvider
         	            		throw new RuntimeException("Error: OTG Biome id " + biomeIdData.otgBiomeId + " for biome " + biomeConfig.getName() + " was taken by " + OTG.getBiomeByOTGId(biomeIdData.otgBiomeId).getName());       	            		
         	            	}
         	            	
-            	        	if(biomeIdData.otgBiomeId > -1 && biomeIdData.otgBiomeId < 256)
+            	        	if(biomeIdData.otgBiomeId > -1 && biomeIdData.otgBiomeId == getRequestedSavedId(biomeConfig.replaceToBiomeName))
             	        	{
             	            	if(biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.trim().length() > 0)
             	            	{
@@ -560,7 +559,7 @@ public final class ServerConfigProvider implements ConfigProvider
             	            	}            	        		
             	        		nonVirtualBiomesExisting.add(biomeConfig);
             	        	}
-            	        	else if(biomeIdData.otgBiomeId > 255)
+            	        	else if(biomeIdData.otgBiomeId != getRequestedSavedId(biomeConfig.replaceToBiomeName))
             	        	{
             	        		virtualBiomesExisting.add(biomeConfig);
             	        	}  
@@ -573,16 +572,16 @@ public final class ServerConfigProvider implements ConfigProvider
         
         // Set OTG biome id's for biomes, make sure there is enough space to register all biomes.
         for (BiomeConfig biomeConfig : usedBiomes)
-        {            	
+        {
             // Statistics of the loaded biomes
             this.biomesCount++;
             loadedBiomeNames.append(biomeConfig.getName());
             loadedBiomeNames.append(", ");
 
             BiomeConfig[] otgIds2 = OTG.getEngine().getOTGBiomeIds(world.getName());
-            
+
             int otgBiomeId = -1;
-            
+
             // Exclude already registered biomes from loadedBiomeIdData / default biomes
             boolean bFound = false;
             for(int i = 0; i < otgIds2.length; i++)
@@ -591,7 +590,7 @@ public final class ServerConfigProvider implements ConfigProvider
             	if(biomeConfig == biomeConfig2)
             	{
             		bFound = true;
-            		break;            		
+            		break;
             	}
         		// Forge dimensions: If a world is being reloaded after being unloaded replace the existing biomeConfig
             	else if(
@@ -609,33 +608,28 @@ public final class ServerConfigProvider implements ConfigProvider
             {
             	continue; // biome is from loadedBiomeIdData, already registered.
             }
-            
-            if(otgBiomeId == -1)
-            {          
-            	// Find the next available id
-	            for(int i = (!biomeConfig.replaceToBiomeName.isEmpty() ? 256 : 0); i < otgIds2.length; i++) // Virtual (replacetobiomename) biomes can only have id's above 255
-	            {
-	            	if((biomeConfig.replaceToBiomeName.isEmpty() && i > 255) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).length))
-	            	{
-	            		OTG.log(LogMarker.FATAL, "Biome could not be registered, no free biome id's!");
-	            		throw new RuntimeException("Biome could not be registered, no free biome id's!");
-	            	}
-	            	if(OTG.getEngine().isOTGBiomeIdAvailable(world.getName(), i))
-	            	{
-	            		otgBiomeId = i;
-	            		OTG.getEngine().setOTGBiomeId(world.getName(), i, biomeConfig, false);
-	            		break;
-	            	}
-	            }
-	        	if(otgBiomeId > -1 && otgBiomeId < 256)
-	        	{
-	        		nonVirtualBiomes.add(biomeConfig);
-	        	}
-	        	else if(otgBiomeId > 255)
-	        	{
-	        		virtualBiomes.add(biomeConfig);
-	        	}
-            }        	
+
+            if(otgBiomeId == -1) {
+				// Find the next available id
+
+				for (int i = (!biomeConfig.replaceToBiomeName.isEmpty() ? worldBiomes.size() : 0); i < otgIds2.length; i++) // Virtual (replacetobiomename) biomes can only have id's above 255
+				{
+					if ((biomeConfig.replaceToBiomeName.isEmpty() && otgBiomeId > worldBiomes.size()) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).length)) {
+						OTG.log(LogMarker.FATAL, "Biome could not be registered, no free biome id's!");
+						throw new RuntimeException("Biome could not be registered, no free biome id's!");
+					}
+					if (OTG.getEngine().isOTGBiomeIdAvailable(world.getName(), i)) {
+						otgBiomeId = i;
+						OTG.getEngine().setOTGBiomeId(world.getName(), i, biomeConfig, false);
+						break;
+					}
+				}
+				if (otgBiomeId > -1 && otgBiomeId == getRequestedSavedId(biomeConfig.replaceToBiomeName)) {
+					nonVirtualBiomes.add(biomeConfig);
+				} else if (otgBiomeId != getRequestedSavedId(biomeConfig.replaceToBiomeName)) {
+					virtualBiomes.add(biomeConfig);
+				}
+			}
         }
                 
         // When loading an existing world load the existing biomes first, new biomes after so they don't claim reserved biome id's.
@@ -802,7 +796,7 @@ public final class ServerConfigProvider implements ConfigProvider
 			// Once we get here, the config doesn't exist
 			// Try one last time, if that doesn't work, we throw an error
 			int id = getRequestedSavedId(biomeConfig.replaceToBiomeName);
-			if (0 <= id && id <= 255) {
+			if (0 <= id) {
 				// It has a valid ID, let's just return that
 				return id;
 			}
@@ -821,8 +815,9 @@ public final class ServerConfigProvider implements ConfigProvider
 	{        
         // For backwards compatibility, sort the biomes by saved id and return default biomes as if they were custom biomes 
         List<LocalBiome> nonDefaultbiomes = new ArrayList<LocalBiome>();
-        LocalBiome[] defaultBiomes = new LocalBiome[256];
-        for(LocalBiome biome : this.biomesByOTGId)
+
+		LocalBiome[] defaultBiomes = new LocalBiome[world.getMaxBiomesCount()];
+		for(LocalBiome biome : this.biomesByOTGId)
         {
         	if(biome != null)
         	{
