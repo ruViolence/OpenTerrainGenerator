@@ -1,5 +1,7 @@
 package com.pg85.otg.util;
 
+import java.util.Random;
+
 /**
  * Immutable class to hold the biome ids of a biome.
  * <p>
@@ -35,7 +37,7 @@ public class BiomeIds
      */
     public boolean isVirtual()
     {
-    	return otgBiomeId != savedId;
+    	return otgBiomeId > savedId;
     }
 
     /**
@@ -45,7 +47,12 @@ public class BiomeIds
      */
     public int getSavedId()
     {
-        return savedId;
+        if (savedId == -1){
+            Random random = new Random();
+            return random.nextInt(99999);
+        } else {
+            return savedId;
+        }
     }
 
     /**

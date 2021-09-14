@@ -1,15 +1,7 @@
 package com.pg85.otg.network;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import com.pg85.otg.OTG;
@@ -815,8 +807,7 @@ public final class ServerConfigProvider implements ConfigProvider
 	{        
         // For backwards compatibility, sort the biomes by saved id and return default biomes as if they were custom biomes 
         List<LocalBiome> nonDefaultbiomes = new ArrayList<LocalBiome>();
-
-		LocalBiome[] defaultBiomes = new LocalBiome[world.getMaxBiomesCount()];
+		LocalBiome[] defaultBiomes = new LocalBiome[99999];
 		for(LocalBiome biome : this.biomesByOTGId)
         {
         	if(biome != null)
