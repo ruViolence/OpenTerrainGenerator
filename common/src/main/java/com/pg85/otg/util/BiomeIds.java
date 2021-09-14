@@ -49,7 +49,7 @@ public class BiomeIds
     {
         if (savedId == -1){
             Random random = new Random();
-            return random.nextInt(99999);
+            return random.nextInt(255);
         } else {
             return savedId;
         }
