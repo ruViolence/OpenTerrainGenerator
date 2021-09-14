@@ -490,7 +490,7 @@ public class OTGGuiDimensionList extends GuiScreen implements GuiYesNoCallback
 						else if (JEID) {
 							this.mc.displayGuiScreen(new OTGGuiEnterWorldName(this, this.dimensions.get(0).PresetName));
 						} else {
-	                	 if (!OTG.getEngine().areEnoughBiomeIdsAvailableForPresets(presetNames)) {
+	                	 	if (!OTG.getEngine().areEnoughBiomeIdsAvailableForPresets(presetNames)) {
 								this.mc.displayGuiScreen(new GuiErrorScreen("Error", "Not enough biome id's available to add all dimensions."));
 							} else {
 								this.mc.displayGuiScreen(new OTGGuiEnterWorldName(this, this.dimensions.get(0).PresetName));

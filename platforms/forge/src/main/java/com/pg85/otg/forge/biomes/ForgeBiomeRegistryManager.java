@@ -148,7 +148,7 @@ public class ForgeBiomeRegistryManager
 	    Biome existingBiome = Biome.getBiome(biomeIds.getSavedId());
 
 		 if(JEID) {
-			 if (biomeIds.getSavedId() >= Integer.MAX_VALUE || biomeIds.getSavedId() < 0) {
+			 if (biomeIds.getSavedId() < 0) {
 				 throw new RuntimeException("Could not allocate the requested id " + biomeIds.getSavedId() + " for biome " + biomeConfig.getName() + ". All available id's under Integer.MAX_VALUE have been allocated\n" + ". Please report this to JEID issue tracker.");
 			 }
 		 } else {
