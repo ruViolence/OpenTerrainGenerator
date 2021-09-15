@@ -1,6 +1,7 @@
 package com.pg85.otg.forge.materials;
 
 import com.pg85.otg.constants.Constants;
+import com.pg85.otg.util.materials.LocalMaterialData;
 import com.pg85.otg.util.materials.LocalMaterials;
 
 import net.minecraft.block.*;
@@ -326,5 +327,7 @@ public class ForgeMaterials extends LocalMaterials
 		COAL_BLOCK = ForgeMaterialData.ofBlockState(Blocks.COAL_BLOCK.defaultBlockState());
 		QUARTZ_BLOCK = ForgeMaterialData.ofBlockState(Blocks.QUARTZ_BLOCK.defaultBlockState());
 		EMERALD_BLOCK = ForgeMaterialData.ofBlockState(Blocks.EMERALD_BLOCK.defaultBlockState());
+
+		BERRY_BUSH = ForgeMaterialData.ofBlockState(Blocks.SWEET_BERRY_BUSH.defaultBlockState());
 	}
 }
