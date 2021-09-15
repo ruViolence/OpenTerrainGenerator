@@ -542,15 +542,15 @@ public final class ServerConfigProvider implements ConfigProvider
         	            		throw new RuntimeException("Error: OTG Biome id " + biomeIdData.otgBiomeId + " for biome " + biomeConfig.getName() + " was taken by " + OTG.getBiomeByOTGId(biomeIdData.otgBiomeId).getName());       	            		
         	            	}
         	            	
-            	        	if(biomeIdData.otgBiomeId > -1 && biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.length() > 0)
+            	        	if(biomeIdData.otgBiomeId > -1 && !(biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.trim().length() > 0))
             	        	{
-            	            	if(biomeConfig.replaceToBiomeName.trim().length() > 0)
+                                if(biomeConfig.replaceToBiomeName != null &&biomeConfig.replaceToBiomeName.trim().length() > 0)
             	            	{
             	            		throw new RuntimeException("Error: Biome \"" + biomeConfig.getName() + "\" has an id between 0-255 but uses replaceToBiomeName. Virtual biomes must have id's above 255, please check your WorldConfig's custom biomes setting.");
             	            	}            	        		
             	        		nonVirtualBiomesExisting.add(biomeConfig);
             	        	}
-            	        	else if(biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.length() > 0)
+            	        	else if(biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.trim().length() > 0)
             	        	{
             	        		virtualBiomesExisting.add(biomeConfig);
             	        	}  
