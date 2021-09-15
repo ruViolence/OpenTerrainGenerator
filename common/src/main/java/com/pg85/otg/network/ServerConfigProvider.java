@@ -605,7 +605,7 @@ public final class ServerConfigProvider implements ConfigProvider
 
 				for (int i = 0; i < Integer.MAX_VALUE; i++) // Virtual (replacetobiomename) biomes can only have id's above 255
 				{
-					if ((biomeConfig.replaceToBiomeName.isEmpty() && biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.trim().length() > 0 ) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).length)) {
+					if ((biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.trim().length() > 0 ) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).length)) {
 						OTG.log(LogMarker.FATAL, "Biome could not be registered, no free biome id's!");
 						throw new RuntimeException("Biome could not be registered, no free biome id's!");
 					}
