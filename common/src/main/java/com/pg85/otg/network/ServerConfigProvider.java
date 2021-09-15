@@ -603,9 +603,9 @@ public final class ServerConfigProvider implements ConfigProvider
             if(otgBiomeId == -1) {
 				// Find the next available id
 
-				for (int i = 0; i < Integer.MAX_VALUE; i++) // Virtual (replacetobiomename) biomes can only have id's above 255
+				for (int i = 0; i < otgIds2.length; i++) // Virtual (replacetobiomename) biomes can only have id's above 255
 				{
-					if ((biomeConfig.replaceToBiomeName.isEmpty() && (i > (Integer.MAX_VALUE - 1 ))) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).length)) {
+					if ((biomeConfig.replaceToBiomeName.isEmpty() && (i > (otgIds2.length - 1 ))) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).length)) {
 						OTG.log(LogMarker.FATAL, "Biome could not be registered, no free biome id's!");
 						throw new RuntimeException("Biome could not be registered, no free biome id's!");
 					}
@@ -807,7 +807,7 @@ public final class ServerConfigProvider implements ConfigProvider
 	{        
         // For backwards compatibility, sort the biomes by saved id and return default biomes as if they were custom biomes 
         List<LocalBiome> nonDefaultbiomes = new ArrayList<LocalBiome>();
-		LocalBiome[] defaultBiomes = new LocalBiome[99999];
+		LocalBiome[] defaultBiomes = new LocalBiome[256];
 		for(LocalBiome biome : this.biomesByOTGId)
         {
         	if(biome != null)

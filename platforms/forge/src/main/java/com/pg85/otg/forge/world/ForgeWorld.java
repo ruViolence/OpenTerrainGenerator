@@ -509,13 +509,21 @@ public class ForgeWorld implements LocalWorld
     
     @Override
     public int getMaxBiomesCount() {
-        return MAX_BIOMES_COUNT;
+        if(JEID){
+            return 999999;
+        } else {
+            return MAX_BIOMES_COUNT;
+        }
     }
 
     @Override
     public int getMaxSavedBiomesCount()
     {
-        return MAX_SAVED_BIOMES_COUNT;
+        if(JEID){
+            return Integer.MAX_VALUE;
+        } else {
+            return MAX_SAVED_BIOMES_COUNT;
+        }
     }
     
     // Chunks

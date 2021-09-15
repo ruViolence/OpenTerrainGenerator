@@ -135,7 +135,7 @@ public final class ClientConfigProvider implements ConfigProvider
 	{        
         // For backwards compatibility, sort the biomes by saved id and return default biomes as if they were custom biomes 
         List<LocalBiome> nonDefaultbiomes = new ArrayList<LocalBiome>();
-        LocalBiome[] defaultBiomes = new LocalBiome[99999];
+        LocalBiome[] defaultBiomes = new LocalBiome[256];
         for(LocalBiome biome : this.biomesByOTGId)
         {
         	if(biome != null)
