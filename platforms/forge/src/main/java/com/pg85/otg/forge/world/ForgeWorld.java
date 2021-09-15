@@ -520,7 +520,7 @@ public class ForgeWorld implements LocalWorld
     public int getMaxSavedBiomesCount()
     {
         if(JEID){
-            return Integer.MAX_VALUE;
+            return 640000;
         } else {
             return MAX_SAVED_BIOMES_COUNT;
         }
