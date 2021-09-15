@@ -1,5 +1,9 @@
 package com.pg85.otg.util;
 
+import com.pg85.otg.configuration.biome.BiomeConfig;
+
+import java.util.Random;
+
 /**
  * Immutable class to hold the biome ids of a biome.
  * <p>
@@ -35,7 +39,7 @@ public class BiomeIds
      */
     public boolean isVirtual()
     {
-    	return otgBiomeId > 255;
+    	return otgBiomeId != savedId;
     }
 
     /**
