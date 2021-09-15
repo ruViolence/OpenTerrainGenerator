@@ -1,5 +1,7 @@
 package com.pg85.otg.util;
 
+import com.pg85.otg.configuration.biome.BiomeConfig;
+
 import java.util.Random;
 
 /**
@@ -47,12 +49,7 @@ public class BiomeIds
      */
     public int getSavedId()
     {
-        if (savedId == -1){
-            Random random = new Random();
-            return random.nextInt(255);
-        } else {
-            return savedId;
-        }
+        return savedId;
     }
 
     /**

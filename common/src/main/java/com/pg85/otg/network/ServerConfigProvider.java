@@ -542,15 +542,15 @@ public final class ServerConfigProvider implements ConfigProvider
         	            		throw new RuntimeException("Error: OTG Biome id " + biomeIdData.otgBiomeId + " for biome " + biomeConfig.getName() + " was taken by " + OTG.getBiomeByOTGId(biomeIdData.otgBiomeId).getName());       	            		
         	            	}
         	            	
-            	        	if(biomeIdData.otgBiomeId > -1 && biomeIdData.otgBiomeId == biomeConfig.replaceToBiomeName.trim().length())
+            	        	if(biomeIdData.otgBiomeId > -1 && biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.length() > 0)
             	        	{
-            	            	if(biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.trim().length() > 0)
+            	            	if(biomeConfig.replaceToBiomeName.trim().length() > 0)
             	            	{
             	            		throw new RuntimeException("Error: Biome \"" + biomeConfig.getName() + "\" has an id between 0-255 but uses replaceToBiomeName. Virtual biomes must have id's above 255, please check your WorldConfig's custom biomes setting.");
             	            	}            	        		
             	        		nonVirtualBiomesExisting.add(biomeConfig);
             	        	}
-            	        	else if(biomeIdData.otgBiomeId != biomeConfig.replaceToBiomeName.trim().length())
+            	        	else if(biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.length() > 0)
             	        	{
             	        		virtualBiomesExisting.add(biomeConfig);
             	        	}  
@@ -603,9 +603,9 @@ public final class ServerConfigProvider implements ConfigProvider
             if(otgBiomeId == -1) {
 				// Find the next available id
 
-				for (int i = (!biomeConfig.replaceToBiomeName.isEmpty() ? biomeConfig.replaceToBiomeName.trim().length() : 0); i < otgIds2.length; i++) // Virtual (replacetobiomename) biomes can only have id's above 255
+				for (int i = 0; i < Integer.MAX_VALUE; i++) // Virtual (replacetobiomename) biomes can only have id's above 255
 				{
-					if ((biomeConfig.replaceToBiomeName.isEmpty() && otgBiomeId > biomeConfig.replaceToBiomeName.trim().length()) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).length)) {
+					if ((biomeConfig.replaceToBiomeName.isEmpty() && biomeConfig.replaceToBiomeName == null && biomeConfig.replaceToBiomeName.trim().length() < 0 ) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).length)) {
 						OTG.log(LogMarker.FATAL, "Biome could not be registered, no free biome id's!");
 						throw new RuntimeException("Biome could not be registered, no free biome id's!");
 					}
@@ -615,9 +615,9 @@ public final class ServerConfigProvider implements ConfigProvider
 						break;
 					}
 				}
-				if (otgBiomeId > -1 && otgBiomeId < biomeConfig.replaceToBiomeName.trim().length()) {
+				if (otgBiomeId > -1 && biomeConfig.replaceToBiomeName == null && biomeConfig.replaceToBiomeName.trim().length() < 0) {
 					nonVirtualBiomes.add(biomeConfig);
-				} else if (otgBiomeId >= biomeConfig.replaceToBiomeName.trim().length()) {
+				} else if (biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.trim().length() >= 0) {
 					virtualBiomes.add(biomeConfig);
 				}
 			}
@@ -786,8 +786,9 @@ public final class ServerConfigProvider implements ConfigProvider
 			}
 			// Once we get here, the config doesn't exist
 			// Try one last time, if that doesn't work, we throw an error
-			int id = getRequestedSavedId(biomeConfig.replaceToBiomeName);
-			if (0 <= id) {
+
+            int id = getRequestedSavedId(biomeConfig.replaceToBiomeName);
+            if (-1 < id || biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.trim().length() >= 0) {
 				// It has a valid ID, let's just return that
 				return id;
 			}
