@@ -605,7 +605,7 @@ public final class ServerConfigProvider implements ConfigProvider
 
 				for (int i = 0; i < Integer.MAX_VALUE; i++) // Virtual (replacetobiomename) biomes can only have id's above 255
 				{
-					if ((biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.trim().length() > 0 ) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).length)) {
+					if ((biomeConfig.replaceToBiomeName.isEmpty() && (i > (Integer.MAX_VALUE - 1 ))) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).length)) {
 						OTG.log(LogMarker.FATAL, "Biome could not be registered, no free biome id's!");
 						throw new RuntimeException("Biome could not be registered, no free biome id's!");
 					}
@@ -788,7 +788,7 @@ public final class ServerConfigProvider implements ConfigProvider
 			// Try one last time, if that doesn't work, we throw an error
 
             int id = getRequestedSavedId(biomeConfig.replaceToBiomeName);
-            if (-1 < id || biomeConfig.replaceToBiomeName != null && biomeConfig.replaceToBiomeName.trim().length() >= 0) {
+            if (id > -1 && (biomeConfig.replaceToBiomeName == null || biomeConfig.replaceToBiomeName.trim().length() == 0)) {
 				// It has a valid ID, let's just return that
 				return id;
 			}
