@@ -112,7 +112,7 @@ public class CreateDeleteDimensionPacket extends OTGPacket
 
 								ArrayList<String> presetNames = new ArrayList<String>();
 								presetNames.add(dimConfig.PresetName);
-								if (!JEID || !OTG.getEngine().areEnoughBiomeIdsAvailableForPresets(presetNames)) {
+								if (!JEID && !OTG.getEngine().areEnoughBiomeIdsAvailableForPresets(presetNames)) {
 									// Update the UI on the client
 									ServerPacketManager.sendDimensionSynchPacketToAllPlayers(player.getServer());
 									OTG.log(LogMarker.INFO, "Warning: Client tried to create a dimension, but not enough biome id's are available.");
