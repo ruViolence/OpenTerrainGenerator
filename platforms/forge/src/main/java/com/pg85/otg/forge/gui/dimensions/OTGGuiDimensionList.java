@@ -487,14 +487,10 @@ public class OTGGuiDimensionList extends GuiScreen implements GuiYesNoCallback
 	                	{
 	                		this.mc.displayGuiScreen(new GuiErrorScreen("Error", "Multiple dimensions are using the same portal color, each dimension's portal color must be unique."));
 	                	}
-						else if (JEID) {
-							this.mc.displayGuiScreen(new OTGGuiEnterWorldName(this, this.dimensions.get(0).PresetName));
+						if (!JEID && !OTG.getEngine().areEnoughBiomeIdsAvailableForPresets(presetNames)) {
+							this.mc.displayGuiScreen(new GuiErrorScreen("Error", "Not enough biome id's available to add all dimensions."));
 						} else {
-	                	 	if (!OTG.getEngine().areEnoughBiomeIdsAvailableForPresets(presetNames)) {
-								this.mc.displayGuiScreen(new GuiErrorScreen("Error", "Not enough biome id's available to add all dimensions."));
-							} else {
-								this.mc.displayGuiScreen(new OTGGuiEnterWorldName(this, this.dimensions.get(0).PresetName));
-							}
+							this.mc.displayGuiScreen(new OTGGuiEnterWorldName(this, this.dimensions.get(0).PresetName));
 						}
                 	} else {
                 		        
@@ -526,7 +522,7 @@ public class OTGGuiDimensionList extends GuiScreen implements GuiYesNoCallback
 	                				{
 	        		                	ArrayList<String> presetNames = new ArrayList<String>();
 	        		                	presetNames.add(dimConfig.PresetName);
-										if (JEID) {
+										if (JEID || OTG.getEngine().areEnoughBiomeIdsAvailableForPresets(presetNames)) {
 											dimConfig.isNewConfig = false;
 											OTG.IsNewWorldBeingCreated = true;
 											if (!OTGDimensionManager.createNewDimensionSP(dimConfig, this.mc.getIntegratedServer())) {
@@ -534,17 +530,8 @@ public class OTGGuiDimensionList extends GuiScreen implements GuiYesNoCallback
 											}
 											OTG.IsNewWorldBeingCreated = false;
 										} else {
-											if (OTG.getEngine().areEnoughBiomeIdsAvailableForPresets(presetNames)) {
-												dimConfig.isNewConfig = false;
-												OTG.IsNewWorldBeingCreated = true;
-												if (!OTGDimensionManager.createNewDimensionSP(dimConfig, this.mc.getIntegratedServer())) {
-													this.mc.displayGuiScreen(new GuiErrorScreen("Error", "Dimension id " + dimConfig.DimensionId + " was taken."));
-												}
-												OTG.IsNewWorldBeingCreated = false;
-											} else {
-												this.mc.displayGuiScreen(new GuiErrorScreen("Error", "Not enough biome id's available to add all dimensions."));
-												break;
-											}
+											this.mc.displayGuiScreen(new GuiErrorScreen("Error", "Not enough biome id's available to add all dimensions."));
+											break;
 										}
 	                				}
 	                			}
