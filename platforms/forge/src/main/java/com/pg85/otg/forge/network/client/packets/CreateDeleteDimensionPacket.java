@@ -109,8 +109,7 @@ public class CreateDeleteDimensionPacket extends OTGPacket
 
 			    	        // Ensure the portal color is unique (not already in use), otherwise correct it.
 	        				PortalColors.correctPortalColor(dimConfig, OTG.getDimensionsConfig().getAllDimensions());
-							if(JEID) {
-							} else {
+							if (!JEID) {
 								ArrayList<String> presetNames = new ArrayList<String>();
 								presetNames.add(dimConfig.PresetName);
 								if (!OTG.getEngine().areEnoughBiomeIdsAvailableForPresets(presetNames)) {

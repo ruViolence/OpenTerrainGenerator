@@ -533,7 +533,7 @@ public final class ServerConfigProvider implements ConfigProvider
         	            	{
                 				OTG.getEngine().setOTGBiomeId(world.getName(), biomeIdData.otgBiomeId, biomeConfig, false);        	            		
         	            	}
-        	            	else if((world.getName() + "_" + OTG.getEngine().getOTGBiomeIds(world.getName())[biomeIdData.otgBiomeId].getName()).equals(biomeIdData.biomeName))
+        	            	else if((world.getName() + "_" + OTG.getEngine().getOTGBiomeIds(world.getName()).get(biomeIdData.otgBiomeId).getName()).equals(biomeIdData.biomeName))
         	            	{
         	            		OTG.getEngine().setOTGBiomeId(world.getName(), biomeIdData.otgBiomeId, biomeConfig, true);
         	            	} else {
@@ -569,15 +569,15 @@ public final class ServerConfigProvider implements ConfigProvider
             loadedBiomeNames.append(biomeConfig.getName());
             loadedBiomeNames.append(", ");
 
-            BiomeConfig[] otgIds2 = OTG.getEngine().getOTGBiomeIds(world.getName());
+            ArrayList<BiomeConfig> otgIds2 = OTG.getEngine().getOTGBiomeIds(world.getName());
 
             int otgBiomeId = -1;
 
             // Exclude already registered biomes from loadedBiomeIdData / default biomes
             boolean bFound = false;
-            for(int i = 0; i < otgIds2.length; i++)
+            for(int i = 0; i < otgIds2.size(); i++)
             {
-            	BiomeConfig biomeConfig2 = otgIds2[i];
+            	BiomeConfig biomeConfig2 = otgIds2.get(i);
             	if(biomeConfig == biomeConfig2)
             	{
             		bFound = true;
@@ -603,9 +603,9 @@ public final class ServerConfigProvider implements ConfigProvider
             if(otgBiomeId == -1) {
 				// Find the next available id
 
-				for (int i = 0; i < otgIds2.length; i++) // Virtual (replacetobiomename) biomes can only have id's above 255
+				for (int i = 0; i < otgIds2.size(); i++) // Virtual (replacetobiomename) biomes can only have id's above 255
 				{
-					if ((biomeConfig.replaceToBiomeName.isEmpty() && (i > (otgIds2.length - 1 ))) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).length)) {
+					if ((biomeConfig.replaceToBiomeName.isEmpty() && (i > (otgIds2.size() - 1 ))) || (biomeConfig.replaceToBiomeName.isEmpty() && i >= OTG.getEngine().getOTGBiomeIds(world.getName()).size())) {
 						OTG.log(LogMarker.FATAL, "Biome could not be registered, no free biome id's!");
 						throw new RuntimeException("Biome could not be registered, no free biome id's!");
 					}
@@ -685,10 +685,10 @@ public final class ServerConfigProvider implements ConfigProvider
         
         // Get the assigned OTG biome id
     	int otgBiomeId = -1;
-    	BiomeConfig[] otgIds2 = OTG.getEngine().getOTGBiomeIds(world.getName());
-    	for(int i = 0; i < otgIds2.length; i++)
+    	ArrayList<BiomeConfig> otgIds2 = OTG.getEngine().getOTGBiomeIds(world.getName());
+    	for(int i = 0; i < otgIds2.size(); i++)
     	{
-    		if(otgIds2[i] == biomeConfig)
+    		if(otgIds2.get(i) == biomeConfig)
     		{
     			otgBiomeId = i;
     			break;
@@ -752,7 +752,7 @@ public final class ServerConfigProvider implements ConfigProvider
 	 * @param counter Simple recursion counter to make sure it doesn't endlessly recurse
 	 * @return The saved ID of a registered biome
 	 */
-	private int findSavedBiomeId(BiomeConfig biomeConfig, BiomeConfig[] configArray, int counter) {
+	private int findSavedBiomeId(BiomeConfig biomeConfig, ArrayList<BiomeConfig> configArray, int counter) {
     	if (counter > 100) {
     		OTG.log(LogMarker.FATAL, "Failed to replace, recursion went deeper than 100 layers. Did you create a replace loop at "+biomeConfig.replaceToBiomeName+"?");
     		throw new RuntimeException("Failed to replace, recursion went deeper than 100 layers. Did you create a replace loop at "+biomeConfig.replaceToBiomeName+"?");

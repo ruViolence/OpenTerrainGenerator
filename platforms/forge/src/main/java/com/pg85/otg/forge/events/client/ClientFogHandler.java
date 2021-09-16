@@ -404,7 +404,7 @@ public class ClientFogHandler
 		short cachedId = biomeCache[x][z];
 		if (cachedId != -1 && !hasMoved)
 		{
-			return OTG.getEngine().getOTGBiomeIds(world.getName())[cachedId];
+			return OTG.getEngine().getOTGBiomeIds(world.getName()).get(cachedId);
 		} else {
 			Biome biome = world.getBiomeFromChunk(blockPos.getX(), blockPos.getZ());
 			LocalBiome localBiome = biome != null ? world.getBiomeByNameOrNull(biome.getBiomeName()) : null;

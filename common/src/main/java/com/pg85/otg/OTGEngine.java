@@ -34,7 +34,7 @@ import java.util.Random;
 
 public abstract class OTGEngine
 {
-	private HashMap<String, BiomeConfig[]> otgBiomeIdsByWorld = new HashMap<String, BiomeConfig[]>();
+	private HashMap<String, ArrayList<BiomeConfig>> otgBiomeIdsByWorld = new HashMap<String, ArrayList<BiomeConfig>>();
     private BiomeModeManager biomeManagers;
     private List<EventHandler> cancelableEventHandlers = new ArrayList<EventHandler>(5);
     private BiomeResourcesManager biomeResourcesManager;
@@ -304,29 +304,29 @@ public abstract class OTGEngine
 	{
     	if(!otgBiomeIdsByWorld.containsKey(worldName))
     	{
-    		otgBiomeIdsByWorld.put(worldName, new BiomeConfig[999999]);
+    		otgBiomeIdsByWorld.put(worldName, new ArrayList<>());
     	}
-    	if(replaceExisting || otgBiomeIdsByWorld.get(worldName)[i] == null)
+    	if(replaceExisting || otgBiomeIdsByWorld.get(worldName).get(i) == null)
     	{
-    		otgBiomeIdsByWorld.get(worldName)[i] = biomeConfig;
+    		otgBiomeIdsByWorld.get(worldName).set(i, biomeConfig);
     	} else {
-    		throw new RuntimeException("Tried to register OTG biome " + biomeConfig.getName() + " with id " + i + " but the id is in use by biome " + otgBiomeIdsByWorld.get(worldName)[i].getName() + ". OTG 1.12.2 v7 and above use dynamic biome id's for new worlds, this avoids the problem completely.");
+    		throw new RuntimeException("Tried to register OTG biome " + biomeConfig.getName() + " with id " + i + " but the id is in use by biome " + otgBiomeIdsByWorld.get(worldName).get(i).getName() + ". OTG 1.12.2 v7 and above use dynamic biome id's for new worlds, this avoids the problem completely.");
     	}
 	}
 
-    public BiomeConfig[] getOTGBiomeIds(String worldName)
+    public ArrayList<BiomeConfig> getOTGBiomeIds(String worldName)
     {
-    	return otgBiomeIdsByWorld.containsKey(worldName) ? otgBiomeIdsByWorld.get(worldName) : new BiomeConfig[999999];
+    	return otgBiomeIdsByWorld.containsKey(worldName) ? otgBiomeIdsByWorld.get(worldName) : new ArrayList<BiomeConfig>();
     }
     
 	public boolean isOTGBiomeIdAvailable(String worldName, int i)
 	{
-		return !otgBiomeIdsByWorld.containsKey(worldName) || otgBiomeIdsByWorld.get(worldName)[i] == null;
+		return !otgBiomeIdsByWorld.containsKey(worldName) || otgBiomeIdsByWorld.get(worldName).get(i) == null;
 	}
 
 	public void unregisterOTGBiomeId(String worldName, int i)
 	{
-		otgBiomeIdsByWorld.get(worldName)[i] = null;
+		otgBiomeIdsByWorld.get(worldName).set(i, null);
 	}    
     
     // Materials
