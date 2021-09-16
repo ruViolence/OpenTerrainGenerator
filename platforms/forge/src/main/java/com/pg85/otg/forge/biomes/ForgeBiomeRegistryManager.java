@@ -145,16 +145,15 @@ public class ForgeBiomeRegistryManager
 		// Always try to register biomes and create Biome Configs. Biomes with id's > 255 are registered
 		// only for biome -> id queries, any (saved)id -> biome query will return the ReplaceToBiomeName biome.
 	
-		Biome existingBiome = Biome.getBiome(biomeIds.getSavedId());
+	    Biome existingBiome = Biome.getBiome(biomeIds.getSavedId());
 
-		 String errorText = "Could not allocate the requested id " + biomeIds.getSavedId() + " for biome ";
 		 if(JEID) {
 			 if (biomeIds.getSavedId() < 0) {
-				 throw new RuntimeException(errorText + biomeConfig.getName() + ". a biome id under 0 have been allocated\n" + ". Please report this to JEID issue tracker.");
+				 throw new RuntimeException("Could not allocate the requested id " + biomeIds.getSavedId() + " for biome " + biomeConfig.getName() + ". a biome id under 0 have been allocated\n" + ". Please report this to JEID issue tracker.");
 			 }
 		 } else {
 			 if (biomeIds.getSavedId() >= 256 || biomeIds.getSavedId() < 0) {
-				 throw new RuntimeException(errorText + ". All available id's under 256 have been allocated\n" + ". To proceed, adjust your WorldConfig or use the ReplaceToBiomeName feature to make the biome virtual.");
+				 throw new RuntimeException("Could not allocate the requested id " + biomeIds.getSavedId() + " for biome " + biomeConfig.getName() + ". All available id's under 256 have been allocated\n" + ". To proceed, adjust your WorldConfig or use the ReplaceToBiomeName feature to make the biome virtual.");
 			 }
 		 }
 
