@@ -109,17 +109,16 @@ public class CreateDeleteDimensionPacket extends OTGPacket
 
 			    	        // Ensure the portal color is unique (not already in use), otherwise correct it.
 	        				PortalColors.correctPortalColor(dimConfig, OTG.getDimensionsConfig().getAllDimensions());
-							if(JEID) {
-							} else {
+
 								ArrayList<String> presetNames = new ArrayList<String>();
 								presetNames.add(dimConfig.PresetName);
-								if (!OTG.getEngine().areEnoughBiomeIdsAvailableForPresets(presetNames)) {
+								if (!JEID && !OTG.getEngine().areEnoughBiomeIdsAvailableForPresets(presetNames)) {
 									// Update the UI on the client
 									ServerPacketManager.sendDimensionSynchPacketToAllPlayers(player.getServer());
 									OTG.log(LogMarker.INFO, "Warning: Client tried to create a dimension, but not enough biome id's are available.");
 									return;
 								}
-							}
+
             				long seed = (new Random()).nextLong();		            				
             	            String sSeed = dimConfig.Seed;
             	            if (sSeed != null && !StringUtils.isEmpty(sSeed))
