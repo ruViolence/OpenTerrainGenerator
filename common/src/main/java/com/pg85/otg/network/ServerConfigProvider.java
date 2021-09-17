@@ -710,33 +710,31 @@ public final class ServerConfigProvider implements ConfigProvider
         }
 
         // Create biome
-        if (biomeConfig.replaceToBiomeName != null) {
-            LocalBiome biome = world.createBiomeFor(biomeConfig, new BiomeIds(otgBiomeId, savedBiomeId, !biomeConfig.replaceToBiomeName.isEmpty()), this, isReload);
-            this.biomesByOTGId[biome.getIds().getOTGBiomeId()] = biome;
-            // Indexing ReplacedBlocks
-            if (!this.worldConfig.biomeConfigsHaveReplacement) {
-                this.worldConfig.biomeConfigsHaveReplacement = biomeConfig.replacedBlocks.hasReplaceSettings();
-            }
-            biomeConfig.replacedBlocks.parseForWorld(this.world);
+        LocalBiome biome = world.createBiomeFor(biomeConfig, new BiomeIds(otgBiomeId, savedBiomeId, biomeConfig.replaceToBiomeName != null && !biomeConfig.replaceToBiomeName.isEmpty()), this, isReload);
+        this.biomesByOTGId[biome.getIds().getOTGBiomeId()] = biome;
+        // Indexing ReplacedBlocks
+        if (!this.worldConfig.biomeConfigsHaveReplacement) {
+            this.worldConfig.biomeConfigsHaveReplacement = biomeConfig.replacedBlocks.hasReplaceSettings();
+        }
+        biomeConfig.replacedBlocks.parseForWorld(this.world);
 
-            // Indexing MaxSmoothRadius
-            if (this.worldConfig.maxSmoothRadius < biomeConfig.smoothRadius) {
-                this.worldConfig.maxSmoothRadius = biomeConfig.smoothRadius;
+        // Indexing MaxSmoothRadius
+        if (this.worldConfig.maxSmoothRadius < biomeConfig.smoothRadius) {
+            this.worldConfig.maxSmoothRadius = biomeConfig.smoothRadius;
+        }
+
+        if (this.worldConfig.maxSmoothRadius < biomeConfig.CHCSmoothRadius) {
+            this.worldConfig.maxSmoothRadius = biomeConfig.CHCSmoothRadius;
+        }
+
+        // Indexing BiomeColor
+        if (this.worldConfig.biomeMode == OTG.getBiomeModeManager().FROM_IMAGE) {
+            if (this.worldConfig.biomeColorMap == null) {
+                this.worldConfig.biomeColorMap = new HashMap<Integer, Integer>();
             }
 
-            if (this.worldConfig.maxSmoothRadius < biomeConfig.CHCSmoothRadius) {
-                this.worldConfig.maxSmoothRadius = biomeConfig.CHCSmoothRadius;
-            }
-
-            // Indexing BiomeColor
-            if (this.worldConfig.biomeMode == OTG.getBiomeModeManager().FROM_IMAGE) {
-                if (this.worldConfig.biomeColorMap == null) {
-                    this.worldConfig.biomeColorMap = new HashMap<Integer, Integer>();
-                }
-
-                int color = biomeConfig.biomeColor;
-                this.worldConfig.biomeColorMap.put(color, biome.getIds().getOTGBiomeId());
-            }
+            int color = biomeConfig.biomeColor;
+            this.worldConfig.biomeColorMap.put(color, biome.getIds().getOTGBiomeId());
         }
     }
 	/** Recursive method to get saved ID from ReplaceToBiomeName, allows chain replacing to virtual biomes.
