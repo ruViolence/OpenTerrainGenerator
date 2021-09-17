@@ -710,33 +710,26 @@ public final class ServerConfigProvider implements ConfigProvider
         }
 
         // Create biome
-        LocalBiome biome = world.createBiomeFor(biomeConfig, new BiomeIds(otgBiomeId, savedBiomeId), this, isReload);
-        
+        LocalBiome biome = world.createBiomeFor(biomeConfig, new BiomeIds(otgBiomeId, savedBiomeId, biomeConfig.replaceToBiomeName != null && !biomeConfig.replaceToBiomeName.isEmpty()), this, isReload);
         this.biomesByOTGId[biome.getIds().getOTGBiomeId()] = biome;
-
         // Indexing ReplacedBlocks
-        if (!this.worldConfig.biomeConfigsHaveReplacement)
-        {
+        if (!this.worldConfig.biomeConfigsHaveReplacement) {
             this.worldConfig.biomeConfigsHaveReplacement = biomeConfig.replacedBlocks.hasReplaceSettings();
         }
         biomeConfig.replacedBlocks.parseForWorld(this.world);
 
         // Indexing MaxSmoothRadius
-        if (this.worldConfig.maxSmoothRadius < biomeConfig.smoothRadius)
-        {
+        if (this.worldConfig.maxSmoothRadius < biomeConfig.smoothRadius) {
             this.worldConfig.maxSmoothRadius = biomeConfig.smoothRadius;
         }
 
-		if (this.worldConfig.maxSmoothRadius < biomeConfig.CHCSmoothRadius)
-		{
-			this.worldConfig.maxSmoothRadius = biomeConfig.CHCSmoothRadius;
-		}
+        if (this.worldConfig.maxSmoothRadius < biomeConfig.CHCSmoothRadius) {
+            this.worldConfig.maxSmoothRadius = biomeConfig.CHCSmoothRadius;
+        }
 
         // Indexing BiomeColor
-        if (this.worldConfig.biomeMode == OTG.getBiomeModeManager().FROM_IMAGE)
-        {
-            if (this.worldConfig.biomeColorMap == null)
-            {
+        if (this.worldConfig.biomeMode == OTG.getBiomeModeManager().FROM_IMAGE) {
+            if (this.worldConfig.biomeColorMap == null) {
                 this.worldConfig.biomeColorMap = new HashMap<Integer, Integer>();
             }
 
@@ -744,7 +737,6 @@ public final class ServerConfigProvider implements ConfigProvider
             this.worldConfig.biomeColorMap.put(color, biome.getIds().getOTGBiomeId());
         }
     }
-
 	/** Recursive method to get saved ID from ReplaceToBiomeName, allows chain replacing to virtual biomes.
 	 *
 	 * @param biomeConfig The biomeconfig we want to find the saved ID for
