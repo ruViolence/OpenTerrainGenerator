@@ -89,17 +89,13 @@ public final class ClientConfigProvider implements ConfigProvider
 
             BiomeLoadInstruction instruction = new BiomeLoadInstruction(biomeName, defaultSettings);
             BiomeConfig config = new BiomeConfig(instruction, null, biomeReader, worldConfig);
-            if(config.replaceToBiomeName != null) {
-                LocalBiome biome = world.createBiomeFor(config, new BiomeIds(otgBiomeId, savedBiomeId, !config.replaceToBiomeName.isEmpty()), this, false);
-                biomesByOTGId[otgBiomeId] = biome;
-                if(savedBiomeId == otgBiomeId || BiomeRegistryNames.getRegistryNameForDefaultBiome(biomeName) != null) // Non-virtual and default biomes only
-                {
-                    biomesBySavedId[savedBiomeId] = biome;
-                }
-            } else {
-                 throw new IllegalStateException("biomeConfig.replaceToBiomeName was null");
+            LocalBiome biome = world.createBiomeFor(config, new BiomeIds(otgBiomeId, savedBiomeId, config.replaceToBiomeName != null && !config.replaceToBiomeName.isEmpty()), this, false);
+            biomesByOTGId[otgBiomeId] = biome;
+            if (!BiomeIds.isVirtual()) // Non-virtual and default biomes only
+            {
+                biomesBySavedId[savedBiomeId] = biome;
             }
-            
+
         	OTG.getEngine().setOTGBiomeId(world.getName(), otgBiomeId, config, true);
         }
     }

@@ -16,7 +16,7 @@ public class BiomeIds
 {
     private int otgBiomeId;
     private int savedId;
-    private boolean isVirtual;
+    private static boolean isVirtual;
 
     /**
      * Creates a new virtual biome id.
@@ -29,7 +29,7 @@ public class BiomeIds
     {
         this.otgBiomeId = otgBiomeId;
         this.savedId = savedId;
-        this.isVirtual = isVirtual;
+        BiomeIds.isVirtual = isVirtual;
     }
 
     /**
@@ -39,9 +39,9 @@ public class BiomeIds
      *
      * @return True if the biome is virtual, false otherwise.
      */
-    public boolean isVirtual()
+    public static boolean isVirtual()
     {
-    	return this.isVirtual;
+    	return BiomeIds.isVirtual;
     }
 
     /**
