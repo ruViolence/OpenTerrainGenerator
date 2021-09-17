@@ -90,7 +90,7 @@ public final class ClientConfigProvider implements ConfigProvider
             BiomeLoadInstruction instruction = new BiomeLoadInstruction(biomeName, defaultSettings);
             BiomeConfig config = new BiomeConfig(instruction, null, biomeReader, worldConfig);
 
-            LocalBiome biome = world.createBiomeFor(config, new BiomeIds(otgBiomeId, savedBiomeId), this, false);
+            LocalBiome biome = world.createBiomeFor(config, new BiomeIds(otgBiomeId, savedBiomeId, !config.replaceToBiomeName.isEmpty()), this, false);
             biomesByOTGId[otgBiomeId] = biome;
             if(savedBiomeId == otgBiomeId || BiomeRegistryNames.getRegistryNameForDefaultBiome(biomeName) != null) // Non-virtual and default biomes only
             {

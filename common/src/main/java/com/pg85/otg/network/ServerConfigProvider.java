@@ -710,7 +710,7 @@ public final class ServerConfigProvider implements ConfigProvider
         }
 
         // Create biome
-        LocalBiome biome = world.createBiomeFor(biomeConfig, new BiomeIds(otgBiomeId, savedBiomeId), this, isReload);
+        LocalBiome biome = world.createBiomeFor(biomeConfig, new BiomeIds(otgBiomeId, savedBiomeId, !biomeConfig.replaceToBiomeName.isEmpty()), this, isReload);
         
         this.biomesByOTGId[biome.getIds().getOTGBiomeId()] = biome;
 
