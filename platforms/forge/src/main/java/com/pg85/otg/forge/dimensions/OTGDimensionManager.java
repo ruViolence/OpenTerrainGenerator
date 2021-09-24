@@ -501,7 +501,7 @@ public class OTGDimensionManager
     // TODO: It's crude but it works, can improve later
 
 	public static void SaveDimensionData()
-	{		
+	{
 		StringBuilder stringbuilder = new StringBuilder();
 		for(int i = 0; i < Long.SIZE << 4; i++)
 		{
@@ -522,6 +522,9 @@ public class OTGDimensionManager
 					if(forgeWorld == null)
 					{
 						continue; // If another mod added a dimension
+					}
+					if (orderedDimensions.get(i) == null){
+						continue; // If a plugin (like Multiverse) has added a dimension
 					}
 
 					if(forgeWorld != null)
