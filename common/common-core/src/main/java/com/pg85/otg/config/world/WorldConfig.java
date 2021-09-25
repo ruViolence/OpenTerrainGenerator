@@ -214,6 +214,7 @@ public class WorldConfig extends WorldConfigBase
 		this.riverRarity = reader.getSetting(WorldStandardValues.RIVER_RARITY, logger);
 		this.riverSize = reader.getSetting(WorldStandardValues.RIVER_SIZE, logger);
 		this.riversEnabled = reader.getSetting(WorldStandardValues.RIVERS_ENABLED, logger);
+		this.improvedBorderDecoration = reader.getSetting(WorldStandardValues.IMPROVED_BORDER_DECORATION, logger);
 
 		// BiomeGroups requires that values like genDepth are initialized
 		readTemplateBiomes(reader, biomeResourcesManager, logger, materialReader);
@@ -480,6 +481,10 @@ public class WorldConfig extends WorldConfigBase
 
 		writer.putSetting(WorldStandardValues.OLD_GROUP_RARITY, this.oldGroupRarity,
 			"Whether or not OTG should use the old group rarity"
+		);
+
+		writer.putSetting(WorldStandardValues.IMPROVED_BORDER_DECORATION, this.improvedBorderDecoration,
+				"Whether OTG should do decoration for all biomes found in chunk. This could result in more resources being more common near chunk borders."
 		);
 		
 		writer.header2("Template biomes",

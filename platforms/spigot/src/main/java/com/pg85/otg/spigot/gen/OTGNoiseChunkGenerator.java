@@ -406,15 +406,63 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 		
 		ChunkCoordinate chunkBeingDecorated = ChunkCoordinate.fromBlockCoords(worldX, worldZ);
 		SpigotWorldGenRegion spigotWorldGenRegion = new SpigotWorldGenRegion(this.preset.getFolderName(), this.preset.getWorldConfig(), worldGenRegion, this);
-		IBiome biome = this.internalGenerator.getCachedBiomeProvider().getNoiseBiome((worldGenRegion.a() << 2) + 2, (worldGenRegion.b() << 2) + 2);		
-		IBiomeConfig biomeConfig = biome.getBiomeConfig();
+		IBiome biome = this.internalGenerator.getCachedBiomeProvider().getNoiseBiome((worldGenRegion.a() << 2) + 2, (worldGenRegion.b() << 2) + 2);
+		IBiome biome1 = this.internalGenerator.getCachedBiomeProvider().getNoiseBiome((worldGenRegion.a() << 2), (worldGenRegion.b() << 2));
+		IBiome biome2 = this.internalGenerator.getCachedBiomeProvider().getNoiseBiome((worldGenRegion.a() << 2), (worldGenRegion.b() << 2) + 4);
+		IBiome biome3 = this.internalGenerator.getCachedBiomeProvider().getNoiseBiome((worldGenRegion.a() << 2) + 4, (worldGenRegion.b() << 2));
+		IBiome biome4 = this.internalGenerator.getCachedBiomeProvider().getNoiseBiome((worldGenRegion.a() << 2) + 4, (worldGenRegion.b() << 2) + 4);
 		// World save folder name may not be identical to level name, fetch it.
 		Path worldSaveFolder = worldGenRegion.getMinecraftWorld().getWorld().getWorldFolder().toPath();
+
+		// Get most common biome in chunk and use that for decoration - Frank
+		if (!getPreset().getWorldConfig().improvedBorderDecoration()) {
+			List<IBiome> biomes = new ArrayList<IBiome>();
+			biomes.add(biome);
+			biomes.add(biome1);
+			biomes.add(biome2);
+			biomes.add(biome3);
+			biomes.add(biome4);
+			Map<IBiome, Integer> map = new HashMap<>();
+			for (IBiome b : biomes) {
+				Integer val = map.get(b);
+				map.put(b, val == null ? 1 : val + 1);
+			}
+
+			Map.Entry<IBiome, Integer> max = null;
+
+			for (Map.Entry<IBiome, Integer> ent : map.entrySet()) {
+				if (max == null || ent.getValue() > max.getValue()) max = ent;
+			}
+
+			biome = max.getKey();
+		}
+
+		IBiomeConfig biomeConfig = biome.getBiomeConfig();
 		
 		try
 		{
+			List<Integer> alreadyDecorated = new ArrayList<>();
 			this.chunkDecorator.decorate(this.preset.getFolderName(), chunkBeingDecorated, spigotWorldGenRegion, biomeConfig, getStructureCache(worldSaveFolder));
 			((SpigotBiome)biome).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
+			alreadyDecorated.add(biome.getBiomeConfig().getOTGBiomeId());
+			// Attempt to decorate other biomes if ImprovedBiomeDecoration - Frank
+			if (getPreset().getWorldConfig().improvedBorderDecoration()) {
+				if (!alreadyDecorated.contains(biome1.getBiomeConfig().getOTGBiomeId()))
+					this.chunkDecorator.decorate(this.preset.getFolderName(), chunkBeingDecorated, spigotWorldGenRegion, biome1.getBiomeConfig(), getStructureCache(worldSaveFolder));
+				if (!alreadyDecorated.contains(biome1.getBiomeConfig().getOTGBiomeId())) ((SpigotBiome)biome1).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
+				alreadyDecorated.add(biome1.getBiomeConfig().getOTGBiomeId());
+				if (!alreadyDecorated.contains(biome2.getBiomeConfig().getOTGBiomeId()))
+					this.chunkDecorator.decorate(this.preset.getFolderName(), chunkBeingDecorated, spigotWorldGenRegion, biome2.getBiomeConfig(), getStructureCache(worldSaveFolder));
+				if (!alreadyDecorated.contains(biome2.getBiomeConfig().getOTGBiomeId())) ((SpigotBiome)biome2).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
+				alreadyDecorated.add(biome2.getBiomeConfig().getOTGBiomeId());
+				if (!alreadyDecorated.contains(biome3.getBiomeConfig().getOTGBiomeId()))
+					this.chunkDecorator.decorate(this.preset.getFolderName(), chunkBeingDecorated, spigotWorldGenRegion, biome3.getBiomeConfig(), getStructureCache(worldSaveFolder));
+				if (!alreadyDecorated.contains(biome3.getBiomeConfig().getOTGBiomeId())) ((SpigotBiome)biome3).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
+				alreadyDecorated.add(biome3.getBiomeConfig().getOTGBiomeId());
+				if (!alreadyDecorated.contains(biome4.getBiomeConfig().getOTGBiomeId()))
+					this.chunkDecorator.decorate(this.preset.getFolderName(), chunkBeingDecorated, spigotWorldGenRegion, biome4.getBiomeConfig(), getStructureCache(worldSaveFolder));
+				if (!alreadyDecorated.contains(biome4.getBiomeConfig().getOTGBiomeId())) ((SpigotBiome)biome4).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
+			}
 			// Template biomes handle their own snow, OTG biomes use OTG snow.
 			// TODO: Snow is handled per chunk, so this may cause some artifacts on biome borders.
 			if(!biome.getBiomeConfig().getTemplateForBiome())
