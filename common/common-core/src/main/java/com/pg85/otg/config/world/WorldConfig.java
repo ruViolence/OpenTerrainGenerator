@@ -935,7 +935,7 @@ public class WorldConfig extends WorldConfigBase
 		
 		writer.header1("Dimension settings (Forge)");
 
-		writer.putSetting(WorldStandardValues.FIXED_TIME, !this.fixedTime.isPresent() ? -1 : this.fixedTime.getAsLong(),
+		writer.putSetting(WorldStandardValues.FIXED_TIME, !this.fixedTime.isPresent() ? WorldStandardValues.FIXED_TIME.getDefaultValue() : this.fixedTime.getAsLong(),
 			"The time this dimension is fixed at, from 0 to 24000.",
 			"-1 by default, meaning disabled, so time passes normally."
 		);		
