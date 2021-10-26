@@ -18,7 +18,58 @@ _Note: Both servers and clients running OTG will require more memory than vanill
   * Provided by [Wahrheit](https://github.com/SXRWahrheit), who purchased the rights from mysource.
 * [Traveler's Dream](https://www.curseforge.com/minecraft/mc-mods/travelers-dream)
 
-## Installation instructions
+## 1.16 and above Installation instructions
+
+Presets are being updated for 1.16.x and will be available on CurseForge as soon as possible. In the mean time, 1.12.2 presets can be used with OTG 1.16.x. See also: [Installing OTG](/OpenTerrainGenerator/installation/installing-otg)
+
+### Installing jars created with PresetPacker
+
+OTG 1.16 and above includes support for the newest iteration of PresetPacker, which allows presets to be distributed in easy-to-use .jar format for both Forge and Spigot/Paper. The process for installing presets created with PresetPacker is simple.
+
+#### Forge Single-Player
+
+1. Download the packed .jar file for the preset you want to use. **The preset must be packed with PresetPacker and updated for 1.16 and above**
+2. Install the preset by copying the .jar file to your `mods` folder
+3. Select the OpenTerrainGenerator world type in the world creation menu and select your desired preset
+
+#### Forge Server
+
+1. Download the packed .jar file for the preset you want to use. **The preset must be packed with PresetPacker and updated for 1.16 and above**
+2. Install the preset by copying the .jar file to your `mods` folder
+3. Configure `server.properties`:
+* Set `level-type: otg` and `generator-settings: presetname`. `presetname` should match either the folder name of one of your installed presets (`/config/OpenTerrainGenerator/Presets/` for Forge), or the name of a .yaml file in the `/OpenTerrainGenerator/DimensionConfigs/` folder.
+
+
+#### Spigot/Paper
+
+1. Download the packed .jar file for the preset you want to use. **The preset must be packed with PresetPacker and updated for 1.16 and above.**
+2. Install the preset by copying the .jar file to your `mods` folder for Forge or `plugins` folder for Spigot/Paper
+3. Configure `bukkit.yml` or Multiverse for Spigot/Paper
+* bukkit.yml:
+```yaml
+worlds:
+    world_name:
+        generator: OpenTerrainGenerator:Wildlands
+```
+* Multiverse: `/mv create my_world_name normal -g OpenTerrainGenerator:PresetName` (e.g. `/mv create vanilla_vistas normal -g "OpenTerrainGenerator:Vanilla Vistas"` for a preset name that contains spaces)
+
+
+### Using 1.12.2 presets with OTG 1.16.x
+
+1.12.2 preset jars (like Biome Bundle.jar) downloaded from CurseForge will not automatically install for 1.16.x. However, you can unpack the .jar and copy preset files yourself:
+
+1. Use an app like WinRar to unpack the .jar like you'd unpack a .zip or .rar file.
+2. Find the preset folder(s) in unpackedjar/assets/worldpacker/presetname.
+3. Copy the preset folder(s) to config/OpenTerrainGenerator/Presets/ for Forge or plugins/OpenTerrainGenerator/Presets/ for Spigot/Paper.
+4. This way, 1.12.2 presets can be used with OTG 1.16.5, however presets will need to be updated to make use of all the new features.
+
+**Note**: When using 1.12.2 presets with OTG 1.16.5, some mods don't work due to missing biome categories or biome dictionary tags in OTG biomes, configured via the BiomeConfig (.bc) files. Ice and Fire requires the "overworld" tag for example, which is not configured for 1.12.2 OTG presets. Presets are being updated and will be released on CurseForge. Users can also manually add categories/tags to BiomeConfig (.bc) files (`BiomeCategory:`, `BiomeDictTags:`).
+
+### Generating a default "vanilla worldgen" preset to edit
+
+If no world preset is installed, when generating a world OTG will generate a set of configs that approximate 'vanilla' Minecraft world generation in the /OpenTerrainGenerator/Presets/Default folder (found in either the /mods or /plugins folder depending on platform).
+
+## 1.12 and below Installation instructions
 
 ### Forge Single Player
 
@@ -69,8 +120,4 @@ worlds:
 
 If you have an existing Terrain Control preset or an OTG preset not in .jar format but instead consisting of a world directory containing its Worldconfig.ini and WorldObjects and WorldBiomes subfolders, follow the installation instructions above but instead of installing a .jar file, put your world preset folder into the `/OpenTerrainGenerator/worlds` folder.
 
-### Generating a default "vanilla worldgen" preset to edit
 
-If no world preset is installed, when generating a world OTG will generate a set of configs that approximate 'vanilla' Minecraft world generation in the /OpenTerrainGenerator/worlds folder (found in either the /mods or /plugins folder depending on platform).
-
-Note: In Single Player (Forge) you can click the 'New' button to the right of 'Clone' in the world creation GUI to create a set of default configs without affecting any other installed presets.
