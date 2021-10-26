@@ -4,11 +4,11 @@ Below is an outline of the different methods of installation for the various pla
 
 # 1.16 and above
 
-OTG can be installed as a Paper plugin or as a Forge mod using the same OTG .jar file. Fabric is not yet supported.
+OTG can be installed as a Spigot/Paper plugin or as a Forge mod using the same OTG .jar file. Fabric is not yet supported.
 
-As a Paper plugin, OTG is not required client-side. For Forge servers, the client-side mod is required, but we intend to lift this requirement before 1.0.0. When OTG is run server-side without a client, features like foliage/grass/sky/fog colors don't work fully (plain colors instead of gradient colors), and features like dimension portals for Forge are disabled.
+As a Spigot/Paper plugin, OTG is not required client-side. For Forge servers, the client-side mod is required, but we intend to lift this requirement before 1.0.0. When OTG is run server-side without a client, features like foliage/grass/sky/fog colors don't work fully (plain colors instead of gradient colors), and features like dimension portals for Forge are disabled.
 
-Installation instructions for each platform are included below. Please be aware that without installing a world preset OTG will use its default preset, which is made to look like a vanilla overworld. The Default preset is unpacked when Minecraft loads to `/config/OpenTerrainGenerator/Presets/Default/` for Forge or `/plugins/OpenTerrainGenerator/Presets/Default/` for Paper. Configuration files can be edited with any text editor.
+Installation instructions for each platform are included below. Please be aware that without installing a world preset OTG will use its default preset, which is made to look like a vanilla overworld. The Default preset is unpacked when Minecraft loads to `/config/OpenTerrainGenerator/Presets/Default/` for Forge or `/plugins/OpenTerrainGenerator/Presets/Default/` for Spigot/Paper. Configuration files can be edited with any text editor.
 
 ## Forge Installation Instructions
 
@@ -142,12 +142,13 @@ When using 1.12.2 presets with OTG 1.16.5, some mods don't work due to missing b
 
 ChunkPregenerator integrates seamlessly with OTG world creation UI and provides pre-generation/preview features for all dimensions.
 
-## Paper Installation
+## Spigot/Paper Installation
 
 1. Set up the server in the normal way.
 2. Download and put [OpenTerrainGenerator.jar](https://www.curseforge.com/minecraft/mc-mods/open-terrain-generator) into the server's plugins folder.
-3. [Install a world preset](/OpenTerrainGenerator/installation/installing-worlds)
-4. Specify OTG as the generator for your desired world:
+* Alpha builds of OpenTerrainGenerator 1.17.1 for Paper are available on our [Discord server](https://discord.gg/UXzdVTH).
+4. [Install a world preset](/OpenTerrainGenerator/installation/installing-worlds)
+5. Specify OTG as the generator for your desired world:
 * With MultiVerse: use the generator flag to define OTG and the desired preset, for example: "-g OpenTerrainGenerator:Wildlands"
 * Without, add a generator entry for each desired world to your Bukkit.yml file, for example:
 ```yaml
@@ -156,7 +157,7 @@ worlds:
         generator: OpenTerrainGenerator:Wildlands
 ```
 
-Although players do **not** require an OTG client for Paper servers, using a Forge OTG client enables features like complex foliage/grass/sky/fog colors.
+Although players do **not** require an OTG client for Spigot/Paper servers, using a Forge OTG client enables features like complex foliage/grass/sky/fog colors.
 
 # 1.12 and below
 
