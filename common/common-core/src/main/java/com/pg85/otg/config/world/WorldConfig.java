@@ -497,7 +497,7 @@ public class WorldConfig extends WorldConfigBase
 			"OTG fetches all non-OTG biomes that match the specified category/tags and associates them with the BiomeConfig.",
 			"The BiomeConfig must use TemplateForBiome:true, or it is ignored.",
 			"Example: TemplateBiome(MCForest, category.forest tag.overworld)",
-			"Adds 2 all plains biomes in the overworld. Biomes are never added twice.",
+			"Adds all forest biomes in the overworld. Biomes are never added twice.",
 			"- Use space as an AND operator, in the above example \"category.forest tag.overworld\" matches biomes with category forest AND tag overworld.",
 			"To target both minecraft and modded biomes, use \"category.\" or \"tag.\".",
 			"To target only modded biomes, use \"modcategory.\" or \"modtag.\".",
@@ -554,11 +554,11 @@ public class WorldConfig extends WorldConfigBase
 		writer.header2("Isle & Border Biomes");
 		
 		writer.putSetting(WorldStandardValues.ISLE_BIOMES, this.isleBiomes,
-			"Isle biomes are biomes which spawn inside another biome (e.g. an island in an ocean). As well as listing every isle biome here, you must set IsleInBiome in biome config too. Biome name is case sensitive."
+			"Isle biomes are biomes which spawn inside another biome (e.g. an island in an ocean). As well as listing every isle biome here, you must set IsleInBiome in each biome config too. Biome name is case sensitive."
 		);
 
 		writer.putSetting(WorldStandardValues.BORDER_BIOMES, this.borderBiomes,
-			"Biomes used as borders of other biomes. As well as listing every border biome here, you must set BiomeIsBorder in biome config too. Biome name is case sensitive."
+			"Biomes used as borders of other biomes. As well as listing every border biome here, you must set BiomeIsBorder in each biome config too. Biome name is case sensitive."
 		);
 
 		writer.header2("Landmass Settings");
@@ -580,7 +580,7 @@ public class WorldConfig extends WorldConfigBase
 		);
 
 		writer.putSetting(WorldStandardValues.LAND_FUZZY, this.landFuzzy,
-			"Makes coastlines more varied in shape and can cause lakes to form. Must be from 0 to (GenerationDepth minus LandSize)."
+			"Generates more lakes (via small ocean biomes) at the edges of continents. As a side effect, the continent will also get a bit larger. Must be from 0 to GenerationDepth minus LandSize."
 		);
 
 		writer.putSetting(WorldStandardValues.DEFAULT_OCEAN_BIOME, this.defaultOceanBiome,
@@ -696,7 +696,7 @@ public class WorldConfig extends WorldConfigBase
 		writer.header1("Blocks");
 		
 		writer.putSetting(WorldStandardValues.REMOVE_SURFACE_STONE, this.removeSurfaceStone,
-			"Set this to true to replace the biome surface block of all exposed stone."
+			"Set this to true to place the biome surface block on top of all exposed stone."
 		);		
 		
 		writer.header2("Bedrock");
@@ -826,7 +826,7 @@ public class WorldConfig extends WorldConfigBase
 		writer.header2("Caves");		
 		
 		writer.putSetting(WorldStandardValues.CAVES_ENABLED, this.cavesEnabled,
-			"Enables/disables OTG caves. set this to false if you're using modded caves."
+			"Enables/disables OTG caves. OTG should automatically disable caves/carvers for biomes when modded carvers are detected."
 		);
 		
 		writer.putSetting(WorldStandardValues.CAVE_RARITY, this.caveRarity,
@@ -885,7 +885,7 @@ public class WorldConfig extends WorldConfigBase
 		writer.header2("Ravines");
 
 		writer.putSetting(WorldStandardValues.RAVINES_ENABLED, this.ravinesEnabled,
-			"Enables/disables OTG ravines. set this to false if you're using modded ravines."
+			"Enables/disables OTG ravines. OTG should automatically disable ravines/carvers for biomes when modded carvers are detected."
 		);
 
 		writer.putSetting(WorldStandardValues.RAVINE_RARITY, this.ravineRarity);
