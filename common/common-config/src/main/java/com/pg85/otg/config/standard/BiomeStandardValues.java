@@ -9,6 +9,7 @@ import com.pg85.otg.constants.SettingsEnums.MineshaftType;
 import com.pg85.otg.constants.SettingsEnums.OceanRuinsType;
 import com.pg85.otg.constants.SettingsEnums.RareBuildingType;
 import com.pg85.otg.constants.SettingsEnums.RuinedPortalType;
+import com.pg85.otg.constants.SettingsEnums.TemplateBiomeType;
 import com.pg85.otg.constants.SettingsEnums.VillageType;
 import com.pg85.otg.util.biome.ColorSet;
 import com.pg85.otg.util.biome.ReplaceBlockMatrix;
@@ -47,8 +48,7 @@ public class BiomeStandardValues extends Settings
 		END_CITY_ENABLED = booleanSetting("EndCityEnabled", false),
 		REPLACE_CURRENT_MUSIC = booleanSetting("ReplaceCurrentMusic", false),
 		USE_FROZEN_OCEAN_TEMPERATURE = booleanSetting("UseFrozenOceanTemperature", false),
-		TEMPLATE_FOR_BIOME = booleanSetting("TemplateForBiome", false),
-		IS_NETHER_TEMPLATE_BIOME = booleanSetting("NetherTemplateBiome", false)				
+		TEMPLATE_FOR_BIOME = booleanSetting("TemplateForBiome", false)			
 	;
 
 	public static final Setting<String>
@@ -163,7 +163,7 @@ public class BiomeStandardValues extends Settings
 	public static final Setting<RuinedPortalType> RUINED_PORTAL_TYPE = enumSetting("RuinedPortalType", RuinedPortalType.disabled);
 	public static final Setting<OceanRuinsType> OCEAN_RUINS_TYPE = enumSetting("OceanRuinsType", OceanRuinsType.disabled);
 	public static final Setting<GrassColorModifier> GRASS_COLOR_MODIFIER = enumSetting("GrassColorModifier", GrassColorModifier.None);	
-	
+	public static final Setting<TemplateBiomeType> TEMPLATE_BIOME_TYPE = enumSetting("VillageType", TemplateBiomeType.Overworld);	
 	public static final Setting<ReplaceBlockMatrix> REPLACED_BLOCKS = replacedBlocksSetting("ReplacedBlocks");	
 	public static final Object[] SURFACE_AND_GROUND_CONTROL = new Object[0];
 }

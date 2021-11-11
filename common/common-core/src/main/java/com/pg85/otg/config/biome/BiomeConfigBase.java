@@ -14,6 +14,7 @@ import com.pg85.otg.constants.SettingsEnums.MineshaftType;
 import com.pg85.otg.constants.SettingsEnums.OceanRuinsType;
 import com.pg85.otg.constants.SettingsEnums.RareBuildingType;
 import com.pg85.otg.constants.SettingsEnums.RuinedPortalType;
+import com.pg85.otg.constants.SettingsEnums.TemplateBiomeType;
 import com.pg85.otg.constants.SettingsEnums.VillageType;
 import com.pg85.otg.customobject.resource.CustomStructureResource;
 import com.pg85.otg.customobject.resource.SaplingResource;
@@ -64,7 +65,7 @@ abstract class BiomeConfigBase extends ConfigFile implements IBiomeConfig
 		// Identity
 		
 		protected boolean isTemplateForBiome;
-		protected boolean isNetherTemplateBiome;
+		protected TemplateBiomeType templateBiomeType;
 		protected String biomeCategory;
 		
 		// Inheritance

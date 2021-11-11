@@ -193,6 +193,7 @@ public class SpigotMaterials extends LocalMaterials
 		SILVER_TERRACOTTA = SpigotMaterialData.ofBlockData(Blocks.LIGHT_GRAY_TERRACOTTA.getBlockData());
 		STONE = SpigotMaterialData.ofBlockData(Blocks.STONE.getBlockData());
 		NETHERRACK = SpigotMaterialData.ofBlockData(Blocks.NETHERRACK.getBlockData());
+		END_STONE = SpigotMaterialData.ofBlockData(Blocks.END_STONE.getBlockData());
 		SAND = SpigotMaterialData.ofBlockData(Blocks.SAND.getBlockData());
 		RED_SAND = SpigotMaterialData.ofBlockData(Blocks.RED_SAND.getBlockData());
 		SANDSTONE = SpigotMaterialData.ofBlockData(Blocks.SANDSTONE.getBlockData());
