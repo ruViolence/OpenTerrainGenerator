@@ -120,8 +120,6 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 	private final Supplier<DimensionSettings> dimensionSettingsSupplier;
 	private final long worldSeed;
 	private final int noiseHeight;
-	protected final BlockState defaultBlock;
-	protected final BlockState defaultFluid;
 	private final INoiseGenerator surfaceNoise;
 	protected final SharedSeedRandom random;
 
@@ -175,8 +173,6 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		this.dimensionSettingsSupplier = dimensionSettingsSupplier;		
 		DimensionSettings dimensionsettings = dimensionSettingsSupplier.get();	
 		NoiseSettings noisesettings = dimensionsettings.noiseSettings();
-		this.defaultBlock = dimensionsettings.getDefaultBlock();
-		this.defaultFluid = dimensionsettings.getDefaultFluid();
 		this.random = new SharedSeedRandom(seed);
 		this.surfaceNoise = (INoiseGenerator)(noisesettings.useSimplexSurfaceNoise() ? new PerlinNoiseGenerator(this.random, IntStream.rangeClosed(-3, 0)) : new OctavesNoiseGenerator(this.random, IntStream.rangeClosed(-3, 0)));
 		this.noiseHeight = noisesettings.height();
@@ -319,7 +315,7 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 				{
 					i2 = chunk.getHeight(Heightmap.Type.WORLD_SURFACE_WG, xInChunk, zInChunk) + 1;
 					d1 = this.surfaceNoise.getSurfaceNoiseValue((double)worldX * 0.0625D, (double)worldZ * 0.0625D, 0.0625D, (double)xInChunk * 0.0625D) * 15.0D;
-					((ForgeBiome)biome).getBiomeBase().buildSurfaceAt(sharedseedrandom, chunk, worldX, worldZ, i2, d1, this.defaultBlock, this.defaultFluid, this.getSeaLevel(), worldGenRegion.getSeed());
+					((ForgeBiome)biome).getBiomeBase().buildSurfaceAt(sharedseedrandom, chunk, worldX, worldZ, i2, d1, Blocks.STONE.defaultBlockState(), Blocks.WATER.defaultBlockState(), this.getSeaLevel(), worldGenRegion.getSeed());
 				}
 			}
 		}
