@@ -114,7 +114,8 @@ public class SpigotPresetLoader extends LocalPresetLoader
 		Map<IBiomeResourceLocation, IBiomeConfig> biomeConfigsByResourceLocation = new LinkedHashMap<>();
 		for(IBiomeConfig biomeConfig : biomeConfigs)
 		{
-			if(!biomeConfig.getTemplateForBiome())
+			// TODO: Implement template biomes for spigot?
+			if(!biomeConfig.getIsTemplateForBiome())
 			{
 				IBiomeResourceLocation otgLocation = new OTGBiomeResourceLocation(preset.getPresetFolder(), preset.getShortPresetName(), preset.getMajorVersion(), biomeConfig.getName());
 				biomeConfigsByResourceLocation.put(otgLocation, biomeConfig);
@@ -141,42 +142,26 @@ public class SpigotPresetLoader extends LocalPresetLoader
 			MinecraftKey resourceLocation = new MinecraftKey(biomeConfig.getKey().toResourceLocationString());
 			ResourceKey<BiomeBase> registryKey;
 			BiomeBase biome;
-			if(biomeConfig.getValue().getTemplateForBiome())
-			{
-				biome = biomeRegistry.get(resourceLocation);
-				if(biome == null)
-				{
-					if(OTG.getEngine().getLogger().getLogCategoryEnabled(LogCategory.CONFIGS))
-					{
-						OTG.getEngine().getLogger().log(LogLevel.ERROR, LogCategory.CONFIGS, "Could not find biome " + resourceLocation.toString() + " for template biomeconfig " + biomeConfig.getValue().getName());
-					}
-					continue;
-				}
-				registryKey = ResourceKey.a(BIOME_KEY, resourceLocation);
-				presetBiomes.add(registryKey);
-				biomeConfig.getValue().setRegistryKey(biomeConfig.getKey());
-				biomeConfig.getValue().setOTGBiomeId(otgBiomeId);
-			} else {
-				if(!(biomeConfig.getKey() instanceof OTGBiomeResourceLocation))
-				{
-					if(OTG.getEngine().getLogger().getLogCategoryEnabled(LogCategory.BIOME_REGISTRY))
-					{
-						OTG.getEngine().getLogger().log(LogLevel.ERROR, LogCategory.BIOME_REGISTRY, "Could not process template biomeconfig " + biomeConfig.getValue().getName() + ", did you set TemplateForBiome:true in the BiomeConfig?");
-					}
-					continue;
-				}				
-				biomeConfig.getValue().setRegistryKey(biomeConfig.getKey());
-				biomeConfig.getValue().setOTGBiomeId(otgBiomeId);
- 				registryKey = ResourceKey.a(BIOME_KEY, resourceLocation);
-				presetBiomes.add(registryKey);
- 				biome = SpigotBiome.createOTGBiome(isOceanBiome, preset.getWorldConfig(), biomeConfig.getValue());	 			
 
-				if(!refresh)
+			if(!(biomeConfig.getKey() instanceof OTGBiomeResourceLocation))
+			{
+				if(OTG.getEngine().getLogger().getLogCategoryEnabled(LogCategory.BIOME_REGISTRY))
 				{
-					biomeRegistry.a(registryKey, biome, Lifecycle.experimental());
-				} else {
-					biomeRegistry.a(OptionalInt.empty(), registryKey, biome, Lifecycle.experimental());
+					OTG.getEngine().getLogger().log(LogLevel.ERROR, LogCategory.BIOME_REGISTRY, "Could not process template biomeconfig " + biomeConfig.getValue().getName() + ", did you set TemplateForBiome:true in the BiomeConfig?");
 				}
+				continue;
+			}				
+			biomeConfig.getValue().setRegistryKey(biomeConfig.getKey());
+			biomeConfig.getValue().setOTGBiomeId(otgBiomeId);
+			registryKey = ResourceKey.a(BIOME_KEY, resourceLocation);
+			presetBiomes.add(registryKey);
+			biome = SpigotBiome.createOTGBiome(isOceanBiome, preset.getWorldConfig(), biomeConfig.getValue());	 			
+
+			if(!refresh)
+			{
+				biomeRegistry.a(registryKey, biome, Lifecycle.experimental());
+			} else {
+				biomeRegistry.a(OptionalInt.empty(), registryKey, biome, Lifecycle.experimental());
 			}
 
 			// Populate our map for syncing

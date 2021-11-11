@@ -186,7 +186,7 @@ public class ForgePresetLoader extends LocalPresetLoader
 		
 		for(IBiomeConfig biomeConfig : biomeConfigs)
 		{
-			if(!biomeConfig.getTemplateForBiome())
+			if(!biomeConfig.getIsTemplateForBiome())
 			{
 				// Normal OTG biome, not a template biome.
 				IBiomeResourceLocation otgLocation = new OTGBiomeResourceLocation(preset.getPresetFolder(), preset.getShortPresetName(), preset.getMajorVersion(), biomeConfig.getName());
@@ -214,7 +214,7 @@ public class ForgePresetLoader extends LocalPresetLoader
 			ResourceLocation resourceLocation = new ResourceLocation(biomeConfig.getKey().toResourceLocationString());
 			RegistryKey<Biome> registryKey;
 			Biome biome;
-			if(biomeConfig.getValue().getTemplateForBiome())
+			if(biomeConfig.getValue().getIsTemplateForBiome())
 			{
 				biome = ForgeRegistries.BIOMES.getValue(resourceLocation);
 				if(biome == null)
@@ -786,7 +786,7 @@ public class ForgePresetLoader extends LocalPresetLoader
 						IBiomeConfig biomeConfig = biomeConfigsByName.get(tagString.trim());
 						if(biomeConfig != null)
 						{
-							if(biomeConfig.getTemplateForBiome())
+							if(biomeConfig.getIsTemplateForBiome())
 							{
 								// For template biome configs, fetch all associated biomes and add them.
 								for(Entry<IBiomeResourceLocation, IBiomeConfig> entry : biomeConfigsByResourceLocation.entrySet())
@@ -846,7 +846,7 @@ public class ForgePresetLoader extends LocalPresetLoader
 					IBiomeConfig biomeConfig = biomeConfigsByName.get(tagString.trim().replace(Constants.LABEL_EXCLUDE, ""));
 					if(biomeConfig != null)
 					{
-						if(biomeConfig.getTemplateForBiome())
+						if(biomeConfig.getIsTemplateForBiome())
 						{
 							// For template biome configs, fetch all associated biomes and add them.
 							for(Entry<IBiomeResourceLocation, IBiomeConfig> entry : biomeConfigsByResourceLocation.entrySet())

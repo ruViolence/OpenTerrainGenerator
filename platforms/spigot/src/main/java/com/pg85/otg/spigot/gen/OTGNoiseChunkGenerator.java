@@ -23,6 +23,8 @@ import com.pg85.otg.util.gen.JigsawStructureData;
 import com.pg85.otg.util.materials.LocalMaterialData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.server.v1_16_R3.*;
 
 import org.bukkit.Bukkit;
@@ -326,40 +328,7 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 	@Override
 	public void buildBase (RegionLimitedWorldAccess worldGenRegion, IChunkAccess chunk)
 	{
-		// OTG handles surface/ground blocks during base terrain gen. For non-OTG biomes used
-		// with TemplateForBiome, we want to use registered surfacebuilders though.
-		// TODO: Disable any surface/ground block related features for Template BiomeConfigs. 
-
-		ChunkCoordIntPair chunkpos = chunk.getPos();
-		int i = chunkpos.x;
-		int j = chunkpos.z;
-		SeededRandom sharedseedrandom = new SeededRandom();
-		sharedseedrandom.a(i, j);
-		ChunkCoordIntPair chunkpos1 = chunk.getPos();
-		int chunkMinX = chunkpos1.d();
-		int chunkMinZ = chunkpos1.e();
-		int worldX;
-		int worldZ;
-		int i2;
-		double d1;
-		IBiome[] biomesForChunk = this.internalGenerator.getCachedBiomeProvider().getBiomesForChunk(ChunkCoordinate.fromBlockCoords(chunkMinX, chunkMinZ));
-		IBiome biome;
-		for(int xInChunk = 0; xInChunk < Constants.CHUNK_SIZE; ++xInChunk)
-		{
-			for(int zInChunk = 0; zInChunk < Constants.CHUNK_SIZE; ++zInChunk)
-			{
-				worldX = chunkMinX + xInChunk;
-				worldZ = chunkMinZ + zInChunk;
-				biome = biomesForChunk[xInChunk * Constants.CHUNK_SIZE + zInChunk];
-				if(biome.getBiomeConfig().getTemplateForBiome())
-				{
-					i2 = chunk.getHighestBlock(HeightMap.Type.WORLD_SURFACE_WG, xInChunk, zInChunk) + 1;
-					d1 = this.surfaceNoise.a((double)worldX * 0.0625D, (double)worldZ * 0.0625D, 0.0625D, (double)xInChunk * 0.0625D) * 15.0D;
-					((SpigotBiome)biome).getBiomeBase().a(sharedseedrandom, chunk, chunkMinX, chunkMinZ, worldX, d1, defaultFluid, defaultBlock, worldZ, i2);
-				}
-			}
-		}
-		// Skip bedrock, OTG always handles that.
+		// OTG handles surface/ground blocks during base terrain gen.
 	}
 
 	// Carvers: Caves and ravines
@@ -478,12 +447,7 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 						((SpigotBiome) biome4).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
 				}
 			}
-			// Template biomes handle their own snow, OTG biomes use OTG snow.
-			// TODO: Snow is handled per chunk, so this may cause some artifacts on biome borders.
-			if(!biome.getBiomeConfig().getTemplateForBiome())
-			{
-				this.chunkDecorator.doSnowAndIce(spigotWorldGenRegion, chunkBeingDecorated);
-			}
+			this.chunkDecorator.doSnowAndIce(spigotWorldGenRegion, chunkBeingDecorated);
 		}
 		catch (Exception exception)
 		{

@@ -122,10 +122,11 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 	private final int noiseHeight;
 	private final INoiseGenerator surfaceNoise;
 	protected final SharedSeedRandom random;
-
 	private final ShadowChunkGenerator shadowChunkGenerator;
 	private final OTGChunkGenerator internalGenerator;
 	private final OTGChunkDecorator chunkDecorator;
+	protected final BlockState defaultBlock;
+	protected final BlockState defaultFluid;
 	private final Preset preset;
 	private final String dimConfigName;
 	private final DimensionConfig dimConfig;
@@ -171,7 +172,9 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 			this.dimConfig = null;
 		}
 		this.dimensionSettingsSupplier = dimensionSettingsSupplier;		
-		DimensionSettings dimensionsettings = dimensionSettingsSupplier.get();	
+		DimensionSettings dimensionsettings = dimensionSettingsSupplier.get();
+		this.defaultBlock = dimensionsettings.getDefaultBlock();
+		this.defaultFluid = dimensionsettings.getDefaultFluid();		
 		NoiseSettings noisesettings = dimensionsettings.noiseSettings();
 		this.random = new SharedSeedRandom(seed);
 		this.surfaceNoise = (INoiseGenerator)(noisesettings.useSimplexSurfaceNoise() ? new PerlinNoiseGenerator(this.random, IntStream.rangeClosed(-3, 0)) : new OctavesNoiseGenerator(this.random, IntStream.rangeClosed(-3, 0)));
@@ -311,11 +314,11 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 				worldX = chunkMinX + xInChunk;
 				worldZ = chunkMinZ + zInChunk;
 				biome = biomesForChunk[xInChunk * Constants.CHUNK_SIZE + zInChunk];
-				if(biome.getBiomeConfig().getTemplateForBiome())
+				if(biome.getBiomeConfig().getIsTemplateForBiome())
 				{
 					i2 = chunk.getHeight(Heightmap.Type.WORLD_SURFACE_WG, xInChunk, zInChunk) + 1;
 					d1 = this.surfaceNoise.getSurfaceNoiseValue((double)worldX * 0.0625D, (double)worldZ * 0.0625D, 0.0625D, (double)xInChunk * 0.0625D) * 15.0D;
-					((ForgeBiome)biome).getBiomeBase().buildSurfaceAt(sharedseedrandom, chunk, worldX, worldZ, i2, d1, Blocks.STONE.defaultBlockState(), Blocks.WATER.defaultBlockState(), this.getSeaLevel(), worldGenRegion.getSeed());
+					((ForgeBiome)biome).getBiomeBase().buildSurfaceAt(sharedseedrandom, chunk, worldX, worldZ, i2, d1, ((ForgeMaterialData)biome.getBiomeConfig().getDefaultStoneBlock()).internalBlock(), ((ForgeMaterialData)biome.getBiomeConfig().getDefaultWaterBlock()).internalBlock(), this.getSeaLevel(), worldGenRegion.getSeed());
 				}
 			}
 		}
@@ -477,11 +480,11 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 			// Template biomes handle their own snow, OTG biomes use OTG snow.
 			// TODO: Snow is handled per chunk, so this may cause some artifacts on biome borders.
 			if(
-				!biome.getBiomeConfig().getTemplateForBiome() ||
-				!biome1.getBiomeConfig().getTemplateForBiome() ||
-				!biome2.getBiomeConfig().getTemplateForBiome() ||
-				!biome3.getBiomeConfig().getTemplateForBiome() ||				
-				!biome4.getBiomeConfig().getTemplateForBiome()
+				!biome.getBiomeConfig().getIsTemplateForBiome() ||
+				!biome1.getBiomeConfig().getIsTemplateForBiome() ||
+				!biome2.getBiomeConfig().getIsTemplateForBiome() ||
+				!biome3.getBiomeConfig().getIsTemplateForBiome() ||				
+				!biome4.getBiomeConfig().getIsTemplateForBiome()
 			)
 			{
 				this.chunkDecorator.doSnowAndIce(forgeWorldGenRegion, chunkBeingDecorated);
@@ -564,7 +567,7 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		this.internalGenerator.getNoiseColumn(noiseData[2], xStart + 1, zStart);
 		this.internalGenerator.getNoiseColumn(noiseData[3], xStart + 1, zStart + 1);
 
-		IBiomeConfig biomeConfig = this.internalGenerator.getCachedBiomeProvider().getBiomeConfig(x, z);
+		//IBiomeConfig biomeConfig = this.internalGenerator.getCachedBiomeProvider().getBiomeConfig(x, z);
 
 		// [0, 32] -> noise chunks
 		for (int noiseY = this.internalGenerator.getNoiseSizeY() - 1; noiseY >= 0; --noiseY)
@@ -591,7 +594,8 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 				// Get the real y position (translate noise chunk and noise piece)
 				int y = (noiseY * 8) + pieceY;
 
-				BlockState state = this.getBlockState(density, y, biomeConfig);
+				//BlockState state = this.getBlockState(density, y, biomeConfig);
+				BlockState state = this.getBlockState(density, y);
 				if (blockStates != null)
 				{
 					blockStates[y] = state;

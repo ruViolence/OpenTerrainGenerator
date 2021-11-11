@@ -196,6 +196,7 @@ public class ForgeMaterials extends LocalMaterials
 		RED_TERRACOTTA = ForgeMaterialData.ofBlockState(Blocks.RED_TERRACOTTA.defaultBlockState());
 		SILVER_TERRACOTTA = ForgeMaterialData.ofBlockState(Blocks.LIGHT_GRAY_TERRACOTTA.defaultBlockState());
 		STONE = ForgeMaterialData.ofBlockState(Blocks.STONE.defaultBlockState());
+		NETHERRACK = ForgeMaterialData.ofBlockState(Blocks.NETHERRACK.defaultBlockState());
 		SAND = ForgeMaterialData.ofBlockState(Blocks.SAND.defaultBlockState());
 		RED_SAND = ForgeMaterialData.ofBlockState(Blocks.RED_SAND.defaultBlockState());
 		SANDSTONE = ForgeMaterialData.ofBlockState(Blocks.SANDSTONE.defaultBlockState());
