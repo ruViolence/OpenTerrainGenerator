@@ -570,7 +570,7 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 		this.internalGenerator.getNoiseColumn(noiseData[2], xStart + 1, zStart);
 		this.internalGenerator.getNoiseColumn(noiseData[3], xStart + 1, zStart + 1);
 
-		IBiomeConfig biomeConfig = this.internalGenerator.getCachedBiomeProvider().getBiomeConfig(x, z);
+		//IBiomeConfig biomeConfig = this.internalGenerator.getCachedBiomeProvider().getBiomeConfig(x, z);
 		
 		IBlockData state;
 		double x0z0y0;
@@ -610,7 +610,8 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 				// Get the real y position (translate noise chunk and noise piece)
 				y = (noiseY * 8) + pieceY;
 
-				state = this.getBlockState(density, y, biomeConfig);
+				//state = this.getBlockState(density, y, biomeConfig);
+				state = this.getBlockState(density, y);
 				if (blockStates != null)
 				{
 					blockStates[y] = state;
@@ -627,15 +628,27 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 		return 0;
 	}
 
-	protected IBlockData getBlockState (double density, int y, IBiomeConfig config)
+	// MC's NoiseChunkGenerator returns defaultBlock and defaultFluid here, so callers 
+	// apparently don't rely on any blocks (re)placed after base terrain gen, only on
+	// the default block/liquid set for the dimension (stone/water for overworld, 
+	// netherrack/lava for nether), that MC uses for base terrain gen.
+	// We can do the same, no need to pass biome config and fetch replaced blocks etc. 
+	// OTG does place blocks other than defaultBlock/defaultLiquid during base terrain gen 
+	// (for replaceblocks/sagc), but that shouldn't matter for the callers of this method.
+	// Actually, it's probably better if they don't see OTG's replaced blocks, and just see
+	// the default blocks instead, as vanilla MC would do.
+	//protected IBlockData getBlockState(double density, int y, IBiomeConfig config)
+	private IBlockData getBlockState(double density, int y)
 	{
 		if (density > 0.0D)
 		{
-			return ((SpigotMaterialData) config.getStoneBlockReplaced(y)).internalBlock();
+			return this.defaultBlock;
+			//return ((SpigotMaterialData) config.getStoneBlockReplaced(y)).internalBlock();
 		}
 		else if (y < this.getSeaLevel())
 		{
-			return ((SpigotMaterialData) config.getWaterBlockReplaced(y)).internalBlock();
+			return this.defaultFluid;
+			//return ((SpigotMaterialData) config.getWaterBlockReplaced(y)).internalBlock();
 		} else {
 			return Blocks.AIR.getBlockData();
 		}
