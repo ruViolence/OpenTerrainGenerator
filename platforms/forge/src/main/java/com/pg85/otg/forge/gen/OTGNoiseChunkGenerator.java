@@ -23,7 +23,6 @@ import com.pg85.otg.forge.biome.ForgeBiome;
 import com.pg85.otg.forge.biome.OTGBiomeProvider;
 import com.pg85.otg.gen.OTGChunkGenerator;
 import com.pg85.otg.gen.OTGChunkDecorator;
-import com.pg85.otg.interfaces.IBiomeConfig;
 import com.pg85.otg.interfaces.IBiome;
 import com.pg85.otg.interfaces.ICachedBiomeProvider;
 import com.pg85.otg.interfaces.ILayerSource;

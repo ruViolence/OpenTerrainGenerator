@@ -1,7 +1,6 @@
 package com.pg85.otg.forge.materials;
 
 import com.pg85.otg.constants.Constants;
-import com.pg85.otg.util.materials.LocalMaterialData;
 import com.pg85.otg.util.materials.LocalMaterials;
 
 import net.minecraft.block.*;

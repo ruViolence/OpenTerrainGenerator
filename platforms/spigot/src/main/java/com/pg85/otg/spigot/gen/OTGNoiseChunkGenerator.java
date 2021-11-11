@@ -14,7 +14,6 @@ import com.pg85.otg.interfaces.ICachedBiomeProvider;
 import com.pg85.otg.interfaces.ILayerSource;
 import com.pg85.otg.presets.Preset;
 import com.pg85.otg.spigot.biome.SpigotBiome;
-import com.pg85.otg.spigot.materials.SpigotMaterialData;
 import com.pg85.otg.spigot.presets.SpigotPresetLoader;
 import com.pg85.otg.util.ChunkCoordinate;
 import com.pg85.otg.util.gen.ChunkBuffer;
@@ -23,8 +22,6 @@ import com.pg85.otg.util.gen.JigsawStructureData;
 import com.pg85.otg.util.materials.LocalMaterialData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.server.v1_16_R3.*;
 
 import org.bukkit.Bukkit;
@@ -36,7 +33,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 public class OTGNoiseChunkGenerator extends ChunkGenerator
 {	
@@ -73,7 +69,7 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 	private final ShadowChunkGenerator shadowChunkGenerator;
 	private final OTGChunkGenerator internalGenerator;
 	private final OTGChunkDecorator chunkDecorator;
-	private final NoiseGenerator surfaceNoise;
+
 	private final String presetFolderName;
 	private final Preset preset;
 	private final StructureSettings structSettings;
@@ -121,7 +117,6 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 		this.defaultFluid = dimensionsettings.d();
 		
 		this.random = new SeededRandom(seed);
-		this.surfaceNoise = (NoiseGenerator)(noisesettings.i() ? new NoiseGenerator3(this.random, IntStream.rangeClosed(-3, 0)) : new NoiseGeneratorOctaves(this.random, IntStream.rangeClosed(-3, 0)));
 
 		this.preset = OTG.getEngine().getPresetLoader().getPresetByFolderName(presetFolderName);
 		this.shadowChunkGenerator = new ShadowChunkGenerator();

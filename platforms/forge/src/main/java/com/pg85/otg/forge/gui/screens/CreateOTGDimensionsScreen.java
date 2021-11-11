@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.pg85.otg.config.dimensions.DimensionConfig;
 import com.pg85.otg.config.dimensions.DimensionConfig.OTGDimension;
-import com.pg85.otg.config.dimensions.DimensionConfig.OTGOverWorld;
 import com.pg85.otg.constants.Constants;
 import com.pg85.otg.forge.gui.OTGGui;
 
