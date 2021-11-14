@@ -224,4 +224,5 @@ public interface IWorldConfig
 	public boolean getForgiveDeadPlayers();
 	public boolean getUniversalAnger();
 	boolean getForceLandAtSpawn();
+    boolean getOldLandRarity();
 }
