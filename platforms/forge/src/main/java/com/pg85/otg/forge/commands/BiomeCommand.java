@@ -60,7 +60,7 @@ public class BiomeCommand extends BaseCommand
 				.getCachedBiomeProvider().getBiomeConfig((int) source.getPosition().x, (int) source.getPosition().z);
 
 		source.sendSuccess(new StringTextComponent("====================================================="), false);
-		if (config.getTemplateForBiome())
+		if (config.getIsTemplateForBiome())
 		{
 			source.sendSuccess(
 					new StringTextComponent("According to OTG, this biome uses the ").withStyle(TextFormatting.GOLD)

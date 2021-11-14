@@ -14,7 +14,6 @@ import com.pg85.otg.interfaces.ICachedBiomeProvider;
 import com.pg85.otg.interfaces.ILayerSource;
 import com.pg85.otg.presets.Preset;
 import com.pg85.otg.spigot.biome.SpigotBiome;
-import com.pg85.otg.spigot.materials.SpigotMaterialData;
 import com.pg85.otg.spigot.presets.SpigotPresetLoader;
 import com.pg85.otg.util.ChunkCoordinate;
 import com.pg85.otg.util.gen.ChunkBuffer;
@@ -34,7 +33,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 public class OTGNoiseChunkGenerator extends ChunkGenerator
 {	
@@ -71,7 +69,7 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 	private final ShadowChunkGenerator shadowChunkGenerator;
 	private final OTGChunkGenerator internalGenerator;
 	private final OTGChunkDecorator chunkDecorator;
-	private final NoiseGenerator surfaceNoise;
+
 	private final String presetFolderName;
 	private final Preset preset;
 	private final StructureSettings structSettings;
@@ -119,7 +117,6 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 		this.defaultFluid = dimensionsettings.d();
 		
 		this.random = new SeededRandom(seed);
-		this.surfaceNoise = (NoiseGenerator)(noisesettings.i() ? new NoiseGenerator3(this.random, IntStream.rangeClosed(-3, 0)) : new NoiseGeneratorOctaves(this.random, IntStream.rangeClosed(-3, 0)));
 
 		this.preset = OTG.getEngine().getPresetLoader().getPresetByFolderName(presetFolderName);
 		this.shadowChunkGenerator = new ShadowChunkGenerator();
@@ -326,40 +323,7 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 	@Override
 	public void buildBase (RegionLimitedWorldAccess worldGenRegion, IChunkAccess chunk)
 	{
-		// OTG handles surface/ground blocks during base terrain gen. For non-OTG biomes used
-		// with TemplateForBiome, we want to use registered surfacebuilders though.
-		// TODO: Disable any surface/ground block related features for Template BiomeConfigs. 
-
-		ChunkCoordIntPair chunkpos = chunk.getPos();
-		int i = chunkpos.x;
-		int j = chunkpos.z;
-		SeededRandom sharedseedrandom = new SeededRandom();
-		sharedseedrandom.a(i, j);
-		ChunkCoordIntPair chunkpos1 = chunk.getPos();
-		int chunkMinX = chunkpos1.d();
-		int chunkMinZ = chunkpos1.e();
-		int worldX;
-		int worldZ;
-		int i2;
-		double d1;
-		IBiome[] biomesForChunk = this.internalGenerator.getCachedBiomeProvider().getBiomesForChunk(ChunkCoordinate.fromBlockCoords(chunkMinX, chunkMinZ));
-		IBiome biome;
-		for(int xInChunk = 0; xInChunk < Constants.CHUNK_SIZE; ++xInChunk)
-		{
-			for(int zInChunk = 0; zInChunk < Constants.CHUNK_SIZE; ++zInChunk)
-			{
-				worldX = chunkMinX + xInChunk;
-				worldZ = chunkMinZ + zInChunk;
-				biome = biomesForChunk[xInChunk * Constants.CHUNK_SIZE + zInChunk];
-				if(biome.getBiomeConfig().getTemplateForBiome())
-				{
-					i2 = chunk.getHighestBlock(HeightMap.Type.WORLD_SURFACE_WG, xInChunk, zInChunk) + 1;
-					d1 = this.surfaceNoise.a((double)worldX * 0.0625D, (double)worldZ * 0.0625D, 0.0625D, (double)xInChunk * 0.0625D) * 15.0D;
-					((SpigotBiome)biome).getBiomeBase().a(sharedseedrandom, chunk, chunkMinX, chunkMinZ, worldX, d1, defaultFluid, defaultBlock, worldZ, i2);
-				}
-			}
-		}
-		// Skip bedrock, OTG always handles that.
+		// OTG handles surface/ground blocks during base terrain gen.
 	}
 
 	// Carvers: Caves and ravines
@@ -478,12 +442,7 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 						((SpigotBiome) biome4).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
 				}
 			}
-			// Template biomes handle their own snow, OTG biomes use OTG snow.
-			// TODO: Snow is handled per chunk, so this may cause some artifacts on biome borders.
-			if(!biome.getBiomeConfig().getTemplateForBiome())
-			{
-				this.chunkDecorator.doSnowAndIce(spigotWorldGenRegion, chunkBeingDecorated);
-			}
+			this.chunkDecorator.doSnowAndIce(spigotWorldGenRegion, chunkBeingDecorated);
 		}
 		catch (Exception exception)
 		{
@@ -606,7 +565,7 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 		this.internalGenerator.getNoiseColumn(noiseData[2], xStart + 1, zStart);
 		this.internalGenerator.getNoiseColumn(noiseData[3], xStart + 1, zStart + 1);
 
-		IBiomeConfig biomeConfig = this.internalGenerator.getCachedBiomeProvider().getBiomeConfig(x, z);
+		//IBiomeConfig biomeConfig = this.internalGenerator.getCachedBiomeProvider().getBiomeConfig(x, z);
 		
 		IBlockData state;
 		double x0z0y0;
@@ -646,7 +605,8 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 				// Get the real y position (translate noise chunk and noise piece)
 				y = (noiseY * 8) + pieceY;
 
-				state = this.getBlockState(density, y, biomeConfig);
+				//state = this.getBlockState(density, y, biomeConfig);
+				state = this.getBlockState(density, y);
 				if (blockStates != null)
 				{
 					blockStates[y] = state;
@@ -663,15 +623,27 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 		return 0;
 	}
 
-	protected IBlockData getBlockState (double density, int y, IBiomeConfig config)
+	// MC's NoiseChunkGenerator returns defaultBlock and defaultFluid here, so callers 
+	// apparently don't rely on any blocks (re)placed after base terrain gen, only on
+	// the default block/liquid set for the dimension (stone/water for overworld, 
+	// netherrack/lava for nether), that MC uses for base terrain gen.
+	// We can do the same, no need to pass biome config and fetch replaced blocks etc. 
+	// OTG does place blocks other than defaultBlock/defaultLiquid during base terrain gen 
+	// (for replaceblocks/sagc), but that shouldn't matter for the callers of this method.
+	// Actually, it's probably better if they don't see OTG's replaced blocks, and just see
+	// the default blocks instead, as vanilla MC would do.
+	//protected IBlockData getBlockState(double density, int y, IBiomeConfig config)
+	private IBlockData getBlockState(double density, int y)
 	{
 		if (density > 0.0D)
 		{
-			return ((SpigotMaterialData) config.getStoneBlockReplaced(y)).internalBlock();
+			return this.defaultBlock;
+			//return ((SpigotMaterialData) config.getStoneBlockReplaced(y)).internalBlock();
 		}
 		else if (y < this.getSeaLevel())
 		{
-			return ((SpigotMaterialData) config.getWaterBlockReplaced(y)).internalBlock();
+			return this.defaultFluid;
+			//return ((SpigotMaterialData) config.getWaterBlockReplaced(y)).internalBlock();
 		} else {
 			return Blocks.AIR.getBlockData();
 		}

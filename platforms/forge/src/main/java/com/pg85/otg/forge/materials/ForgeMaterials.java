@@ -1,7 +1,6 @@
 package com.pg85.otg.forge.materials;
 
 import com.pg85.otg.constants.Constants;
-import com.pg85.otg.util.materials.LocalMaterialData;
 import com.pg85.otg.util.materials.LocalMaterials;
 
 import net.minecraft.block.*;
@@ -196,6 +195,8 @@ public class ForgeMaterials extends LocalMaterials
 		RED_TERRACOTTA = ForgeMaterialData.ofBlockState(Blocks.RED_TERRACOTTA.defaultBlockState());
 		SILVER_TERRACOTTA = ForgeMaterialData.ofBlockState(Blocks.LIGHT_GRAY_TERRACOTTA.defaultBlockState());
 		STONE = ForgeMaterialData.ofBlockState(Blocks.STONE.defaultBlockState());
+		NETHERRACK = ForgeMaterialData.ofBlockState(Blocks.NETHERRACK.defaultBlockState());
+		END_STONE = ForgeMaterialData.ofBlockState(Blocks.END_STONE.defaultBlockState());
 		SAND = ForgeMaterialData.ofBlockState(Blocks.SAND.defaultBlockState());
 		RED_SAND = ForgeMaterialData.ofBlockState(Blocks.RED_SAND.defaultBlockState());
 		SANDSTONE = ForgeMaterialData.ofBlockState(Blocks.SANDSTONE.defaultBlockState());

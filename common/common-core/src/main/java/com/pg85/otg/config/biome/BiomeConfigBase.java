@@ -14,6 +14,7 @@ import com.pg85.otg.constants.SettingsEnums.MineshaftType;
 import com.pg85.otg.constants.SettingsEnums.OceanRuinsType;
 import com.pg85.otg.constants.SettingsEnums.RareBuildingType;
 import com.pg85.otg.constants.SettingsEnums.RuinedPortalType;
+import com.pg85.otg.constants.SettingsEnums.TemplateBiomeType;
 import com.pg85.otg.constants.SettingsEnums.VillageType;
 import com.pg85.otg.customobject.resource.CustomStructureResource;
 import com.pg85.otg.customobject.resource.SaplingResource;
@@ -63,7 +64,8 @@ abstract class BiomeConfigBase extends ConfigFile implements IBiomeConfig
 		
 		// Identity
 		
-		protected boolean templateForBiome;
+		protected boolean isTemplateForBiome;
+		protected TemplateBiomeType templateBiomeType;
 		protected String biomeCategory;
 		
 		// Inheritance
@@ -263,6 +265,18 @@ abstract class BiomeConfigBase extends ConfigFile implements IBiomeConfig
 		return this.settings.groundBlock;
 	}
 	
+	@Override
+	public LocalMaterialData getDefaultStoneBlock()
+	{
+		return this.settings.stoneBlock;
+	}
+	
+	@Override
+	public LocalMaterialData getDefaultWaterBlock()
+	{
+		return this.settings.waterBlock;
+	}
+	
 	private void initReplaceBlocks()
 	{
 		if(!this.settings.replacedBlocksInited)
@@ -456,9 +470,9 @@ abstract class BiomeConfigBase extends ConfigFile implements IBiomeConfig
 	}
 	
 	@Override
-	public boolean getTemplateForBiome()
+	public boolean getIsTemplateForBiome()
 	{
-		return this.settings.templateForBiome;
+		return this.settings.isTemplateForBiome;
 	}
 
 	@Override
