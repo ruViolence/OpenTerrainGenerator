@@ -21,7 +21,7 @@ public class OTGBiomeResourceLocation implements IBiomeResourceLocation
 		this.presetMajorVersion = presetMajorVersion;
 		this.presetFolder = presetFolder.toFile().getName();
 		this.presetShortName = presetShortName != null && presetShortName.trim().length() > 0 ? presetShortName : this.presetFolder;		
-		this.presetRegistryName = this.presetShortName.toLowerCase().trim().replaceAll("[^a-z0-9/_-]", "_") + (presetMajorVersion == 0 ? "" : BIOME_RESOURCE_LOCATION_SEPARATOR + presetMajorVersion);
+		this.presetRegistryName = this.presetShortName.toLowerCase().trim().replaceAll("[^a-z0-9/_-]", "_");
 		this.biomeName = biomeName.toLowerCase().trim().replaceAll("[^a-z0-9/_-]", "_");
 		this.resourceName = resourceName;
 	}
