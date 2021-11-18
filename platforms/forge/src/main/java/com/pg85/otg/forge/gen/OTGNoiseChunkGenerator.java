@@ -49,6 +49,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.MutableBoundingBox;
 import net.minecraft.util.math.SectionPos;
+import net.minecraft.util.registry.DynamicRegistries;
 import net.minecraft.world.Blockreader;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
@@ -70,13 +71,36 @@ import net.minecraft.world.gen.Heightmap.Type;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.carver.ConfiguredCarvers;
 import net.minecraft.world.gen.WorldGenRegion;
+import net.minecraft.world.gen.feature.StructureFeature;
 import net.minecraft.world.gen.feature.jigsaw.JigsawJunction;
 import net.minecraft.world.gen.feature.jigsaw.JigsawPattern;
 import net.minecraft.world.gen.feature.structure.AbstractVillagePiece;
+import net.minecraft.world.gen.feature.structure.BastionRemantsStructure;
+import net.minecraft.world.gen.feature.structure.BuriedTreasureStructure;
+import net.minecraft.world.gen.feature.structure.DesertPyramidStructure;
+import net.minecraft.world.gen.feature.structure.EndCityStructure;
+import net.minecraft.world.gen.feature.structure.FortressStructure;
+import net.minecraft.world.gen.feature.structure.IglooStructure;
+import net.minecraft.world.gen.feature.structure.JunglePyramidStructure;
+import net.minecraft.world.gen.feature.structure.MineshaftStructure;
+import net.minecraft.world.gen.feature.structure.NetherFossilStructure;
+import net.minecraft.world.gen.feature.structure.OceanMonumentStructure;
+import net.minecraft.world.gen.feature.structure.OceanRuinStructure;
+import net.minecraft.world.gen.feature.structure.PillagerOutpostStructure;
+import net.minecraft.world.gen.feature.structure.RuinedPortalStructure;
+import net.minecraft.world.gen.feature.structure.ShipwreckStructure;
+import net.minecraft.world.gen.feature.structure.StrongholdStructure;
 import net.minecraft.world.gen.feature.structure.Structure;
+import net.minecraft.world.gen.feature.structure.StructureFeatures;
 import net.minecraft.world.gen.feature.structure.StructureManager;
 import net.minecraft.world.gen.feature.structure.StructurePiece;
+import net.minecraft.world.gen.feature.structure.StructureStart;
+import net.minecraft.world.gen.feature.structure.SwampHutStructure;
+import net.minecraft.world.gen.feature.structure.VillageStructure;
+import net.minecraft.world.gen.feature.structure.WoodlandMansionStructure;
+import net.minecraft.world.gen.feature.template.TemplateManager;
 import net.minecraft.world.gen.settings.NoiseSettings;
+import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.spawner.WorldEntitySpawner;
 import net.minecraft.world.storage.FolderName;
@@ -337,6 +361,7 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 			ForgeBiome biome = (ForgeBiome)this.getCachedBiomeProvider().getNoiseBiome(chunk.getPos().x << 2, chunk.getPos().z << 2);
 			BiomeGenerationSettings biomegenerationsettings = biome.getBiomeBase().getGenerationSettings();
 			List<Supplier<ConfiguredCarver<?>>> list = biomegenerationsettings.getCarvers(stage);
+			
 			// TODO: When using template biomes with MC biomes, we don't control which
 			// default carvers were registered to biomes like we do with OTG biomes (always
 			// ConfiguredCarvers.CAVE / ConfiguredCarvers.CANYON), so we only use OTG 
@@ -402,7 +427,102 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 			}
 		}
 	}
-		
+	
+	// Structures
+	
+	// Override structure spawning to make sure any structures registered
+	// to biomes are allowed to spawn according to worldconfig settings. 
+	@Override
+	public void createStructures(DynamicRegistries p_242707_1_, StructureManager p_242707_2_, IChunk p_242707_3_, TemplateManager p_242707_4_, long p_242707_5_)
+	{
+		ChunkPos chunkpos = p_242707_3_.getPos();
+		ForgeBiome biome = (ForgeBiome)this.getCachedBiomeProvider().getNoiseBiome((chunkpos.x << 2) + 2, (chunkpos.z << 2) + 2);
+		if(this.preset.getWorldConfig().getStrongholdsEnabled())
+		{
+			createStructure(StructureFeatures.STRONGHOLD, p_242707_1_, p_242707_2_, p_242707_3_, p_242707_4_, p_242707_5_, chunkpos, biome.getBiomeBase());
+		}
+		for(Supplier<StructureFeature<?, ?>> supplier : biome.getBiomeBase().getGenerationSettings().structures())
+		{
+			// TODO: This doesn't catch most modded structures, modded structures don't appear to have a type?
+			if(
+				(this.preset.getWorldConfig().getStrongholdsEnabled() || !(supplier.get().feature instanceof StrongholdStructure)) &&
+				(this.preset.getWorldConfig().getVillagesEnabled() || !(supplier.get().feature instanceof VillageStructure)) &&				
+				(this.preset.getWorldConfig().getRareBuildingsEnabled() || !(supplier.get().feature instanceof SwampHutStructure)) &&				
+				(this.preset.getWorldConfig().getRareBuildingsEnabled() || !(supplier.get().feature instanceof IglooStructure)) &&
+				(this.preset.getWorldConfig().getRareBuildingsEnabled() || !(supplier.get().feature instanceof JunglePyramidStructure)) &&								
+				(this.preset.getWorldConfig().getRareBuildingsEnabled() || !(supplier.get().feature instanceof DesertPyramidStructure)) &&				
+				(this.preset.getWorldConfig().getMineshaftsEnabled() || !(supplier.get().feature instanceof MineshaftStructure)) &&
+				(this.preset.getWorldConfig().getRuinedPortalsEnabled() || !(supplier.get().feature instanceof RuinedPortalStructure)) &&
+				(this.preset.getWorldConfig().getOceanRuinsEnabled() || !(supplier.get().feature instanceof OceanRuinStructure)) &&
+				(this.preset.getWorldConfig().getShipWrecksEnabled() || !(supplier.get().feature instanceof ShipwreckStructure)) &&
+				(this.preset.getWorldConfig().getOceanMonumentsEnabled() || !(supplier.get().feature instanceof OceanMonumentStructure)) &&
+				(this.preset.getWorldConfig().getBastionRemnantsEnabled() || !(supplier.get().feature instanceof BastionRemantsStructure)) &&
+				(this.preset.getWorldConfig().getBuriedTreasureEnabled() || !(supplier.get().feature instanceof BuriedTreasureStructure)) &&
+				(this.preset.getWorldConfig().getEndCitiesEnabled() || !(supplier.get().feature instanceof EndCityStructure)) &&
+				(this.preset.getWorldConfig().getNetherFortressesEnabled() || !(supplier.get().feature instanceof FortressStructure)) &&
+				(this.preset.getWorldConfig().getNetherFossilsEnabled() || !(supplier.get().feature instanceof NetherFossilStructure)) &&
+				(this.preset.getWorldConfig().getPillagerOutpostsEnabled() || !(supplier.get().feature instanceof PillagerOutpostStructure)) &&
+				(this.preset.getWorldConfig().getWoodlandMansionsEnabled() || !(supplier.get().feature instanceof WoodlandMansionStructure))
+			)
+			{
+				createStructure(supplier.get(), p_242707_1_, p_242707_2_, p_242707_3_, p_242707_4_, p_242707_5_, chunkpos, biome.getBiomeBase());
+			}
+		}
+	}
+	
+	private void createStructure(StructureFeature<?, ?> p_242705_1_, DynamicRegistries p_242705_2_, StructureManager p_242705_3_, IChunk p_242705_4_, TemplateManager p_242705_5_, long p_242705_6_, ChunkPos p_242705_8_, Biome p_242705_9_)
+	{
+		StructureStart<?> structurestart = p_242705_3_.getStartForFeature(SectionPos.of(p_242705_4_.getPos(), 0), p_242705_1_.feature, p_242705_4_);
+		int i = structurestart != null ? structurestart.getReferences() : 0;
+		StructureSeparationSettings structureseparationsettings = this.getSettings().getConfig(p_242705_1_.feature);
+		if (structureseparationsettings != null)
+		{
+			StructureStart<?> structurestart1 = p_242705_1_.generate(p_242705_2_, this, this.biomeSource, p_242705_5_, p_242705_6_, p_242705_8_, p_242705_9_, i, structureseparationsettings);
+			p_242705_3_.setStartForFeature(SectionPos.of(p_242705_4_.getPos(), 0), p_242705_1_.feature, structurestart1, p_242705_4_);
+		}
+	}
+
+	@Nullable
+	@Override
+	public BlockPos findNearestMapFeature(ServerWorld world, Structure<?> structure, BlockPos blockPos, int i1, boolean b1) 
+	{
+		// TODO: This doesn't catch most modded structures, modded structures don't appear to have a type?
+		if(
+			(this.preset.getWorldConfig().getStrongholdsEnabled() || !(structure instanceof StrongholdStructure)) &&
+			(this.preset.getWorldConfig().getVillagesEnabled() || !(structure instanceof VillageStructure)) &&
+			(this.preset.getWorldConfig().getRareBuildingsEnabled() || !(structure instanceof SwampHutStructure)) &&
+			(this.preset.getWorldConfig().getRareBuildingsEnabled() || !(structure instanceof IglooStructure)) &&
+			(this.preset.getWorldConfig().getRareBuildingsEnabled() || !(structure instanceof JunglePyramidStructure)) &&
+			(this.preset.getWorldConfig().getRareBuildingsEnabled() || !(structure instanceof DesertPyramidStructure)) &&
+			(this.preset.getWorldConfig().getMineshaftsEnabled() || !(structure instanceof MineshaftStructure)) &&
+			(this.preset.getWorldConfig().getRuinedPortalsEnabled() || !(structure instanceof RuinedPortalStructure)) &&
+			(this.preset.getWorldConfig().getOceanRuinsEnabled() || !(structure instanceof OceanRuinStructure)) &&
+			(this.preset.getWorldConfig().getShipWrecksEnabled() || !(structure instanceof ShipwreckStructure)) &&
+			(this.preset.getWorldConfig().getOceanMonumentsEnabled() || !(structure instanceof OceanMonumentStructure)) &&
+			(this.preset.getWorldConfig().getBastionRemnantsEnabled() || !(structure instanceof BastionRemantsStructure)) &&
+			(this.preset.getWorldConfig().getBuriedTreasureEnabled() || !(structure instanceof BuriedTreasureStructure)) &&
+			(this.preset.getWorldConfig().getEndCitiesEnabled() || !(structure instanceof EndCityStructure)) &&
+			(this.preset.getWorldConfig().getNetherFortressesEnabled() || !(structure instanceof FortressStructure)) &&
+			(this.preset.getWorldConfig().getNetherFossilsEnabled() || !(structure instanceof NetherFossilStructure)) &&
+			(this.preset.getWorldConfig().getPillagerOutpostsEnabled() || !(structure instanceof PillagerOutpostStructure)) &&
+			(this.preset.getWorldConfig().getWoodlandMansionsEnabled() || !(structure instanceof WoodlandMansionStructure))
+		)
+		{
+			return super.findNearestMapFeature(world, structure, blockPos, i1, b1);
+		}
+		return null;
+	}
+	
+	@Override
+	public boolean hasStronghold(ChunkPos chunkPos)
+	{
+		if(this.preset.getWorldConfig().getStrongholdsEnabled())
+		{
+			return super.hasStronghold(chunkPos);
+		}
+		return false;
+	}
+	
 	// Decoration
 
 	// Does decoration for a given pos/chunk
