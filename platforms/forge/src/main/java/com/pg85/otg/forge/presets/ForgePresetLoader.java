@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -216,19 +216,16 @@ public class ForgePresetLoader extends LocalPresetLoader
 			Biome biome;
 			if(biomeConfig.getValue().getIsTemplateForBiome())
 			{
-				biome = ForgeRegistries.BIOMES.getValue(resourceLocation);
-				if(biome == null)
+				if(refresh)
 				{
-					if(OTG.getEngine().getLogger().getLogCategoryEnabled(LogCategory.BIOME_REGISTRY))
-					{
-						OTG.getEngine().getLogger().log(LogLevel.ERROR, LogCategory.BIOME_REGISTRY, "Could not find biome " + resourceLocation.toString() + " for template biomeconfig " + biomeConfig.getValue().getName());
-					}
-					continue;
+					biome = biomeRegistry.get(resourceLocation);
+					Optional<RegistryKey<Biome>> key = biomeRegistry.getResourceKey(biome);
+					registryKey = key.isPresent() ? key.get() : null;
+				} else {
+					biome = ForgeRegistries.BIOMES.getValue(resourceLocation);
+					// TODO: Can we not fetch an existing key?
+					registryKey = RegistryKey.create(Registry.BIOME_REGISTRY, resourceLocation);
 				}
-				registryKey = RegistryKey.create(Registry.BIOME_REGISTRY, resourceLocation);				
-				presetBiomes.add(registryKey);
-				biomeConfig.getValue().setRegistryKey(biomeConfig.getKey());
-				biomeConfig.getValue().setOTGBiomeId(otgBiomeId);
 			} else {
 				if(!(biomeConfig.getKey() instanceof OTGBiomeResourceLocation))
 				{
@@ -238,20 +235,42 @@ public class ForgePresetLoader extends LocalPresetLoader
 					}
 					continue;
 				}
-				
-				biomeConfig.getValue().setRegistryKey(biomeConfig.getKey());
-				biomeConfig.getValue().setOTGBiomeId(otgBiomeId);
- 				registryKey = RegistryKey.create(Registry.BIOME_REGISTRY, resourceLocation);
-				presetBiomes.add(registryKey);
- 				biome = ForgeBiome.createOTGBiome(isOceanBiome, preset.getWorldConfig(), biomeConfig.getValue());	 			
-
-				if(!refresh)
+				if(OTG.getEngine().getPluginConfig().getDeveloperModeEnabled())
 				{
-					ForgeRegistries.BIOMES.register(biome);
+					// For developer-mode, always re-create OTG biomes, to pick up any config changes.
+					// This does break any kind of datapack support we might implement for OTG biomes.
+					biome = ForgeBiome.createOTGBiome(isOceanBiome, preset.getWorldConfig(), biomeConfig.getValue());
+					registryKey = RegistryKey.create(Registry.BIOME_REGISTRY, resourceLocation);		
+					if(refresh)
+					{
+						biomeRegistry.registerOrOverride(OptionalInt.empty(), registryKey, biome, Lifecycle.stable());
+					} else {	 			
+						ForgeRegistries.BIOMES.register(biome);
+					}
 				} else {
-					biomeRegistry.registerOrOverride(OptionalInt.empty(), registryKey, biome, Lifecycle.stable());
+					if(refresh)
+					{
+						biome = biomeRegistry.get(resourceLocation);
+						Optional<RegistryKey<Biome>> key = biomeRegistry.getResourceKey(biome);
+						registryKey = key.isPresent() ? key.get() : null;
+					} else {
+						biome = ForgeBiome.createOTGBiome(isOceanBiome, preset.getWorldConfig(), biomeConfig.getValue());
+						registryKey = RegistryKey.create(Registry.BIOME_REGISTRY, resourceLocation);
+						ForgeRegistries.BIOMES.register(biome);
+					}
 				}
 			}
+			if(biome == null || registryKey == null)
+			{
+				if(OTG.getEngine().getLogger().getLogCategoryEnabled(LogCategory.BIOME_REGISTRY))
+				{
+					OTG.getEngine().getLogger().log(LogLevel.ERROR, LogCategory.BIOME_REGISTRY, "Could not find biome " + resourceLocation.toString() + " for biomeconfig " + biomeConfig.getValue().getName());
+				}
+				continue;
+			}
+			presetBiomes.add(registryKey);
+			biomeConfig.getValue().setRegistryKey(biomeConfig.getKey());
+			biomeConfig.getValue().setOTGBiomeId(otgBiomeId);
 
 			// Populate our map for syncing
 			OTGClientSyncManager.getSyncedData().put(resourceLocation.toString(), new BiomeSettingSyncWrapper(biomeConfig.getValue()));
@@ -646,14 +665,18 @@ public class ForgePresetLoader extends LocalPresetLoader
 						String tagSubString2 = tagSubString.trim().toLowerCase();
 						if(tagSubString2.startsWith(Constants.MOD_LABEL_EXCLUDE))
 						{
-							innerMods.add(tagSubString2.replace(Constants.MOD_LABEL_EXCLUDE, ""));
+							innerExcludedMods.add(tagSubString2.replace(Constants.MOD_LABEL_EXCLUDE, ""));
+							biomesForTags = biomesForTags.stream().filter(key -> !key.location().getNamespace().equals(tagSubString2.replace(Constants.MOD_LABEL_EXCLUDE, ""))).collect(Collectors.toSet());							
 						}
 						else if(tagSubString2.startsWith(Constants.MOD_LABEL))
 						{
-							innerExcludedMods.add(tagSubString2.replace(Constants.MOD_LABEL, ""));
-							biomesForTags = biomesForTags.stream().filter(key -> !key.location().getNamespace().equals(tagSubString2.replace(Constants.MOD_LABEL, ""))).collect(Collectors.toSet());
+							innerMods.add(tagSubString2.replace(Constants.MOD_LABEL, ""));							
 						}
 					}
+					if(innerMods.size() > 0)
+					{
+						biomesForTags = biomesForTags.stream().filter(key -> innerMods.stream().anyMatch(a -> a.equals(key.location().getNamespace()))).collect(Collectors.toSet());
+					}					
 					if(tags.size() > 0)
 					{
 						String tagType = tagsStrings.get(0);
@@ -675,6 +698,9 @@ public class ForgePresetLoader extends LocalPresetLoader
 								) && (
 									excludedMods.size() == 0 ||
 									!excludedMods.stream().anyMatch(mod -> key.location().getNamespace().equals(mod))
+								) && (
+									innerMods.size() == 0 ||
+									innerMods.stream().anyMatch(mod -> key.location().getNamespace().equals(mod))									
 								) && (
 									innerExcludedMods.size() == 0 ||
 									!innerExcludedMods.stream().anyMatch(mod -> key.location().getNamespace().equals(mod))											
@@ -1088,13 +1114,17 @@ public class ForgePresetLoader extends LocalPresetLoader
 						String tagSubString2 = tagSubString.trim().toLowerCase();
 						if(tagSubString2.startsWith(Constants.MOD_LABEL_EXCLUDE))
 						{
-							innerMods.add(tagSubString2.replace(Constants.MOD_LABEL_EXCLUDE, ""));
+							innerExcludedMods.add(tagSubString2.replace(Constants.MOD_LABEL_EXCLUDE, ""));
+							biomesForTags = biomesForTags.stream().filter(key -> !key.location().getNamespace().equals(tagSubString2.replace(Constants.MOD_LABEL_EXCLUDE, ""))).collect(Collectors.toSet());
 						}						
 						else if(tagSubString2.startsWith(Constants.MOD_LABEL))
 						{
-							innerExcludedMods.add(tagSubString2.replace(Constants.MOD_LABEL, ""));
-							biomesForTags = biomesForTags.stream().filter(key -> !key.location().getNamespace().equals(tagSubString2.replace(Constants.MOD_LABEL, ""))).collect(Collectors.toSet());
+							innerMods.add(tagSubString2.replace(Constants.MOD_LABEL, ""));
 						}
+					}
+					if(innerMods.size() > 0)
+					{
+						biomesForTags = biomesForTags.stream().filter(key -> innerMods.stream().anyMatch(a -> a.equals(key.location().getNamespace()))).collect(Collectors.toSet());
 					}
 					if(tags.size() > 0)
 					{
@@ -1117,6 +1147,9 @@ public class ForgePresetLoader extends LocalPresetLoader
 								) && (
 									excludedMods.size() == 0 ||
 									!excludedMods.stream().anyMatch(mod -> key.location().getNamespace().equals(mod))
+								) && (
+									innerMods.size() == 0 ||
+									innerMods.stream().anyMatch(mod -> key.location().getNamespace().equals(mod))								
 								) && (
 									innerExcludedMods.size() == 0 ||
 									!innerExcludedMods.stream().anyMatch(mod -> key.location().getNamespace().equals(mod))											
