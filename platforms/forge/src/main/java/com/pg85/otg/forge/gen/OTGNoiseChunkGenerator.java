@@ -314,7 +314,6 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 	{
 		// OTG handles surface/ground blocks during base terrain gen. For non-OTG biomes used
 		// with TemplateForBiome, we want to use registered surfacebuilders though.
-		// TODO: Disable any surface/ground block related features for Template BiomeConfigs. 
 
 		ChunkPos chunkpos = chunk.getPos();
 		int i = chunkpos.x;
@@ -736,8 +735,6 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		this.internalGenerator.getNoiseColumn(noiseData[2], xStart + 1, zStart);
 		this.internalGenerator.getNoiseColumn(noiseData[3], xStart + 1, zStart + 1);
 
-		//IBiomeConfig biomeConfig = this.internalGenerator.getCachedBiomeProvider().getBiomeConfig(x, z);
-
 		// [0, 32] -> noise chunks
 		for (int noiseY = this.internalGenerator.getNoiseSizeY() - 1; noiseY >= 0; --noiseY)
 		{
@@ -790,18 +787,15 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 	// (for replaceblocks/sagc), but that shouldn't matter for the callers of this method.
 	// Actually, it's probably better if they don't see OTG's replaced blocks, and just see
 	// the default blocks instead, as vanilla MC would do.
-	//protected BlockState getBlockState(double density, int y, IBiomeConfig config)
 	private BlockState getBlockState(double density, int y)
 	{
 		if (density > 0.0D)
 		{
 			return this.defaultBlock;
-			//return ((ForgeMaterialData) config.getStoneBlockReplaced(y)).internalBlock();
 		}
 		else if (y < this.getSeaLevel())
 		{
 			return this.defaultFluid;
-			//return ((ForgeMaterialData) config.getWaterBlockReplaced(y)).internalBlock();
 		} else {
 			return Blocks.AIR.defaultBlockState();
 		}
