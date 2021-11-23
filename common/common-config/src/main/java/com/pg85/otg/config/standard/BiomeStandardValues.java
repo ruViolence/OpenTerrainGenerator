@@ -139,7 +139,7 @@ public class BiomeStandardValues extends Settings
 		OCEAN_RUINS_CLUSTER_PROBABILITY = floatSetting("OceanRuinsClusterProbability", 0.9f, 0f, 1f),
 		BURIED_TREASURE_PROBABILITY = floatSetting("BuriedTreasureProbability", 0.01f, 0f, 1f),
 		PARTICLE_PROBABILITY = floatSetting("ParticleProbability", 0f, 0, 1f),
-		FOG_DENSITY = floatSetting("FogDensity", 0.0f, 0f, 1f);
+		FOG_DENSITY = floatSetting("FogDensity", 0.0f, 0f, 1f)
 	;
 
 	public static final Setting<List<WeightedMobSpawnGroup>>
@@ -154,8 +154,8 @@ public class BiomeStandardValues extends Settings
 	public static final Setting<ColorSet>
 		GRASS_COLOR_CONTROL = colorSetSetting("GrassColorControl"),
 		FOLIAGE_COLOR_CONTROL = colorSetSetting("FoliageColorControl"),
-		WATER_COLOR_CONTROL = colorSetSetting("WaterColorControl");
-;
+		WATER_COLOR_CONTROL = colorSetSetting("WaterColorControl")
+	;
 
 	public static final Setting<VillageType> VILLAGE_TYPE = enumSetting("VillageType", VillageType.disabled);
 	public static final Setting<MineshaftType> MINESHAFT_TYPE = enumSetting("MineshaftType", MineshaftType.normal);
