@@ -35,6 +35,7 @@ public class OTGCommandExecutor implements TabCompleter, CommandExecutor
 		commandMap.put("region", new RegionCommand());
 		commandMap.put("finishedit", new FinishEditCommand());
 		commandMap.put("canceledit", new CancelEditCommand());
+		commandMap.put("exportbo4data", new ExportBO4DataCommand());
 	}
 
 	@Override

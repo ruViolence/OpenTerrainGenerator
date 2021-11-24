@@ -32,6 +32,7 @@ otg.cmd.*:
     otg.cmd.reload: true
     otg.cmd.spawn: true
     otg.cmd.tp: true
+    otg.cmd.exportbo4data: true
   otg.cmd.biome:
     default: op
     description: show chunk biome and block stats
@@ -65,3 +66,6 @@ otg.cmd.*:
   otg.cmd.export:
     default: op
     description: Exports the current WorldEdit selection as a new BO3.
+  otg.cmd.exportbo4data:
+    default: op
+    description: Exports all BO4 files and BO3 files that have isOTGPlus:true as BO4Data files (if none exist already). BO4Data files can significantly reduce filesize and loading times, and should be used by OTG content creators when packaging presets for players.
