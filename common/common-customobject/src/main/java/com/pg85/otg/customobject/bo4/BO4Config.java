@@ -1367,7 +1367,6 @@ public class BO4Config extends CustomObjectConfigFile
 		stream.writeInt(this.bo4DataVersion);
 		// Version 3 added fixedRotation		
 		StreamHelper.writeStringToStream(stream, this.fixedRotation == null ? null : this.fixedRotation.toString());
-		stream.writeInt(this.bo4DataVersion);
 		stream.writeInt(this.minimumSizeTop);
 		stream.writeInt(this.minimumSizeBottom);
 		stream.writeInt(this.minimumSizeLeft);
