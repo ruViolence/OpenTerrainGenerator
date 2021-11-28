@@ -90,8 +90,13 @@ public class SpigotWorldGenRegion extends LocalWorldGenRegion
 	@Override
 	public ChunkCoordinate getSpawnChunk()
 	{
-		BlockPosition spawnPos = this.worldGenRegion.getMinecraftWorld().getSpawn();
-		return ChunkCoordinate.fromBlockCoords(spawnPos.getX(), spawnPos.getZ());
+		if(this.getWorldConfig().getSpawnPointSet())
+		{
+			return ChunkCoordinate.fromBlockCoords(this.getWorldConfig().getSpawnPointX(), this.getWorldConfig().getSpawnPointZ());
+		} else {
+			BlockPosition spawnPos = this.worldGenRegion.getMinecraftWorld().getSpawn();
+			return ChunkCoordinate.fromBlockCoords(spawnPos.getX(), spawnPos.getZ());
+		}
 	}
 
 	public GeneratorAccessSeed getInternal()
