@@ -593,7 +593,7 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 	@Override
 	public IBlockAccess a (int x, int z)
 	{
-		IBlockData[] ablockstate = new IBlockData[256];
+		IBlockData[] ablockstate = new IBlockData[this.internalGenerator.getNoiseSizeY() * 8];
 		this.sampleHeightmap(x, x, ablockstate, null);
 		return new BlockColumn(ablockstate);
 	}

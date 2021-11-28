@@ -765,6 +765,7 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 	public IBlockReader getBaseColumn(int x, int z)
 	{
 		BlockState[] ablockstate = new BlockState[256];
+		BlockState[] ablockstate = new BlockState[this.internalGenerator.getNoiseSizeY() * 8];
 		this.sampleHeightmap(x, x, ablockstate, null);
 		return new Blockreader(ablockstate);
 	}
