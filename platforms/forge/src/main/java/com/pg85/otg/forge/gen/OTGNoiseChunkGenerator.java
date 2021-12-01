@@ -2,12 +2,16 @@ package com.pg85.otg.forge.gen;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.pg85.otg.OTG;
@@ -27,6 +31,7 @@ import com.pg85.otg.interfaces.IBiome;
 import com.pg85.otg.interfaces.ICachedBiomeProvider;
 import com.pg85.otg.interfaces.ILayerSource;
 import com.pg85.otg.interfaces.IMaterialReader;
+import com.pg85.otg.interfaces.IWorldConfig;
 import com.pg85.otg.presets.Preset;
 import com.pg85.otg.util.ChunkCoordinate;
 import com.pg85.otg.util.gen.ChunkBuffer;
@@ -37,7 +42,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.crash.CrashReport;
@@ -69,7 +74,6 @@ import net.minecraft.world.gen.OctavesNoiseGenerator;
 import net.minecraft.world.gen.PerlinNoiseGenerator;
 import net.minecraft.world.gen.Heightmap.Type;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
-import net.minecraft.world.gen.carver.ConfiguredCarvers;
 import net.minecraft.world.gen.WorldGenRegion;
 import net.minecraft.world.gen.feature.StructureFeature;
 import net.minecraft.world.gen.feature.jigsaw.JigsawJunction;
@@ -99,8 +103,10 @@ import net.minecraft.world.gen.feature.structure.SwampHutStructure;
 import net.minecraft.world.gen.feature.structure.VillageStructure;
 import net.minecraft.world.gen.feature.structure.WoodlandMansionStructure;
 import net.minecraft.world.gen.feature.template.TemplateManager;
+import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 import net.minecraft.world.gen.settings.NoiseSettings;
 import net.minecraft.world.gen.settings.StructureSeparationSettings;
+import net.minecraft.world.gen.settings.StructureSpreadSettings;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.spawner.WorldEntitySpawner;
 import net.minecraft.world.storage.FolderName;
@@ -177,7 +183,7 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 	@SuppressWarnings("deprecation")
 	private OTGNoiseChunkGenerator(String presetFolderName, String dimConfigName, BiomeProvider biomeProvider1, BiomeProvider biomeProvider2, long seed, Supplier<DimensionSettings> dimensionSettingsSupplier)
 	{
-		super(biomeProvider1, biomeProvider2, dimensionSettingsSupplier.get().structureSettings(), seed);
+		super(biomeProvider1, biomeProvider2, overrideStructureSettings(dimensionSettingsSupplier.get().structureSettings(), presetFolderName), seed);
 
 		if (!(biomeProvider1 instanceof ILayerSource))
 		{
@@ -206,6 +212,60 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		this.shadowChunkGenerator = new ShadowChunkGenerator(OTG.getEngine().getPluginConfig().getMaxWorkerThreads());
 		this.internalGenerator = new OTGChunkGenerator(this.preset, seed, (ILayerSource) biomeProvider1,((ForgePresetLoader)OTG.getEngine().getPresetLoader()).getGlobalIdMapping(presetFolderName), OTG.getEngine().getLogger());
 		this.chunkDecorator = new OTGChunkDecorator();
+	}
+	
+	private static DimensionStructuresSettings overrideStructureSettings(DimensionStructuresSettings oldSettings, String presetFolderName)
+	{
+		Preset preset = OTG.getEngine().getPresetLoader().getPresetByFolderName(presetFolderName);
+		IWorldConfig worldConfig = preset.getWorldConfig();
+
+		DimensionStructuresSettings newSettings = new DimensionStructuresSettings(
+			Optional.of(new StructureSpreadSettings(worldConfig.getStrongHoldDistance(), worldConfig.getStrongHoldSpread(), worldConfig.getStrongHoldCount())), 
+			Maps.newHashMap(
+				ImmutableMap.<Structure<?>, StructureSeparationSettings>builder()
+				.put(Structure.VILLAGE, new StructureSeparationSettings(worldConfig.getVillageSpacing(), worldConfig.getVillageSeparation(), 10387312))
+				.put(Structure.DESERT_PYRAMID, new StructureSeparationSettings(worldConfig.getDesertPyramidSpacing(), worldConfig.getDesertPyramidSeparation(), 14357617))
+				.put(Structure.IGLOO, new StructureSeparationSettings(worldConfig.getIglooSpacing(), worldConfig.getIglooSeparation(), 14357618))
+				.put(Structure.JUNGLE_TEMPLE, new StructureSeparationSettings(worldConfig.getJungleTempleSpacing(), worldConfig.getJungleTempleSeparation(), 14357619))
+				.put(Structure.SWAMP_HUT, new StructureSeparationSettings(worldConfig.getSwampHutSpacing(), worldConfig.getSwampHutSeparation(), 14357620))
+				.put(Structure.PILLAGER_OUTPOST, new StructureSeparationSettings(worldConfig.getPillagerOutpostSpacing(), worldConfig.getPillagerOutpostSeparation(), 165745296))
+				.put(Structure.STRONGHOLD, new StructureSeparationSettings(worldConfig.getStrongholdSpacing(), worldConfig.getStrongholdSeparation(), 0))
+				.put(Structure.OCEAN_MONUMENT, new StructureSeparationSettings(worldConfig.getOceanMonumentSpacing(), worldConfig.getOceanMonumentSeparation(), 10387313))
+				.put(Structure.END_CITY, new StructureSeparationSettings(worldConfig.getEndCitySpacing(), worldConfig.getEndCitySeparation(), 10387313))
+				.put(Structure.WOODLAND_MANSION, new StructureSeparationSettings(worldConfig.getWoodlandMansionSpacing(), worldConfig.getWoodlandMansionSeparation(), 10387319))
+				.put(Structure.BURIED_TREASURE, new StructureSeparationSettings(worldConfig.getBuriedTreasureSpacing(), worldConfig.getBuriedTreasureSeparation(), 0))
+				.put(Structure.MINESHAFT, new StructureSeparationSettings(worldConfig.getMineshaftSpacing(), worldConfig.getMineshaftSeparation(), 0))
+				.put(Structure.RUINED_PORTAL, new StructureSeparationSettings(worldConfig.getRuinedPortalSpacing(), worldConfig.getRuinedPortalSeparation(), 34222645))
+				.put(Structure.SHIPWRECK, new StructureSeparationSettings(worldConfig.getShipwreckSpacing(), worldConfig.getShipwreckSeparation(), 165745295))
+				.put(Structure.OCEAN_RUIN, new StructureSeparationSettings(worldConfig.getOceanRuinSpacing(), worldConfig.getOceanRuinSeparation(), 14357621))
+				.put(Structure.BASTION_REMNANT, new StructureSeparationSettings(worldConfig.getBastionRemnantSpacing(), worldConfig.getBastionRemnantSeparation(), 30084232))
+				.put(Structure.NETHER_BRIDGE, new StructureSeparationSettings(worldConfig.getNetherFortressSpacing(), worldConfig.getNetherFortressSeparation(), 30084232))
+				.put(Structure.NETHER_FOSSIL, new StructureSeparationSettings(worldConfig.getNetherFossilSpacing(), worldConfig.getNetherFossilSeparation(), 14357921))
+				.putAll(
+					oldSettings.structureConfig().entrySet().stream().filter(a -> 
+						a.getKey() != Structure.VILLAGE &&
+						a.getKey() != Structure.DESERT_PYRAMID &&
+						a.getKey() != Structure.IGLOO &&
+						a.getKey() != Structure.JUNGLE_TEMPLE &&
+						a.getKey() != Structure.SWAMP_HUT &&
+						a.getKey() != Structure.PILLAGER_OUTPOST &&
+						a.getKey() != Structure.STRONGHOLD &&
+						a.getKey() != Structure.OCEAN_MONUMENT &&
+						a.getKey() != Structure.END_CITY &&
+						a.getKey() != Structure.WOODLAND_MANSION &&
+						a.getKey() != Structure.BURIED_TREASURE &&
+						a.getKey() != Structure.MINESHAFT &&
+						a.getKey() != Structure.RUINED_PORTAL &&
+						a.getKey() != Structure.SHIPWRECK &&
+						a.getKey() != Structure.OCEAN_RUIN &&
+						a.getKey() != Structure.BASTION_REMNANT &&
+						a.getKey() != Structure.NETHER_BRIDGE &&
+						a.getKey() != Structure.NETHER_FOSSIL
+					).collect(Collectors.toMap(Entry::getKey, Entry::getValue))
+				).build()
+			)
+		);
+		return newSettings;
 	}
 
 	public ICachedBiomeProvider getCachedBiomeProvider()
@@ -314,7 +374,6 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 	{
 		// OTG handles surface/ground blocks during base terrain gen. For non-OTG biomes used
 		// with TemplateForBiome, we want to use registered surfacebuilders though.
-		// TODO: Disable any surface/ground block related features for Template BiomeConfigs. 
 
 		ChunkPos chunkpos = chunk.getPos();
 		int i = chunkpos.x;
@@ -361,23 +420,24 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 			ForgeBiome biome = (ForgeBiome)this.getCachedBiomeProvider().getNoiseBiome(chunk.getPos().x << 2, chunk.getPos().z << 2);
 			BiomeGenerationSettings biomegenerationsettings = biome.getBiomeBase().getGenerationSettings();
 			List<Supplier<ConfiguredCarver<?>>> list = biomegenerationsettings.getCarvers(stage);
-			
-			// TODO: When using template biomes with MC biomes, we don't control which
-			// default carvers were registered to biomes like we do with OTG biomes (always
-			// ConfiguredCarvers.CAVE / ConfiguredCarvers.CANYON), so we only use OTG 
-			// carvers for some MC biomes atm.
-			
-			boolean cavesEnabled = 
-				this.preset.getWorldConfig().getCavesEnabled() &&
-				list.stream().anyMatch(a -> a.get() == ConfiguredCarvers.CAVE || a.get() == ConfiguredCarvers.NETHER_CAVE)
-			;
-			
-			// Nether biomes don't have canyons normally, so when NETHER_CAVE is present just add OTG canyons if enabled.
-			boolean ravinesEnabled = 
-				this.preset.getWorldConfig().getRavinesEnabled() && 
-				list.stream().anyMatch(a -> a.get() == ConfiguredCarvers.CANYON || a.get() == ConfiguredCarvers.NETHER_CAVE)
-			;
-			
+
+			// Only use OTG carvers when default mc carvers are found
+			List<String> defaultCaves = Arrays.asList("minecraft:cave", "minecraft:underwater_cave", "minecraft:nether_cave");			
+			boolean cavesEnabled = this.preset.getWorldConfig().getCavesEnabled() && list.stream().anyMatch(
+				a -> defaultCaves.stream().anyMatch(
+					b -> b.equals(
+						ForgeRegistries.WORLD_CARVERS.getKey(a.get().worldCarver).toString()
+					)
+				)
+			);
+			List<String> defaultRavines = Arrays.asList("minecraft:canyon", "minecraft:underwater_canyon");
+			boolean ravinesEnabled = this.preset.getWorldConfig().getRavinesEnabled() && list.stream().anyMatch(
+				a -> defaultRavines.stream().anyMatch(
+					b -> b.equals(
+						ForgeRegistries.WORLD_CARVERS.getKey(a.get().worldCarver).toString()
+					)
+				)
+			);
 			if(cavesEnabled || ravinesEnabled)
 			{
 				ChunkPrimer protoChunk = (ChunkPrimer) chunk;
@@ -400,6 +460,7 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		BiomeGenerationSettings biomegenerationsettings = biome.getBiomeBase().getGenerationSettings();
 		BitSet bitset = ((ChunkPrimer)chunk).getOrCreateCarvingMask(stage);
 
+		List<String> defaultCavesAndRavines = Arrays.asList("minecraft:cave", "minecraft:underwater_cave", "minecraft:nether_cave", "minecraft:canyon", "minecraft:underwater_canyon");					
 		for(int l = j - 8; l <= j + 8; ++l)
 		{
 			for(int i1 = k - 8; i1 <= k + 8; ++i1)
@@ -410,12 +471,9 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 				{
 					int j1 = listiterator.nextIndex();
 					ConfiguredCarver<?> configuredcarver = listiterator.next().get();
+					String carverRegistryName = ForgeRegistries.WORLD_CARVERS.getKey(configuredcarver.worldCarver).toString();
 					// OTG uses its own caves and canyon carvers, ignore the default ones.
-					if(
-						configuredcarver != ConfiguredCarvers.CAVE &&
-						configuredcarver != ConfiguredCarvers.NETHER_CAVE &&
-						configuredcarver != ConfiguredCarvers.CANYON						
-					)
+					if(defaultCavesAndRavines.stream().noneMatch(a -> a.equals(carverRegistryName)))
 					{
 						sharedseedrandom.setLargeFeatureSeed(seed + (long)j1, l, i1);
 						if (configuredcarver.isStartChunk(sharedseedrandom, l, i1))
@@ -706,7 +764,7 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 	@Override
 	public IBlockReader getBaseColumn(int x, int z)
 	{
-		BlockState[] ablockstate = new BlockState[256];
+		BlockState[] ablockstate = new BlockState[this.internalGenerator.getNoiseSizeY() * 8];
 		this.sampleHeightmap(x, x, ablockstate, null);
 		return new Blockreader(ablockstate);
 	}
@@ -735,8 +793,6 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		this.internalGenerator.getNoiseColumn(noiseData[1], xStart, zStart + 1);
 		this.internalGenerator.getNoiseColumn(noiseData[2], xStart + 1, zStart);
 		this.internalGenerator.getNoiseColumn(noiseData[3], xStart + 1, zStart + 1);
-
-		//IBiomeConfig biomeConfig = this.internalGenerator.getCachedBiomeProvider().getBiomeConfig(x, z);
 
 		// [0, 32] -> noise chunks
 		for (int noiseY = this.internalGenerator.getNoiseSizeY() - 1; noiseY >= 0; --noiseY)
@@ -790,18 +846,15 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 	// (for replaceblocks/sagc), but that shouldn't matter for the callers of this method.
 	// Actually, it's probably better if they don't see OTG's replaced blocks, and just see
 	// the default blocks instead, as vanilla MC would do.
-	//protected BlockState getBlockState(double density, int y, IBiomeConfig config)
 	private BlockState getBlockState(double density, int y)
 	{
 		if (density > 0.0D)
 		{
 			return this.defaultBlock;
-			//return ((ForgeMaterialData) config.getStoneBlockReplaced(y)).internalBlock();
 		}
 		else if (y < this.getSeaLevel())
 		{
 			return this.defaultFluid;
-			//return ((ForgeMaterialData) config.getWaterBlockReplaced(y)).internalBlock();
 		} else {
 			return Blocks.AIR.defaultBlockState();
 		}
@@ -850,7 +903,7 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 
 	public Boolean checkHasVanillaStructureWithoutLoading(ServerWorld world, ChunkCoordinate chunkCoord)
 	{
-		return this.shadowChunkGenerator.checkHasVanillaStructureWithoutLoading(world, this, (OTGBiomeProvider)this.biomeSource, this.getSettings(), chunkCoord, this.internalGenerator.getCachedBiomeProvider());
+		return this.shadowChunkGenerator.checkHasVanillaStructureWithoutLoading(world, this, (OTGBiomeProvider)this.biomeSource, this.getSettings(), chunkCoord, this.internalGenerator.getCachedBiomeProvider(), false);
 	}
 
 	public int getHighestBlockYInUnloadedChunk(Random worldRandom, int x, int z, boolean findSolid, boolean findLiquid, boolean ignoreLiquid, boolean ignoreSnow)

@@ -176,7 +176,7 @@ public class BO4CustomStructure extends CustomStructure
 		this.minY = minY;
 	}
 	
-	BO4CustomStructure(long worldSeed, BO4CustomStructureCoordinate start, Path otgRootFolder, ILogger logger, CustomObjectManager customObjectManager, IMaterialReader materialReader, CustomObjectResourcesManager manager, IModLoadedChecker modLoadedChecker)
+	public BO4CustomStructure(long worldSeed, BO4CustomStructureCoordinate start, Path otgRootFolder, ILogger logger, CustomObjectManager customObjectManager, IMaterialReader materialReader, CustomObjectResourcesManager manager, IModLoadedChecker modLoadedChecker)
 	{
 		this.isStructureAtSpawn = false;
 
@@ -455,7 +455,7 @@ public class BO4CustomStructure extends CustomStructure
 	 * If this structure were spawned as small as possible (with branchDepth 0)
 	 * @throws InvalidConfigException
 	 */
-	Object[] getMinimumSize(CustomStructureCache structureCache, IWorldGenRegion worldGenRegion, Path otgRootFolder, ILogger logger, CustomObjectManager customObjectManager, IMaterialReader materialReader, CustomObjectResourcesManager manager, IModLoadedChecker modLoadedChecker) throws InvalidConfigException
+	public Object[] getMinimumSize(CustomStructureCache structureCache, IWorldGenRegion worldGenRegion, Path otgRootFolder, ILogger logger, CustomObjectManager customObjectManager, IMaterialReader materialReader, CustomObjectResourcesManager manager, IModLoadedChecker modLoadedChecker) throws InvalidConfigException
 	{
 		BO4 bo4 = ((BO4)this.start.getObject(otgRootFolder, logger, customObjectManager, materialReader, manager, modLoadedChecker));
 		BO4Config bo4Config = bo4.getConfig();
@@ -853,7 +853,7 @@ public class BO4CustomStructure extends CustomStructure
 					Stack<BranchDataItem> collidingBranches = null;
 					if(canSpawn)
 					{
-						if(!minimumSize && worldGenRegion.chunkHasDefaultStructure(this.worldRandom, childBranchDataItem.chunkCoordinate))
+						if(!minimumSize && !this.isStructureAtSpawn && worldGenRegion.chunkHasDefaultStructure(this.worldRandom, childBranchDataItem.chunkCoordinate))
 						{
 							chunkIsIneligible = true;
 							canSpawn = false;

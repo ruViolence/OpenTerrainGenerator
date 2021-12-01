@@ -2,6 +2,7 @@ package com.pg85.otg.spigot.gen;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +38,12 @@ import net.minecraft.server.v1_16_R3.IRegistryCustom;
 import net.minecraft.server.v1_16_R3.ProtoChunk;
 import net.minecraft.server.v1_16_R3.SeededRandom;
 import net.minecraft.server.v1_16_R3.StructureFeature;
+import net.minecraft.server.v1_16_R3.StructureGenerator;
 import net.minecraft.server.v1_16_R3.StructureManager;
 import net.minecraft.server.v1_16_R3.StructureSettings;
 import net.minecraft.server.v1_16_R3.StructureSettingsFeature;
 import net.minecraft.server.v1_16_R3.WorldChunkManager;
-import net.minecraft.server.v1_16_R3.WorldGenVillage;
+import net.minecraft.server.v1_16_R3.WorldGenStage.Decoration;
 import net.minecraft.server.v1_16_R3.WorldServer;
 
 /**
@@ -62,7 +64,7 @@ public class ShadowChunkGenerator
 	// TODO: Add a setting to the worldconfig for the size of these caches?
 	private final FifoMap<BlockPos2D, LocalMaterialData[]> unloadedBlockColumnsCache = new FifoMap<BlockPos2D, LocalMaterialData[]>(1024);
 	private final FifoMap<ChunkCoordinate, IChunkAccess> unloadedChunksCache = new FifoMap<ChunkCoordinate, IChunkAccess>(512);
-	private final FifoMap<ChunkCoordinate, Boolean> hasVanillaStructureChunkCache = new FifoMap<ChunkCoordinate, Boolean>(2048);
+	private final FifoMap<ChunkCoordinate, Integer> hasVanillaStructureChunkCache = new FifoMap<ChunkCoordinate, Integer>(2048);
 	
 	static Field heightMaps;
 	static Field light;
@@ -202,44 +204,51 @@ public class ShadowChunkGenerator
 		ProtoChunk chunk;
 		ChunkCoordIntPair chunkpos;
 		IBiome biome;
-		ChunkCoordinate searchChunk;
-		Boolean result;
 		if (serverWorld.getServer().getGenerateStructures())
 		{
-			List<ChunkCoordinate> chunksToHandle = new ArrayList<ChunkCoordinate>();
-			Map<ChunkCoordinate,Boolean> chunksHandled = new HashMap<ChunkCoordinate,Boolean>();			
+			List<ChunkCoordinate> chunksToHandle = new ArrayList<>();
+			Map<ChunkCoordinate,Integer> chunksHandled = new HashMap<>();
 			synchronized(this.hasVanillaStructureChunkCache)
 			{
-				for (int cycle = 0; cycle <= radiusInChunks; ++cycle)
+				if(checkHasVanillaStructureWithoutLoadingCache(this.hasVanillaStructureChunkCache, chunkCoordinate, radiusInChunks, chunksToHandle))
 				{
-					for (int xOffset = -cycle; xOffset <= cycle; ++xOffset)
-					{
-						for (int zOffset = -cycle; zOffset <= cycle; ++zOffset)
-						{
-							int distance = (int)Math.floor(Math.sqrt(Math.pow (xOffset, 2) + Math.pow (zOffset, 2)));
-							if (distance == cycle)
-							{
-								searchChunk = ChunkCoordinate.fromChunkCoords(chunkCoordinate.getChunkX() + xOffset, chunkCoordinate.getChunkZ() + zOffset);
-								result = this.hasVanillaStructureChunkCache.get(searchChunk);
-								if(result != null)
-								{
-									if(result.booleanValue())
-									{
-										return true;
-									}
-								} else {
-									chunksToHandle.add(searchChunk);
-								}
-							}
-						}
-					}
+					return true;
 				}
 			}
+			
+			@SuppressWarnings("unchecked")
+			ArrayList<StructureGenerator<?>>[] structuresPerDistance = new ArrayList[radiusInChunks];
+			structuresPerDistance[4] = new ArrayList<StructureGenerator<?>>(Arrays.asList(
+				new StructureGenerator<?>[] {
+					StructureGenerator.VILLAGE,
+					StructureGenerator.ENDCITY,
+					StructureGenerator.BASTION_REMNANT,
+					StructureGenerator.MONUMENT,
+					StructureGenerator.MANSION
+				}
+			));
+			structuresPerDistance[3] = new ArrayList<StructureGenerator<?>>(Arrays.asList(new StructureGenerator<?>[]{}));
+			structuresPerDistance[2] = new ArrayList<StructureGenerator<?>>(Arrays.asList(new StructureGenerator<?>[]{}));
+			structuresPerDistance[1] = new ArrayList<StructureGenerator<?>>(Arrays.asList(
+				new StructureGenerator<?>[] {
+					StructureGenerator.JUNGLE_PYRAMID,
+					StructureGenerator.DESERT_PYRAMID,
+					StructureGenerator.RUINED_PORTAL,
+					StructureGenerator.SWAMP_HUT,
+					StructureGenerator.IGLOO,
+					StructureGenerator.SHIPWRECK,
+					StructureGenerator.PILLAGER_OUTPOST,
+					StructureGenerator.OCEAN_RUIN
+				}
+			));
+			structuresPerDistance[0] = new ArrayList<StructureGenerator<?>>(Arrays.asList(new StructureGenerator<?>[]{}));
+		
 			for(ChunkCoordinate chunkToHandle : chunksToHandle)
 			{
 				chunk = new ProtoChunk(new ChunkCoordIntPair(chunkToHandle.getChunkX(), chunkToHandle.getChunkZ()), null);
 				chunkpos = chunk.getPos();
-
+				int distance = (int)Math.floor(Math.sqrt(Math.pow (chunkToHandle.getChunkX() - chunkCoordinate.getChunkX(), 2) + Math.pow (chunkToHandle.getChunkZ() - chunkCoordinate.getChunkZ(), 2)));
+				
 				// Borrowed from STRUCTURE_STARTS phase of chunkgen, only determines structure start point
 				// based on biome and resource settings (distance etc). Does not plot any structure components.
 
@@ -247,26 +256,66 @@ public class ShadowChunkGenerator
 				biome = cachedBiomeProvider.getNoiseBiome((chunkpos.x << 2) + 2, (chunkpos.z << 2) + 2);
 				for(Supplier<StructureFeature<?, ?>> supplier : ((SpigotBiome)biome).getBiomeBase().e().a())
 				{
-					// *TODO: Do we need to avoid any structures other than villages?
-					if(supplier.get().d instanceof WorldGenVillage)
+					StructureFeature<?, ?> structure = supplier.get();
+					if(structure.d.f() == Decoration.SURFACE_STRUCTURES)
 					{
-						if(hasStructureStart(supplier.get(), dimensionStructuresSettings, serverWorld.r(), serverWorld.getStructureManager(), chunk, serverWorld.n(), chunkGenerator, biomeProvider, serverWorld.getSeed(), chunkpos, ((SpigotBiome)biome).getBiomeBase()))
+						for(int i = structuresPerDistance.length - 1; i > 0; i--)
 						{
-							chunksHandled.put(chunkToHandle, new Boolean(true));
-							synchronized(this.hasVanillaStructureChunkCache)
+							ArrayList<StructureGenerator<?>> structuresAtDistance = structuresPerDistance[i];
+							if(structuresAtDistance.contains(structure.d))
 							{
-								this.hasVanillaStructureChunkCache.putAll(chunksHandled);
+								if(hasStructureStart(structure, dimensionStructuresSettings, serverWorld.r(), serverWorld.getStructureManager(), chunk, serverWorld.n(), chunkGenerator, biomeProvider, serverWorld.getSeed(), chunkpos, ((SpigotBiome)biome).getBiomeBase()))
+								{
+									chunksHandled.put(chunkToHandle, new Integer(i));
+									if(i >= distance)
+									{
+										synchronized(this.hasVanillaStructureChunkCache)
+										{
+											this.hasVanillaStructureChunkCache.putAll(chunksHandled);
+										}							
+										return true;
+									}
+								}
+								break;
 							}
-							return true;
 						}
 					}
 				}
-				chunksHandled.put(chunkToHandle, new Boolean(false));
+				chunksHandled.putIfAbsent(chunkToHandle, new Integer(0));
 			}
 			synchronized(this.hasVanillaStructureChunkCache)
 			{
 				this.hasVanillaStructureChunkCache.putAll(chunksHandled);
-			}			
+			}
+		}
+		return false;
+	}
+	
+	private boolean checkHasVanillaStructureWithoutLoadingCache(FifoMap<ChunkCoordinate, Integer> cache, ChunkCoordinate chunkCoordinate, int radiusInChunks, List<ChunkCoordinate> chunksToHandle)
+	{
+		for (int cycle = 0; cycle < radiusInChunks; ++cycle)
+		{
+			for (int xOffset = -cycle; xOffset <= cycle; ++xOffset)
+			{
+				for (int zOffset = -cycle; zOffset <= cycle; ++zOffset)
+				{
+					int distance = (int)Math.floor(Math.sqrt(Math.pow (xOffset, 2) + Math.pow (zOffset, 2)));
+					if (distance == cycle)
+					{
+						ChunkCoordinate searchChunk = ChunkCoordinate.fromChunkCoords(chunkCoordinate.getChunkX() + xOffset, chunkCoordinate.getChunkZ() + zOffset);
+						Integer result = cache.get(searchChunk);
+						if(result != null)
+						{
+							if(result.intValue() > 0 && result.intValue() >= distance)
+							{
+								return true;
+							}
+						} else {
+							chunksToHandle.add(searchChunk);
+						}
+					}
+				}
+			}
 		}
 		return false;
 	}

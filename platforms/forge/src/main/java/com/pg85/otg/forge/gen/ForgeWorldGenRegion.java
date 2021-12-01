@@ -39,10 +39,7 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.monster.GuardianEntity;
 import net.minecraft.nbt.*;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.DynamicRegistries;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.ISeedReader;
 import net.minecraft.world.chunk.ChunkStatus;
@@ -111,8 +108,13 @@ public class ForgeWorldGenRegion extends LocalWorldGenRegion
 	@Override
 	public ChunkCoordinate getSpawnChunk()
 	{
-		BlockPos spawnPos = this.worldGenRegion.getLevel().getSharedSpawnPos();
-		return ChunkCoordinate.fromBlockCoords(spawnPos.getX(), spawnPos.getZ());
+		if(this.getWorldConfig().getSpawnPointSet())
+		{
+			return ChunkCoordinate.fromBlockCoords(this.getWorldConfig().getSpawnPointX(), this.getWorldConfig().getSpawnPointZ());
+		} else {
+			BlockPos spawnPos = this.worldGenRegion.getLevel().getSharedSpawnPos();
+			return ChunkCoordinate.fromBlockCoords(spawnPos.getX(), spawnPos.getZ());
+		}
 	}
 	
 	public ISeedReader getInternal()
@@ -673,11 +675,15 @@ public class ForgeWorldGenRegion extends LocalWorldGenRegion
 			}
 		} else {
 			// Create entity with nbt data
-			entity = EntityType.loadEntityRecursive(nbtTagCompound, this.worldGenRegion.getLevel(), (entity1) ->
+			try
 			{
-				entity1.moveTo(entityData.getX(), entityData.getY(), entityData.getZ(), this.getWorldRandom().nextFloat() * 360.0F, 0.0F);
-				return entity1;
-			});
+				entity = EntityType.loadEntityRecursive(nbtTagCompound, this.worldGenRegion.getLevel(), (entity1) ->
+				{
+					entity1.moveTo(entityData.getX(), entityData.getY(), entityData.getZ(), this.getWorldRandom().nextFloat() * 360.0F, 0.0F);
+					return entity1;
+				});
+			}
+			catch(Exception ex) { }
 			if (entity == null)
 			{
 				if(this.logger.getLogCategoryEnabled(LogCategory.CUSTOM_OBJECTS))
@@ -779,25 +785,6 @@ public class ForgeWorldGenRegion extends LocalWorldGenRegion
 	public void placeFossil(Random random, int x, int y, int z)
 	{
 		Feature.FOSSIL.configured(IFeatureConfig.NONE).place(this.worldGenRegion, this.chunkGenerator, random, new BlockPos(x, y, z));
-	}
-
-	@Override
-	public void placeFromRegistry(Random random, ChunkCoordinate chunkCoord, String id)
-	{
-		DynamicRegistries registries = this.worldGenRegion.getLevel().registryAccess();
-		Registry<ConfiguredFeature<?, ?>> registry = registries.registryOrThrow(Registry.CONFIGURED_FEATURE_REGISTRY);
-
-		Optional<ConfiguredFeature<?, ?>> feature = registry.getOptional(new ResourceLocation(id));
-
-		if (feature.isPresent())
-		{
-			feature.get().place(this.worldGenRegion, this.chunkGenerator, random, new BlockPos(chunkCoord.getBlockX(), 0, chunkCoord.getBlockZ()));
-		} else {
-			if(this.logger.getLogCategoryEnabled(LogCategory.DECORATION))
-			{
-				this.logger.log(LogLevel.ERROR, LogCategory.DECORATION, "Unable to find registry object " + id);
-			}
-		}
 	}
 	
 	@Override
