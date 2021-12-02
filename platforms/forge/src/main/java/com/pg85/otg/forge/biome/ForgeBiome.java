@@ -205,21 +205,21 @@ public class ForgeBiome implements IBiome
 			}
 			category = isOceanBiome ? Biome.Category.OCEAN : Biome.Category.NONE;
 		}
-        Biome.RainType rainType = 
-    		biomeConfig.getBiomeWetness() <= 0.0001 ? Biome.RainType.NONE : 
+		Biome.RainType rainType = 
+			biomeConfig.getBiomeWetness() <= 0.0001 ? Biome.RainType.NONE : 
 			biomeConfig.getBiomeTemperature() > Constants.SNOW_AND_ICE_TEMP ? Biome.RainType.RAIN : 
 			Biome.RainType.SNOW
 		;
 
 		// Fire Forge BiomeLoadingEvent to allow other mods to enrich otg biomes with decoration features, structure features and mob spawns.
-        BiomeGenerationSettingsBuilder genBuilder = new BiomeGenerationSettingsBuilder(biomeGenerationSettingsBuilder.build());
-        MobSpawnInfoBuilder spawnBuilder = new MobSpawnInfoBuilder(mobSpawnInfoBuilder.build());
-        BiomeLoadingEvent event1 = new BiomeLoadingEvent(registryName, new Biome.Climate(rainType, safeTemperature, TemperatureModifier.NONE, biomeConfig.getBiomeWetness()), category, biomeConfig.getBiomeHeight(), biomeConfig.getBiomeVolatility(), biomeAmbienceBuilder.build(), genBuilder, spawnBuilder);
-        MinecraftForge.EVENT_BUS.post(event1);
-        BiomeAmbience biomeAmbienceBuilder2 = event1.getEffects();
-        BiomeGenerationSettingsBuilder biomeGenerationSettingsBuilder2 = event1.getGeneration();
-        MobSpawnInfoBuilder mobSpawnInfoBuilder2 = event1.getSpawns();
-        //
+		BiomeGenerationSettingsBuilder genBuilder = new BiomeGenerationSettingsBuilder(biomeGenerationSettingsBuilder.build());
+		MobSpawnInfoBuilder spawnBuilder = new MobSpawnInfoBuilder(mobSpawnInfoBuilder.build());
+		BiomeLoadingEvent event1 = new BiomeLoadingEvent(registryName, new Biome.Climate(rainType, safeTemperature, TemperatureModifier.NONE, biomeConfig.getBiomeWetness()), category, biomeConfig.getBiomeHeight(), biomeConfig.getBiomeVolatility(), biomeAmbienceBuilder.build(), genBuilder, spawnBuilder);
+		MinecraftForge.EVENT_BUS.post(event1);
+		BiomeAmbience biomeAmbienceBuilder2 = event1.getEffects();
+		BiomeGenerationSettingsBuilder biomeGenerationSettingsBuilder2 = event1.getGeneration();
+		MobSpawnInfoBuilder mobSpawnInfoBuilder2 = event1.getSpawns();
+		//
 
 		Biome.Builder biomeBuilder = 
 			new Biome.Builder()
