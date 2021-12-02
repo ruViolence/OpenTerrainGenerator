@@ -17,6 +17,7 @@ import com.pg85.otg.util.nbt.LocalNBTHelper;
 import net.minecraft.server.v1_16_R3.ArgumentTile;
 import net.minecraft.server.v1_16_R3.IBlockData;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.entity.Player;
@@ -31,7 +32,8 @@ import java.util.stream.Collectors;
 public class ExportCommand extends BaseCommand
 {
 	protected static final Function<String, String> filterNamesWithSpaces = (name) -> name.contains(" ") ? "\"" + name + "\"" : name;
-	private static final List<String> flags = Arrays.asList("-a", "-b", "-o");
+	protected static final Function<String, String> removeData = (data) -> data.matches("minecraft:[a-z]+\\[[^:]*\\]") ? data.replaceAll("\\[[^:]*\\]", "") : data;
+	private static final List<String> flags = Arrays.asList("-a", "-b", "-o", "-e");
 	protected static Set<String> presetNames = OTG.getEngine().getPresetLoader().getAllPresetFolderNames().stream().map(filterNamesWithSpaces).collect(Collectors.toSet());
 	protected static List<String> objectTypes = Arrays.asList("BO3", "BO4");
 
@@ -50,11 +52,25 @@ public class ExportCommand extends BaseCommand
 	public List<String> onTabComplete(CommandSender sender, String[] args)
 	{
 		Map<String, String> strings = CommandUtil.parseArgs(args, true);
-		if (strings.size() > 5)
+		if (strings.size() == 6)
 		{
 			return flags;
 		}
 		String str;
+		// Block materials should also be a valid argument as long as -e flag has been used - Frank
+		if (strings.size() > 6 && strings.containsValue("-e")) {
+			str = strings.get(Integer.toString(strings.size()));
+			List<String> mats = new ArrayList<>();
+			for (Material mat : Material.values()) {
+				if (mat.isBlock()) {
+					String blockData = mat.createBlockData().getAsString(true);
+					mats.add(blockData);
+				}
+			}
+			mats = mats.stream().map(removeData).collect(Collectors.toList());
+			mats.addAll(flags);
+			return StringUtil.copyPartialMatches(str == null ? "" : str, mats, new ArrayList<>());
+		}
 		if (strings.size() == 4)
 		{
 			str = strings.get("4");
@@ -136,6 +152,7 @@ public class ExportCommand extends BaseCommand
 		boolean overwrite = flags.contains("-o");
 		boolean isStructure = flags.contains("-b");
 		boolean includeAir = flags.contains("-a");
+		boolean hasExcludes = flags.contains("-e");
 		if (type == ObjectType.BO2)
 		{
 			source.sendMessage("Cannot export BO2 objects");
@@ -193,7 +210,25 @@ public class ExportCommand extends BaseCommand
 		}
 
 		LocalMaterialData centerBlock = centerBlockState == null ? null : SpigotMaterialData.ofBlockData(centerBlockState);
-		StructuredCustomObject object = ObjectCreator.create(type, lowCorner, highCorner, center, centerBlock, objectName, includeAir, isStructure, false, objectPath, worldGenRegion, nbtHelper, null, template.getConfig(), preset.getFolderName(), OTG.getEngine().getOTGRootFolder(), OTG.getEngine().getLogger(), OTG.getEngine().getCustomObjectManager(), OTG.getEngine().getPresetLoader().getMaterialReader(preset.getFolderName()), OTG.getEngine().getCustomObjectResourcesManager(), OTG.getEngine().getModLoadedChecker());
+		StructuredCustomObject object;
+		// Exclude blocks you don't want - Frank
+		if (hasExcludes) {
+			String[] flagsArr = flags.split(" ");
+			List<LocalMaterialData> excludes = new ArrayList<>();
+			for (String flag : flagsArr) {
+				if (!flag.startsWith("-")) {
+					try {
+						excludes.add(SpigotMaterialData.ofBlockData(ArgumentTile.a().parse(new StringReader(flag)).a()));
+					} catch (CommandSyntaxException e) {
+						sender.sendMessage("Could not find material " + flag);
+						return true;
+					}
+				}
+			}
+			object = ObjectCreator.create(type, lowCorner, highCorner, center, centerBlock, objectName, includeAir, isStructure, false, objectPath, worldGenRegion, nbtHelper, null, template.getConfig(), preset.getFolderName(), OTG.getEngine().getOTGRootFolder(), OTG.getEngine().getLogger(), OTG.getEngine().getCustomObjectManager(), OTG.getEngine().getPresetLoader().getMaterialReader(preset.getFolderName()), OTG.getEngine().getCustomObjectResourcesManager(), OTG.getEngine().getModLoadedChecker(), excludes);
+		} else {
+			object = ObjectCreator.create(type, lowCorner, highCorner, center, centerBlock, objectName, includeAir, isStructure, false, objectPath, worldGenRegion, nbtHelper, null, template.getConfig(), preset.getFolderName(), OTG.getEngine().getOTGRootFolder(), OTG.getEngine().getLogger(), OTG.getEngine().getCustomObjectManager(), OTG.getEngine().getPresetLoader().getMaterialReader(preset.getFolderName()), OTG.getEngine().getCustomObjectResourcesManager(), OTG.getEngine().getModLoadedChecker());
+		}
 		if (object != null)
 		{
 			source.sendMessage("Successfully created " + type.getType() + " " + objectName);
@@ -224,6 +259,6 @@ public class ExportCommand extends BaseCommand
 		source.sendMessage(" - Template is a BO3 file whose settings are used for the exported object");
 		source.sendMessage("    - Templates have file ending .BO3Template or .BO4Template");
 		source.sendMessage("    - Templates are not loaded as objects");
-		source.sendMessage(" - There are three flags; -a for Air blocks, -b for Branches, -o for Override");
+		source.sendMessage(" - There are three flags; -a for Air blocks, -b for Branches, -o for Override, and -e for exclude blocks");
 	}
 }

@@ -27,6 +27,7 @@ import com.pg85.otg.interfaces.IModLoadedChecker;
 import com.pg85.otg.util.ChunkCoordinate;
 import com.pg85.otg.util.logging.LogCategory;
 import com.pg85.otg.util.logging.LogLevel;
+import com.pg85.otg.util.materials.LocalMaterials;
 import com.pg85.otg.util.nbt.LocalNBTHelper;
 import com.pg85.otg.util.gen.LocalWorldGenRegion;
 import com.pg85.otg.util.materials.LocalMaterialData;
@@ -46,19 +47,40 @@ public class ObjectCreator
 		ObjectType type, Corner min, Corner max, Corner center, LocalMaterialData centerBlock, String objectName, boolean includeAir, boolean isStructure, boolean leaveIllegalLeaves, Path objectPath,
 		LocalWorldGenRegion localWorld, LocalNBTHelper nbtHelper, List<BlockFunction<?>> extraBlocks, CustomObjectConfigFile template,
 		String presetFolderName, Path rootPath, ILogger logger, CustomObjectManager boManager,
-		IMaterialReader mr, CustomObjectResourcesManager manager, IModLoadedChecker mlc
+		IMaterialReader mr, CustomObjectResourcesManager manager, IModLoadedChecker mlc, List<LocalMaterialData> excludes
 	)
 	{
 		if (isStructure)
 		{
 			return createStructure(
 				type, min, max, center, objectName, includeAir, leaveIllegalLeaves, objectPath, localWorld, nbtHelper,
-				template, presetFolderName, rootPath, logger, boManager, mr, manager, mlc);
+				template, presetFolderName, rootPath, logger, boManager, mr, manager, mlc, excludes);
 		} else {
 			return createObject(
 				type, min, max, center, centerBlock, objectName, includeAir, leaveIllegalLeaves, objectPath, localWorld, nbtHelper,
-				extraBlocks, template, presetFolderName, rootPath, logger, boManager, mr, manager, mlc);
+				extraBlocks, template, presetFolderName, rootPath, logger, boManager, mr, manager, mlc, excludes);
 		}
+	}
+
+	public static StructuredCustomObject create(
+			ObjectType type, Corner min, Corner max, Corner center, LocalMaterialData centerBlock, String objectName, boolean includeAir, boolean isStructure, boolean leaveIllegalLeaves, Path objectPath,
+			LocalWorldGenRegion localWorld, LocalNBTHelper nbtHelper, List<BlockFunction<?>> extraBlocks, CustomObjectConfigFile template,
+			String presetFolderName, Path rootPath, ILogger logger, CustomObjectManager boManager,
+			IMaterialReader mr, CustomObjectResourcesManager manager, IModLoadedChecker mlc
+	) {
+		return create(type, min, max, center, centerBlock, objectName, includeAir, isStructure, leaveIllegalLeaves, objectPath,
+				localWorld, nbtHelper, extraBlocks, template, presetFolderName, rootPath, logger, boManager,
+				mr, manager, mlc, new ArrayList<>());
+	}
+
+	public static StructuredCustomObject createObject(
+			ObjectType type, Corner min, Corner max, Corner center, LocalMaterialData centerBlock, String objectName, boolean includeAir, boolean leaveIllegalLeaves, Path exportPath,
+			LocalWorldGenRegion localWorld, LocalNBTHelper nbtHelper, List<BlockFunction<?>> extraBlocks, CustomObjectConfigFile template,
+			String presetFolderName, Path rootPath, ILogger logger, CustomObjectManager boManager,
+			IMaterialReader mr, CustomObjectResourcesManager manager, IModLoadedChecker mlc
+	) {
+		return createObject(type, min, max, center, centerBlock, objectName, includeAir, leaveIllegalLeaves, exportPath, localWorld,
+		nbtHelper, extraBlocks, template, presetFolderName, rootPath, logger, boManager, mr, manager, mlc, new ArrayList<>());
 	}
 
 	// Method for creating a custom object
@@ -66,7 +88,7 @@ public class ObjectCreator
 		ObjectType type, Corner min, Corner max, Corner center, LocalMaterialData centerBlock, String objectName, boolean includeAir, boolean leaveIllegalLeaves, Path exportPath,
 		LocalWorldGenRegion localWorld, LocalNBTHelper nbtHelper, List<BlockFunction<?>> extraBlocks, CustomObjectConfigFile template,
 		String presetFolderName, Path rootPath, ILogger logger, CustomObjectManager boManager,
-		IMaterialReader mr, CustomObjectResourcesManager manager, IModLoadedChecker mlc
+		IMaterialReader mr, CustomObjectResourcesManager manager, IModLoadedChecker mlc, List<LocalMaterialData> excludes
 	)
 	{
 		File exportFolder = exportPath.toFile();
@@ -86,7 +108,7 @@ public class ObjectCreator
 						}
 		}
 		// Loop through region, getting the block from the localWorld
-		List<BlockFunction<?>> blocks = Extractor.getBlockFunctions(type, min, max, center, localWorld, nbtHelper, includeAir, leaveIllegalLeaves, objectName, exportFolder);
+		List<BlockFunction<?>> blocks = Extractor.getBlockFunctions(type, min, max, center, localWorld, nbtHelper, includeAir, leaveIllegalLeaves, objectName, exportFolder, excludes);
 
 		// Add extra blocks in (from updating, mainly)
 		if (extraBlocks != null) blocks.addAll(extraBlocks);
@@ -112,6 +134,10 @@ public class ObjectCreator
 		CustomObjectConfigFile config = makeNewConfig(type, template, objectName, destinationPath,
 			max, min, center, blocks, null, presetFolderName, logger, rootPath, boManager, mr, manager, mlc);
 
+		return writeToFile(type, objectName, exportPath, logger, mr, manager, config);
+	}
+
+	private static StructuredCustomObject writeToFile(ObjectType type, String objectName, Path exportPath, ILogger logger, IMaterialReader mr, CustomObjectResourcesManager manager, CustomObjectConfigFile config) {
 		switch (type)
 		{
 			case BO3:
@@ -130,7 +156,7 @@ public class ObjectCreator
 		ObjectType type, Corner min, Corner max, Corner center, String objectName, boolean includeAir, boolean leaveIllegalLeaves, Path objectPath,
 		LocalWorldGenRegion localWorld, LocalNBTHelper nbtHelper, CustomObjectConfigFile template,
 		String presetFolderName, Path rootPath, ILogger logger, CustomObjectManager boManager,
-		IMaterialReader mr, CustomObjectResourcesManager manager, IModLoadedChecker mlc
+		IMaterialReader mr, CustomObjectResourcesManager manager, IModLoadedChecker mlc, List<LocalMaterialData> excludes
 	)
 	{
 		File branchFolder = new File(objectPath.toFile(), objectName);
@@ -166,7 +192,7 @@ public class ObjectCreator
 				String branchName = objectName + "_C" + branchX + "_R" + branchZ;
 
 				branchGrid[branchX][branchZ] = Extractor.getBlockFunctions(type, branchMin, branchMax, branchMin,
-					localWorld, nbtHelper, includeAir, leaveIllegalLeaves, branchName, branchFolder);
+					localWorld, nbtHelper, includeAir, leaveIllegalLeaves, branchName, branchFolder, excludes);
 				exists[branchX][branchZ] = !branchGrid[branchX][branchZ].isEmpty();
 			}
 		}
@@ -268,16 +294,7 @@ public class ObjectCreator
 			type.getObjectFilePathFromName(objectName, objectPath),
 			min, max, center, null, branches, presetFolderName, logger, rootPath, boManager, mr, manager, mlc);
 
-		switch (type)
-		{
-			case BO3:
-				FileSettingsWriterBO4.writeToFile(config, config.getFile(), config.settingsMode, logger, mr, manager);
-				return new BO3(objectName, type.getObjectFilePathFromName(objectName, objectPath).toFile(), (BO3Config) config);
-			case BO4:
-				return new BO4(objectName, type.getObjectFilePathFromName(objectName, objectPath).toFile(), (BO4Config) config);
-			default:
-				return null;
-		}
+		return writeToFile(type, objectName, objectPath, logger, mr, manager, config);
 	}
 
 	// Method for creating branches; had to be a separate method to avoid a switch statement everywhere this is called.

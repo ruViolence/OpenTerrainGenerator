@@ -20,7 +20,7 @@ public class Extractor
 {
 	public static List<BlockFunction<?>> getBlockFunctions
 		(ObjectType type, Corner min, Corner max, Corner center, LocalWorldGenRegion localWorld,
-		 LocalNBTHelper nbtHelper, boolean includeAir, boolean leaveIllegalLeaves, String objectName, File objectFolder)
+		 LocalNBTHelper nbtHelper, boolean includeAir, boolean leaveIllegalLeaves, String objectName, File objectFolder, List<LocalMaterialData> excludes)
 	{
 		File nbtFolder = new File(objectFolder, objectName);
 		ArrayList<BlockFunction<?>> blocks = new ArrayList<>();
@@ -32,6 +32,10 @@ public class Extractor
 				for (int y = min.y; y <= max.y; y++)
 				{
 					LocalMaterialData materialData = localWorld.getMaterial(x, y, z);
+					for (LocalMaterialData exclude : excludes) {
+						if (materialData.getRegistryName().equals(exclude.getRegistryName()))
+							continue;
+					}
 
 					if (materialData == null
 						|| materialData.isMaterial(LocalMaterials.STRUCTURE_VOID)
