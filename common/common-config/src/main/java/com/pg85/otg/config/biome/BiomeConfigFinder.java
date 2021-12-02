@@ -276,10 +276,10 @@ public final class BiomeConfigFinder
 				}
 			} else {
 				this.spawnMiscCreatures = BiomeStandardValues.SPAWN_MISC_CREATURES.getDefaultValue();
-			}			
+			}
 			
 			this.spawnMonstersMerged.addAll(this.spawnMonsters);
-			this.spawnCreaturesMerged.addAll(this.spawnCreatures);			
+			this.spawnCreaturesMerged.addAll(this.spawnCreatures);
 			this.spawnWaterCreaturesMerged.addAll(this.spawnWaterCreatures);
 			this.spawnAmbientCreaturesMerged.addAll(this.spawnAmbientCreatures);
 			this.spawnWaterAmbientCreaturesMerged.addAll(this.spawnWaterAmbientCreatures);
