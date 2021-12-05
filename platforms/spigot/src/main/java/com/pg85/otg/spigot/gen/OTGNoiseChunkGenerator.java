@@ -199,26 +199,31 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 	public StructureSettings getSettings() {
 		return this.structSettings;
 	}
-
+	
+	// Override structure spawning to make sure any structures registered
+	// to biomes are allowed to spawn according to worldconfig settings.
 	// Code borrowed from ChunkGenerator.java
 	@Override
-	public void createStructures(IRegistryCustom iregistrycustom, StructureManager structuremanager, IChunkAccess ichunkaccess, DefinedStructureManager definedstructuremanager, long i)
+	public void createStructures(IRegistryCustom iregistrycustom, StructureManager structuremanager, IChunkAccess chunk, DefinedStructureManager definedstructuremanager, long seed)
 	{
-		ChunkCoordIntPair chunkcoordintpair = ichunkaccess.getPos();
-		BiomeBase biomebase = this.b.getBiome((chunkcoordintpair.x << 2) + 2, 0, (chunkcoordintpair.z << 2) + 2);
-		this.createSingleStructure(StructureFeatures.k, iregistrycustom, structuremanager, ichunkaccess, definedstructuremanager, i, chunkcoordintpair, biomebase);
-
-		for (Supplier<StructureFeature<?, ?>> supplier : biomebase.e().a())
+		ChunkCoordIntPair chunkpos = chunk.getPos();
+		SpigotBiome biome = (SpigotBiome)this.getCachedBiomeProvider().getNoiseBiome((chunkpos.x << 2) + 2, (chunkpos.z << 2) + 2);
+		// Strongholds are hardcoded apparently, even if they aren't registered to the biome, so check worldconfig and biomeconfig toggles. 
+		if(this.preset.getWorldConfig().getStrongholdsEnabled() && biome.getBiomeConfig().getStrongholdsEnabled())
+		{
+			createSingleStructure(StructureFeatures.k, iregistrycustom, structuremanager, chunk, definedstructuremanager, seed, chunkpos, biome.getBiomeBase());
+		}
+		for(Supplier<StructureFeature<?, ?>> supplier : biome.getBiomeBase().e().a())
 		{
 			StructureFeature<?, ?> structurefeature = supplier.get();
 			if (structurefeature.d == StructureGenerator.STRONGHOLD)
 			{
 				synchronized(structurefeature)
 				{
-					this.createSingleStructure(structurefeature, iregistrycustom, structuremanager, ichunkaccess, definedstructuremanager, i, chunkcoordintpair, biomebase);
+					this.createSingleStructure(structurefeature, iregistrycustom, structuremanager, chunk, definedstructuremanager, seed, chunkpos, biome.getBiomeBase());
 				}
 			} else {
-				this.createSingleStructure(structurefeature, iregistrycustom, structuremanager, ichunkaccess, definedstructuremanager, i, chunkcoordintpair, biomebase);
+				this.createSingleStructure(structurefeature, iregistrycustom, structuremanager, chunk, definedstructuremanager, seed, chunkpos, biome.getBiomeBase());
 			}
 		}
 	}
@@ -235,6 +240,20 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 			structuremanager.a(SectionPosition.a(ichunkaccess.getPos(), 0), structurefeature.d, structurestart1, ichunkaccess);
 		}
 	}
+
+	@Override
+	// hasStronghold
+	public boolean a(ChunkCoordIntPair chunkPos)
+	{
+		// super.hasStronghold generates stronghold start points (default settings appear 
+		// determined per dim type), so check worldconfig and biomeconfig toggles.
+		SpigotBiome biome = (SpigotBiome)this.getCachedBiomeProvider().getNoiseBiome((chunkPos.x << 2) + 2, (chunkPos.z << 2) + 2);
+		if(this.preset.getWorldConfig().getStrongholdsEnabled() && biome.getBiomeConfig().getStrongholdsEnabled())
+		{
+			return super.a(chunkPos);
+		}
+		return false;
+	}	
 
 	// Base terrain gen
 
@@ -478,26 +497,30 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 			((SpigotBiome)biome).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
 			alreadyDecorated.add(biome.getBiomeConfig().getOTGBiomeId());
 			// Attempt to decorate other biomes if ImprovedBiomeDecoration - Frank
-			if (getPreset().getWorldConfig().improvedBorderDecoration()) {
-				if (!alreadyDecorated.contains(biome1.getBiomeConfig().getOTGBiomeId())) {
+			if (getPreset().getWorldConfig().improvedBorderDecoration())
+			{
+				if (!alreadyDecorated.contains(biome1.getBiomeConfig().getOTGBiomeId()))
+				{
 					this.chunkDecorator.decorate(this.preset.getFolderName(), chunkBeingDecorated, spigotWorldGenRegion, biome1.getBiomeConfig(), getStructureCache(worldSaveFolder));
 					((SpigotBiome) biome1).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
 					alreadyDecorated.add(biome1.getBiomeConfig().getOTGBiomeId());
 				}
-				if (!alreadyDecorated.contains(biome2.getBiomeConfig().getOTGBiomeId())) {
+				if (!alreadyDecorated.contains(biome2.getBiomeConfig().getOTGBiomeId()))
+				{
 					this.chunkDecorator.decorate(this.preset.getFolderName(), chunkBeingDecorated, spigotWorldGenRegion, biome2.getBiomeConfig(), getStructureCache(worldSaveFolder));
 					((SpigotBiome) biome2).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
 					alreadyDecorated.add(biome2.getBiomeConfig().getOTGBiomeId());
 				}
-				if (!alreadyDecorated.contains(biome3.getBiomeConfig().getOTGBiomeId())) {
+				if (!alreadyDecorated.contains(biome3.getBiomeConfig().getOTGBiomeId()))
+				{
 					this.chunkDecorator.decorate(this.preset.getFolderName(), chunkBeingDecorated, spigotWorldGenRegion, biome3.getBiomeConfig(), getStructureCache(worldSaveFolder));
 					((SpigotBiome) biome3).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
 					alreadyDecorated.add(biome3.getBiomeConfig().getOTGBiomeId());
 				}
-				if (!alreadyDecorated.contains(biome4.getBiomeConfig().getOTGBiomeId())) {
+				if (!alreadyDecorated.contains(biome4.getBiomeConfig().getOTGBiomeId()))
+				{
 					this.chunkDecorator.decorate(this.preset.getFolderName(), chunkBeingDecorated, spigotWorldGenRegion, biome4.getBiomeConfig(), getStructureCache(worldSaveFolder));
-					if (!alreadyDecorated.contains(biome4.getBiomeConfig().getOTGBiomeId()))
-						((SpigotBiome) biome4).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
+					((SpigotBiome) biome4).getBiomeBase().a(structureManager, this, worldGenRegion, decorationSeed, sharedseedrandom, blockpos);
 				}
 			}
 			this.chunkDecorator.doSnowAndIce(spigotWorldGenRegion, chunkBeingDecorated);
@@ -696,12 +719,10 @@ public class OTGNoiseChunkGenerator extends ChunkGenerator
 		if (density > 0.0D)
 		{
 			return this.defaultBlock;
-			//return ((SpigotMaterialData) config.getStoneBlockReplaced(y)).internalBlock();
 		}
 		else if (y < this.getSeaLevel())
 		{
 			return this.defaultFluid;
-			//return ((SpigotMaterialData) config.getWaterBlockReplaced(y)).internalBlock();
 		} else {
 			return Blocks.AIR.getBlockData();
 		}
