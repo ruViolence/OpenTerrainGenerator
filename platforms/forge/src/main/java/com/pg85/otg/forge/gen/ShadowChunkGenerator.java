@@ -376,7 +376,7 @@ public class ShadowChunkGenerator
 						{
 							// For modded structures, use a default radius
 							int moddedStructuresDefaultRadius = 1;
-							if(hasStructureStart(structure, dimensionStructuresSettings, serverWorld.registryAccess(), serverWorld.structureFeatureManager(), chunk, serverWorld.getStructureManager(), chunkGenerator, biomeProvider, serverWorld.getSeed(), chunkpos, ((ForgeBiome)biome).getBiomeBase()))
+							if(hasStructureStart(structure, dimensionStructuresSettings, serverWorld.getSeed(), chunkpos))
 							{
 								chunksHandled.put(chunkToHandle, new Integer(moddedStructuresDefaultRadius));
 								if(moddedStructuresDefaultRadius >= distance)
@@ -402,7 +402,7 @@ public class ShadowChunkGenerator
 								ArrayList<String> structuresAtDistance = structuresPerDistance[i];
 								if(structuresAtDistance.contains(structureRegistryName))
 								{
-									if(hasStructureStart(structure, dimensionStructuresSettings, serverWorld.registryAccess(), serverWorld.structureFeatureManager(), chunk, serverWorld.getStructureManager(), chunkGenerator, biomeProvider, serverWorld.getSeed(), chunkpos, ((ForgeBiome)biome).getBiomeBase()))
+									if(hasStructureStart(structure, dimensionStructuresSettings, serverWorld.getSeed(), chunkpos))
 									{
 										chunksHandled.put(chunkToHandle, new Integer(i));
 										if(i >= distance)
@@ -476,7 +476,7 @@ public class ShadowChunkGenerator
 	}
 
 	// Taken from PillagerOutpostStructure.isNearVillage
-	private boolean hasStructureStart(StructureFeature<?, ?> structureFeature, DimensionStructuresSettings dimensionStructuresSettings, DynamicRegistries dynamicRegistries, StructureManager structureManager, IChunk chunk, TemplateManager templateManager, ChunkGenerator chunkGenerator, BiomeProvider biomeProvider, long seed, ChunkPos chunkPos, Biome biome)
+	private boolean hasStructureStart(StructureFeature<?, ?> structureFeature, DimensionStructuresSettings dimensionStructuresSettings, long seed, ChunkPos chunkPos)
 	{
 		StructureSeparationSettings structureSeparationSettings = dimensionStructuresSettings.getConfig(structureFeature.feature);
 		if (structureSeparationSettings != null)
