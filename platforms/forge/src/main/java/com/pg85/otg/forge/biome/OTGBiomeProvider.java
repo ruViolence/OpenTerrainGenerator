@@ -144,5 +144,5 @@ public class OTGBiomeProvider extends BiomeProvider implements ILayerSource
 	public Set<BlockState> getSurfaceBlocks()
 	{
 		return super.getSurfaceBlocks();
-	}	
+	}
 }

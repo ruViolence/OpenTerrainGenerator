@@ -11,6 +11,7 @@ import com.pg85.otg.interfaces.IBiomeConfig;
 import com.pg85.otg.interfaces.ILayerSource;
 import com.pg85.otg.spigot.presets.SpigotPresetLoader;
 import net.minecraft.server.v1_16_R3.*;
+
 import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
@@ -32,6 +33,7 @@ public class OTGBiomeProvider extends WorldChunkManager implements ILayerSource
 			RegistryLookupCodec.a(IRegistry.ay).forGetter((provider) -> provider.registry)
 		).apply(instance, instance.stable(OTGBiomeProvider::new))
 	);
+
 	private final long seed;
 	private final boolean legacyBiomeInitLayer;
 	private final boolean largeBiomes;
@@ -55,6 +57,11 @@ public class OTGBiomeProvider extends WorldChunkManager implements ILayerSource
 		this.keyLookup.defaultReturnValue(Biomes.OCEAN);
 
 		IBiome[] biomeLookup = ((SpigotPresetLoader) OTG.getEngine().getPresetLoader()).getGlobalIdMapping(presetFolderName);
+		if(biomeLookup == null)
+		{
+			throw new RuntimeException("No OTG preset found with name \"" + presetFolderName + "\". Install the correct preset or update your server.properties.");
+		}
+
 		for (int biomeId = 0; biomeId < biomeLookup.length; biomeId++)
 		{
 			IBiomeConfig config = biomeLookup[biomeId].getBiomeConfig();
