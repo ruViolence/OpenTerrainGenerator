@@ -114,7 +114,15 @@ public class ForgeBiome implements IBiome
 				RegistryResource registryResource = (RegistryResource)res;
 				Decoration stage = GenerationStage.Decoration.valueOf(registryResource.getDecorationStage());
 				ConfiguredFeature<?, ?> registry = WorldGenRegistries.CONFIGURED_FEATURE.get(new ResourceLocation(registryResource.getFeatureKey()));
-				biomeGenerationSettingsBuilder.addFeature(stage, registry);
+				if(registry != null)
+				{
+					biomeGenerationSettingsBuilder.addFeature(stage, registry);
+				} else {
+					if(OTG.getEngine().getLogger().getLogCategoryEnabled(LogCategory.DECORATION))
+					{
+						OTG.getEngine().getLogger().log(LogLevel.ERROR, LogCategory.DECORATION, "Registry() " + registryResource.getFeatureKey() + " could not be found for biomeconfig " + biomeConfig.getName());
+					}
+				}				
 			}
 		}
 
