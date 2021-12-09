@@ -343,7 +343,7 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		Random random = new Random();
 		// Fetch any chunks that are cached in the WorldGenRegion, so we can
 		// pre-emptively generate and cache base terrain for them asynchronously.
-		//this.shadowChunkGenerator.queueChunksForWorkerThreads((WorldGenRegion)world, manager, chunk, this, (OTGBiomeProvider)this.biomeSource, this.internalGenerator, this.getSettings(), this.preset.getWorldConfig().getWorldHeightCap());
+		this.shadowChunkGenerator.queueChunksForWorkerThreads((WorldGenRegion)chunk.getWorldForge(), manager, chunk, this, (OTGBiomeProvider)this.biomeSource, this.internalGenerator, this.getSettings(), this.preset.getWorldConfig().getWorldHeightCap());
 		
 		// If we've already (shadow-)generated and cached this	
 		// chunk while it was unloaded, use cached data.
