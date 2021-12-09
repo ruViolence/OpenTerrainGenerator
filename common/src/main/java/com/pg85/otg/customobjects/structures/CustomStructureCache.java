@@ -223,7 +223,11 @@ public class CustomStructureCache
 	// Only used by /spawn command	
     public ChunkCoordinate plotBo4Structure(BO4 structure, ArrayList<String> biomes, ChunkCoordinate chunkCoord)
     {
-    	plotter.plotStructures(this, structure, biomes, this.world, new Random(), chunkCoord);
+    	BO4CustomStructure plottedStructure = plotter.plotStructures(this, structure, biomes, this.world, new Random(), chunkCoord);
+    	if(plottedStructure != null)
+    	{
+    		return ChunkCoordinate.fromChunkCoords(plottedStructure.start.getChunkX(), plottedStructure.start.getChunkZ());
+    	}
     	return null;
     }
 

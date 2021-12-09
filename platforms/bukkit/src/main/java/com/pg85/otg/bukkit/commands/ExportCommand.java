@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.pg85.otg.bukkit.util.BO4Creator;
 import com.pg85.otg.bukkit.util.BOCreator;
+import com.pg85.otg.logging.LogMarker;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -100,6 +102,10 @@ public class ExportCommand extends BaseCommand
                 sender.sendMessage(MESSAGE_COLOR+"BO3 is larger than 32x32 so it has been split into branches.");
             }
         }
+        
+        // Flush BO caches
+        OTG.log(LogMarker.INFO, "Unloading BO2/BO3/BO4 files");
+        OTG.getEngine().getCustomObjectManager().reloadCustomObjectFiles();
 
         return true;
     }

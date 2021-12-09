@@ -1090,7 +1090,7 @@ public class ForgeWorld implements LocalWorld
             {
                 for (int zRadius = -cycle; zRadius <= cycle; ++zRadius)
                 {
-                    int distance = (int)Math.floor(Math.sqrt(Math.pow (chunkX-chunkX + xRadius, 2) + Math.pow (chunkZ-chunkZ + zRadius, 2)));                    
+                    int distance = (int)Math.floor(Math.sqrt(Math.pow (xRadius, 2) + Math.pow (zRadius, 2)));                    
                     if (distance == cycle)
                     {
                     	boolean canSpawnStructureAtCoords = false;

@@ -17,6 +17,7 @@ import com.pg85.otg.forge.biomes.ForgeBiome;
 import com.pg85.otg.forge.biomes.ForgeBiomeRegistryManager;
 import com.pg85.otg.forge.biomes.ForgeMojangSettings;
 import com.pg85.otg.forge.dimensions.OTGDimensionManager;
+import com.pg85.otg.forge.dimensions.OTGWorldProvider;
 import com.pg85.otg.forge.network.server.ServerPacketManager;
 import com.pg85.otg.forge.network.server.packets.DimensionSyncPacket;
 import com.pg85.otg.logging.LogMarker;
@@ -142,7 +143,7 @@ public final class WorldLoader
     	{
     		return this.getOverWorld();
     	}
-    	else if(world.provider.getDimension() > 1)
+    	else if(world.provider.getDimension() > 1 && world.provider instanceof OTGWorldProvider) //Check provider because of HybridServers custom Worlds
     	{
 			LocalWorld localWorld = this.getWorld(world.provider.getDimensionType().getName());
 			if(localWorld == null)

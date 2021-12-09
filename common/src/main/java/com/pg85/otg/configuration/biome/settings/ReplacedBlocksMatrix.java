@@ -176,12 +176,14 @@ public class ReplacedBlocksMatrix
         		{
         			continue;
         		}
+        		
         		ReplaceBlockEntry targetsAtHeight = this.targetsAtHeights[y];
         		if(targetsAtHeight == null)
         		{
         			targetsAtHeight = new ReplaceBlockEntry();
         			this.targetsAtHeights[y] = targetsAtHeight;
         		}
+        		
         		// Users can chain replacedblocks to replace replacedblocks, instead of actually
         		// replacing the same block to different materials multiple times, we'll calculate
         		// the end result in advance.

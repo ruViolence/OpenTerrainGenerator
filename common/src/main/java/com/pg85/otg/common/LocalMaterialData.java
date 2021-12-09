@@ -257,15 +257,8 @@ public abstract class LocalMaterialData
 	    		(
 					isMaterial(DefaultMaterial.ICE) ||
 					isMaterial(DefaultMaterial.PACKED_ICE) ||
-					isMaterial(DefaultMaterial.FROSTED_ICE) ||
-					(
-						isSolid() || 
-						(
-							!ignoreWater && isLiquid()
-						)
-					)
-				) &&
-				(
+					isMaterial(DefaultMaterial.FROSTED_ICE)
+				) && (
 					allowWood || 
 					!(
 						isMaterial(DefaultMaterial.LOG) || 
