@@ -5,8 +5,8 @@
   "refmap": "otg.refmap.json",
   "mixins": [
 	"MixinChunkManager",
-	"MixinLocateCommand",
-	"MixinSpawnLocationHelper"
+	"MixinSpawnLocationHelper",
+	"MixinStructure",
   ],
   "injectors": {
 	"defaultRequire": 1
