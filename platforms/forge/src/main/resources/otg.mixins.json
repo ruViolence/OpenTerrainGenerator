@@ -1,4 +1,5 @@
 {
+  "plugin": "com.pg85.otg.forge.mixin.MixinConfigPlugin",
   "required": true,
   "package": "com.pg85.otg.forge.mixin",
   "compatibilityLevel": "JAVA_8",
