@@ -44,11 +44,8 @@ public class PaperLegacyMaterials
 				return Blocks.LIGHT_GRAY_GLAZED_TERRACOTTA.defaultBlockState();
 			*/
 
-			// TODO: This needs to be added to the other platforms when they get to 1.17 -auth
-			case "grass_path":
+			case "grass_path": // 1.17 grass_path -> dirt_path
 				return Blocks.DIRT_PATH.defaultBlockState();
-
-
 			case "stationary_water":
 			case "flowing_water":
 				return Blocks.WATER.defaultBlockState();

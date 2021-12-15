@@ -38,6 +38,8 @@ class ForgeLegacyMaterials
 			case "minecraft:silver_glazed_terracotta":
 				return Blocks.LIGHT_GRAY_GLAZED_TERRACOTTA.defaultBlockState();
 			*/
+			case "grass_path": // 1.17 grass_path -> dirt_path
+				return Blocks.DIRT_PATH.defaultBlockState();
 			case "stationary_water":
 			case "flowing_water":
 				return Blocks.WATER.defaultBlockState();
