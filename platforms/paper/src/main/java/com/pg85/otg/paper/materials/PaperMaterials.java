@@ -324,7 +324,8 @@ public class PaperMaterials extends LocalMaterials
 		VINE_WEST = PaperMaterialData.ofBlockData(Blocks.VINE.defaultBlockState().setValue(VineBlock.WEST, true));
 		VINE_EAST = PaperMaterialData.ofBlockData(Blocks.VINE.defaultBlockState().setValue(VineBlock.EAST, true));
 		SEA_PICKLE = PaperMaterialData.ofBlockData(Blocks.SEA_PICKLE.defaultBlockState());
-
+		BERRY_BUSH = PaperMaterialData.ofBlockData(Blocks.SWEET_BERRY_BUSH.defaultBlockState());
+		
 		// Ores
 		COAL_ORE = PaperMaterialData.ofBlockData(Blocks.COAL_ORE.defaultBlockState());
 		DIAMOND_ORE = PaperMaterialData.ofBlockData(Blocks.DIAMOND_ORE.defaultBlockState());
@@ -345,7 +346,6 @@ public class PaperMaterials extends LocalMaterials
 		COAL_BLOCK = PaperMaterialData.ofBlockData(Blocks.COAL_BLOCK.defaultBlockState());
 		QUARTZ_BLOCK = PaperMaterialData.ofBlockData(Blocks.QUARTZ_BLOCK.defaultBlockState());
 		EMERALD_BLOCK = PaperMaterialData.ofBlockData(Blocks.EMERALD_BLOCK.defaultBlockState());
-		BERRY_BUSH = PaperMaterialData.ofBlockData(Blocks.SWEET_BERRY_BUSH.defaultBlockState());
 		RAW_IRON_BLOCK = PaperMaterialData.ofBlockData(Blocks.RAW_IRON_BLOCK.defaultBlockState());
 		RAW_COPPER_BLOCK = PaperMaterialData.ofBlockData(Blocks.RAW_COPPER_BLOCK.defaultBlockState());
 	}
