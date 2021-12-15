@@ -63,18 +63,19 @@ public class GeodeResource extends FrequencyResourceBase
                 crackPoints.add(pos.add(s, 7, 0));
                 crackPoints.add(pos.add(s, 5, 0));
                 crackPoints.add(pos.add(s, 1, 0));
-            } else if (r == 1)
+            }
+            else if (r == 1)
             {
                 crackPoints.add(pos.add(0, 7, s));
                 crackPoints.add(pos.add(0, 5, s));
                 crackPoints.add(pos.add(0, 1, s));
-            } else if (r == 2)
+            }
+            else if (r == 2)
             {
                 crackPoints.add(pos.add(s, 7, s));
                 crackPoints.add(pos.add(s, 5, s));
                 crackPoints.add(pos.add(s, 1, s));
-            } else
-            {
+            } else {
                 crackPoints.add(pos.add(0, 7, 0));
                 crackPoints.add(pos.add(0, 5, 0));
                 crackPoints.add(pos.add(0, 1, 0));
@@ -121,20 +122,22 @@ public class GeodeResource extends FrequencyResourceBase
                         if ((crackDensity >= crackThreshold && density < fillingThreshold) || density >= fillingThreshold)
                         {
                             world.setBlock(worldX, worldY, worldZ, LocalMaterials.AIR);
-                        } else if (density >= innerThreshold)
+                        }
+                        else if (density >= innerThreshold)
                         {
                             if (random.nextInt(12) == 0)
                             {
                                 world.setBlock(worldX, worldY, worldZ, LocalMaterials.BUDDING_AMETHYST);
                                 clusters.add(new Vec3i(worldX, worldY, worldZ));
-                            } else
-                            {
+                            } else {
                                 world.setBlock(worldX, worldY, worldZ, LocalMaterials.AMETHYST_BLOCK);
                             }
-                        } else if (density >= middleThreshold)
+                        }
+                        else if (density >= middleThreshold)
                         {
                             world.setBlock(worldX, worldY, worldZ, LocalMaterials.CALCITE);
-                        } else if (density >= outerThreshold)
+                        }
+                        else if (density >= outerThreshold)
                         {
                             world.setBlock(worldX, worldY, worldZ, LocalMaterials.SMOOTH_BASALT);
                         }
@@ -176,9 +179,7 @@ public class GeodeResource extends FrequencyResourceBase
         }
     }
 
-    private static record Sphere(Vec3i pos, int value)
-    {
-    }
+    private static record Sphere(Vec3i pos, int value) { }
 
     @Override
     public String toString()
