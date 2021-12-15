@@ -202,6 +202,8 @@ public class ForgeMaterials extends LocalMaterials
 		RED_TERRACOTTA = ForgeMaterialData.ofBlockState(Blocks.RED_TERRACOTTA.defaultBlockState());
 		SILVER_TERRACOTTA = ForgeMaterialData.ofBlockState(Blocks.LIGHT_GRAY_TERRACOTTA.defaultBlockState());
 		STONE = ForgeMaterialData.ofBlockState(Blocks.STONE.defaultBlockState());
+		NETHERRACK = ForgeMaterialData.ofBlockState(Blocks.NETHERRACK.defaultBlockState());
+		END_STONE = ForgeMaterialData.ofBlockState(Blocks.END_STONE.defaultBlockState());		
 		SAND = ForgeMaterialData.ofBlockState(Blocks.SAND.defaultBlockState());
 		RED_SAND = ForgeMaterialData.ofBlockState(Blocks.RED_SAND.defaultBlockState());
 		SANDSTONE = ForgeMaterialData.ofBlockState(Blocks.SANDSTONE.defaultBlockState());
@@ -220,7 +222,17 @@ public class ForgeMaterials extends LocalMaterials
 		GLOWSTONE = ForgeMaterialData.ofBlockState(Blocks.GLOWSTONE.defaultBlockState());
 		MYCELIUM = ForgeMaterialData.ofBlockState(Blocks.MYCELIUM.defaultBlockState());
 		STONE_SLAB = ForgeMaterialData.ofBlockState(Blocks.STONE_SLAB.defaultBlockState());
-
+		AMETHYST_BLOCK = ForgeMaterialData.ofBlockState(Blocks.AMETHYST_BLOCK.defaultBlockState());
+		BUDDING_AMETHYST = ForgeMaterialData.ofBlockState(Blocks.BUDDING_AMETHYST.defaultBlockState());
+		CALCITE = ForgeMaterialData.ofBlockState(Blocks.CALCITE.defaultBlockState());
+		SMOOTH_BASALT = ForgeMaterialData.ofBlockState(Blocks.SMOOTH_BASALT.defaultBlockState());
+		SMALL_AMETHYST_BUD = ForgeMaterialData.ofBlockState(Blocks.SMALL_AMETHYST_BUD.defaultBlockState());
+		MEDIUM_AMETHYST_BUD = ForgeMaterialData.ofBlockState(Blocks.MEDIUM_AMETHYST_BUD.defaultBlockState());
+		LARGE_AMETHYST_BUD = ForgeMaterialData.ofBlockState(Blocks.LARGE_AMETHYST_BUD.defaultBlockState());
+		AMETHYST_CLUSTER = ForgeMaterialData.ofBlockState(Blocks.AMETHYST_CLUSTER.defaultBlockState());
+		GRANITE = ForgeMaterialData.ofBlockState(Blocks.GRANITE.defaultBlockState());
+		TUFF = ForgeMaterialData.ofBlockState(Blocks.TUFF.defaultBlockState());
+		
 		// Liquids
 		WATER = ForgeMaterialData.ofBlockState(Blocks.WATER.defaultBlockState());
 		LAVA = ForgeMaterialData.ofBlockState(Blocks.LAVA.defaultBlockState());
@@ -313,6 +325,7 @@ public class ForgeMaterials extends LocalMaterials
 		VINE_WEST = ForgeMaterialData.ofBlockState(Blocks.VINE.defaultBlockState().setValue(VineBlock.WEST, true));
 		VINE_EAST = ForgeMaterialData.ofBlockState(Blocks.VINE.defaultBlockState().setValue(VineBlock.EAST, true));
 		SEA_PICKLE = ForgeMaterialData.ofBlockState(Blocks.SEA_PICKLE.defaultBlockState());
+		BERRY_BUSH = ForgeMaterialData.ofBlockState(Blocks.SWEET_BERRY_BUSH.defaultBlockState());
 
 		// Ores
 		COAL_ORE = ForgeMaterialData.ofBlockState(Blocks.COAL_ORE.defaultBlockState());
@@ -320,6 +333,7 @@ public class ForgeMaterials extends LocalMaterials
 		EMERALD_ORE = ForgeMaterialData.ofBlockState(Blocks.EMERALD_ORE.defaultBlockState());
 		GOLD_ORE = ForgeMaterialData.ofBlockState(Blocks.GOLD_ORE.defaultBlockState());
 		IRON_ORE = ForgeMaterialData.ofBlockState(Blocks.IRON_ORE.defaultBlockState());
+		COPPER_ORE = ForgeMaterialData.ofBlockState(Blocks.COPPER_ORE.defaultBlockState());
 		LAPIS_ORE = ForgeMaterialData.ofBlockState(Blocks.LAPIS_ORE.defaultBlockState());
 		QUARTZ_ORE = ForgeMaterialData.ofBlockState(Blocks.NETHER_QUARTZ_ORE.defaultBlockState());
 		REDSTONE_ORE = ForgeMaterialData.ofBlockState(Blocks.REDSTONE_ORE.defaultBlockState());
@@ -333,5 +347,7 @@ public class ForgeMaterials extends LocalMaterials
 		COAL_BLOCK = ForgeMaterialData.ofBlockState(Blocks.COAL_BLOCK.defaultBlockState());
 		QUARTZ_BLOCK = ForgeMaterialData.ofBlockState(Blocks.QUARTZ_BLOCK.defaultBlockState());
 		EMERALD_BLOCK = ForgeMaterialData.ofBlockState(Blocks.EMERALD_BLOCK.defaultBlockState());
+		RAW_IRON_BLOCK = ForgeMaterialData.ofBlockState(Blocks.RAW_IRON_BLOCK.defaultBlockState());
+		RAW_COPPER_BLOCK = ForgeMaterialData.ofBlockState(Blocks.RAW_COPPER_BLOCK.defaultBlockState());		
 	}
 }
