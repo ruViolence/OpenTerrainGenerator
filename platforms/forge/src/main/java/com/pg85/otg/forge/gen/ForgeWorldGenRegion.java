@@ -577,6 +577,10 @@ public class ForgeWorldGenRegion extends LocalWorldGenRegion
 				case ChorusPlant:
 					ConfiguredFeature<FeatureConfiguration, ?> chorus_plant = (ConfiguredFeature<FeatureConfiguration, ?>) Features.CHORUS_PLANT;
 					chorus_plant.feature.place(new FeaturePlaceContext<>(this.worldGenRegion, this.chunkGenerator, rand, blockPos, chorus_plant.config));
+					return true;
+				case Azalea:
+					ConfiguredFeature<TreeConfiguration, ?> azalea = Features.AZALEA_TREE;
+					azalea.feature.place(new FeaturePlaceContext<>(this.worldGenRegion, this.chunkGenerator, rand, blockPos, azalea.config));
 					return true;					
 				default:
 					throw new RuntimeException("Failed to handle tree of type " + type.toString());
