@@ -70,8 +70,7 @@ abstract class WorldConfigBase extends ConfigFile implements IWorldConfig
 	protected int generationDepth;
 	protected int landFuzzy;
 	protected int landRarity;
-	protected int landSize;
-	protected boolean forceLandAtSpawn;
+	protected int landSize;	
 	protected int oceanBiomeSize;
 	protected String defaultOceanBiome;
 	protected String defaultWarmOceanBiome;
@@ -249,6 +248,8 @@ abstract class WorldConfigBase extends ConfigFile implements IWorldConfig
 	protected boolean doTraderSpawning;
 	protected boolean forgiveDeadPlayers;
 	protected boolean universalAnger;
+	protected boolean freezeDamage;
+	protected int playersSleepingPercentage;
 	
 	// Portals
 
@@ -264,6 +265,9 @@ abstract class WorldConfigBase extends ConfigFile implements IWorldConfig
 	protected int spawnPointY;
 	protected int spawnPointZ;
 	protected float spawnPointAngle;
+	protected boolean forceLandAtSpawn;
+	
+	// Misc
 
 	protected boolean largeOreVeins;
 
@@ -1242,6 +1246,12 @@ abstract class WorldConfigBase extends ConfigFile implements IWorldConfig
 		return this.spawnPointAngle;
 	}
 	
+	@Override
+	public boolean getForceLandAtSpawn()
+	{
+		return this.forceLandAtSpawn;
+	}	
+	
 	// Game rules
 	
 	@Override
@@ -1431,18 +1441,26 @@ abstract class WorldConfigBase extends ConfigFile implements IWorldConfig
 	}
 
 	@Override
-	public boolean getForceLandAtSpawn()
-	{
-		return this.forceLandAtSpawn;
-	}
-
-	@Override
 	public boolean getUniversalAnger()
 	{
 		return this.universalAnger;
 	}
 
+	@Override
+	public boolean getFreezeDamage()
+	{
+		return this.freezeDamage;		
+	}	
+	
+	@Override
+	public int getPlayersSleepingPercentage()
+	{
+		return this.playersSleepingPercentage;	
+	}
 
+	// Misc
+	
+	@Override
 	public boolean getLargeOreVeins()
 	{
 		return this.largeOreVeins;

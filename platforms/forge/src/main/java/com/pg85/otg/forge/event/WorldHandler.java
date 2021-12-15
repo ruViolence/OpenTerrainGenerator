@@ -78,6 +78,8 @@ public class WorldHandler
 				gameRules.getRule(GameRules.RULE_DO_TRADER_SPAWNING).set(modpackConfig.GameRules.DoTraderSpawning, (MinecraftServer)null);
 				gameRules.getRule(GameRules.RULE_FORGIVE_DEAD_PLAYERS).set(modpackConfig.GameRules.ForgiveDeadPlayers, (MinecraftServer)null);
 				gameRules.getRule(GameRules.RULE_UNIVERSAL_ANGER).set(modpackConfig.GameRules.UniversalAnger, (MinecraftServer)null);
+				gameRules.getRule(GameRules.RULE_FREEZE_DAMAGE).set(modpackConfig.GameRules.FreezeDamage, (MinecraftServer)null);
+				gameRules.getRule(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE).value = modpackConfig.GameRules.PlayersSleepingPercentage;
 			}
 			else if(worldConfig != null && worldConfig.getOverrideGameRules())
 			{
@@ -114,6 +116,8 @@ public class WorldHandler
 				gameRules.getRule(GameRules.RULE_DO_TRADER_SPAWNING).set(worldConfig.getDoTraderSpawning(), (MinecraftServer)null);
 				gameRules.getRule(GameRules.RULE_FORGIVE_DEAD_PLAYERS).set(worldConfig.getForgiveDeadPlayers(), (MinecraftServer)null);
 				gameRules.getRule(GameRules.RULE_UNIVERSAL_ANGER).set(worldConfig.getUniversalAnger(), (MinecraftServer)null);
+				gameRules.getRule(GameRules.RULE_FREEZE_DAMAGE).set(worldConfig.getFreezeDamage(), (MinecraftServer)null);
+				gameRules.getRule(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE).value = worldConfig.getPlayersSleepingPercentage();				
 			}
 		}
 	}

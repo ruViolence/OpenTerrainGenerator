@@ -232,6 +232,8 @@ public class DimensionConfig
 		public boolean DoTraderSpawning;
 		public boolean ForgiveDeadPlayers;
 		public boolean UniversalAnger;
+		public boolean FreezeDamage;
+		public int PlayersSleepingPercentage;
 		
 		public GameRules() {}
 		
@@ -269,6 +271,8 @@ public class DimensionConfig
 			gameRules.DoTraderSpawning = this.DoTraderSpawning;
 			gameRules.ForgiveDeadPlayers = this.ForgiveDeadPlayers;
 			gameRules.UniversalAnger = this.UniversalAnger;
+			gameRules.FreezeDamage = this.FreezeDamage;
+			gameRules.PlayersSleepingPercentage = this.PlayersSleepingPercentage;
 			return gameRules;
 		}				
 	}

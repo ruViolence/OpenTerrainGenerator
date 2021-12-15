@@ -416,6 +416,8 @@ public class WorldConfig extends WorldConfigBase
 		this.doTraderSpawning = reader.getSetting(WorldStandardValues.DO_TRADER_SPAWNING, logger);
 		this.forgiveDeadPlayers = reader.getSetting(WorldStandardValues.FORGIVE_DEAD_PLAYERS, logger);
 		this.universalAnger = reader.getSetting(WorldStandardValues.UNIVERSAL_ANGER, logger);
+		this.freezeDamage = reader.getSetting(WorldStandardValues.FREEZE_DAMAGE, logger);
+		this.playersSleepingPercentage = reader.getSetting(WorldStandardValues.PLAYERS_SLEEPING_PERCENTAGE, logger);
 	}
 
 	private void readTemplateBiomes(SettingsMap reader, IConfigFunctionProvider biomeResourcesManager, ILogger logger, IMaterialReader materialReader)
@@ -1125,5 +1127,8 @@ public class WorldConfig extends WorldConfigBase
 		writer.putSetting(WorldStandardValues.DO_TRADER_SPAWNING, this.doTraderSpawning); 
 		writer.putSetting(WorldStandardValues.FORGIVE_DEAD_PLAYERS, this.forgiveDeadPlayers); 
 		writer.putSetting(WorldStandardValues.UNIVERSAL_ANGER, this.universalAnger);
+		writer.putSetting(WorldStandardValues.FREEZE_DAMAGE, this.freezeDamage);
+		writer.putSetting(WorldStandardValues.PLAYERS_SLEEPING_PERCENTAGE, this.playersSleepingPercentage);
+		
 	}
 }

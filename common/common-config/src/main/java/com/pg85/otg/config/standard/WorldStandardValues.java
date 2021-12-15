@@ -95,6 +95,7 @@ public class WorldStandardValues extends Settings
 		MAX_ENTITY_CRAMMING = intSetting("MaxEntityCramming", 24, 0, Integer.MAX_VALUE),
 		MAX_COMMAND_CHAIN_LENGTH = intSetting("MaxCommandChainLength", 65536, 0, Integer.MAX_VALUE),
 		LOGICAL_HEIGHT = intSetting("LogicalHeight", 256, 0, Integer.MAX_VALUE),
+		PLAYERS_SLEEPING_PERCENTAGE = intSetting("PlayersSleepingPercentage", 100, 0, 100),
 		SPAWN_POINT_X = intSetting("SpawnPointX", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
 		SPAWN_POINT_Y = intSetting("SpawnPointY", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),
 		SPAWN_POINT_Z = intSetting("SpawnPointZ", 0, Integer.MIN_VALUE, Integer.MAX_VALUE),		
@@ -205,8 +206,9 @@ public class WorldStandardValues extends Settings
 		DO_PATROL_SPAWNING = booleanSetting("DoPatrolSpawning", true),
 		DO_TRADER_SPAWNING = booleanSetting("DoTraderSpawning", true),
 		FORGIVE_DEAD_PLAYERS = booleanSetting("ForgiveDeadPlayers", true),
-		UNIVERSAL_ANGER = booleanSetting("UniversalAnger", false),		
-	
+		UNIVERSAL_ANGER = booleanSetting("UniversalAnger", false),
+		FREEZE_DAMAGE = booleanSetting("FreezeDamage", true),
+		
 		HAS_SKYLIGHT = booleanSetting("HasSkylight", true),
 		HAS_CEILING = booleanSetting("HasCeiling", false),
 		ULTRA_WARM = booleanSetting("UltraWarm", false),

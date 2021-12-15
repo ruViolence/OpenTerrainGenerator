@@ -226,7 +226,8 @@ public interface IWorldConfig
 	public int getSpawnPointX();
 	public int getSpawnPointY();
 	public int getSpawnPointZ();
-	public float getSpawnPointAngle();	
+	public float getSpawnPointAngle();
+	boolean getForceLandAtSpawn();
 	
 	// Game rules
 	
@@ -262,7 +263,10 @@ public interface IWorldConfig
 	public boolean getDoTraderSpawning();
 	public boolean getForgiveDeadPlayers();
 	public boolean getUniversalAnger();
-	boolean getForceLandAtSpawn();
-
+	public boolean getFreezeDamage();
+	public int getPlayersSleepingPercentage();
+	
+	// Misc
+	
 	boolean getLargeOreVeins();
 }
