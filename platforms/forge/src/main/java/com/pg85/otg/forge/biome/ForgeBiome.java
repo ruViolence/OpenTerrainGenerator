@@ -1,7 +1,9 @@
 package com.pg85.otg.forge.biome;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.pg85.otg.config.ConfigFunction;
 import com.pg85.otg.config.standard.BiomeStandardValues;
@@ -13,6 +15,9 @@ import com.pg85.otg.constants.SettingsEnums.RuinedPortalType;
 import com.pg85.otg.constants.SettingsEnums.VillageType;
 import com.pg85.otg.core.OTG;
 import com.pg85.otg.core.config.biome.BiomeConfig;
+import com.pg85.otg.forge.materials.ForgeMaterialData;
+import com.pg85.otg.forge.materials.ForgeMaterialTag;
+import com.pg85.otg.gen.resource.GlowLichenResource;
 import com.pg85.otg.gen.resource.RegistryResource;
 import com.pg85.otg.interfaces.IBiome;
 import com.pg85.otg.interfaces.IBiomeConfig;
@@ -21,7 +26,7 @@ import com.pg85.otg.util.biome.OTGBiomeResourceLocation;
 import com.pg85.otg.util.biome.WeightedMobSpawnGroup;
 import com.pg85.otg.util.logging.LogCategory;
 import com.pg85.otg.util.logging.LogLevel;
-
+import com.pg85.otg.util.materials.LocalMaterialBase;
 import com.pg85.otg.util.minecraft.EntityCategory;
 import net.minecraft.sounds.Music;
 import net.minecraft.world.entity.MobCategory;
@@ -32,16 +37,22 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.core.Registry;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.world.level.biome.Biome.TemperatureModifier;
 import net.minecraft.world.level.biome.BiomeGenerationSettings.Builder;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.GenerationStep.Decoration;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.GlowLichenConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.data.worldgen.BastionPieces;
 import net.minecraft.data.worldgen.DesertVillagePools;
 import net.minecraft.world.level.levelgen.feature.configurations.MineshaftConfiguration;
@@ -132,6 +143,26 @@ public class ForgeBiome implements IBiome
 					{
 						OTG.getEngine().getLogger().log(LogLevel.ERROR, LogCategory.DECORATION, "Registry() " + registryResource.getFeatureKey() + " could not be found for biomeconfig " + biomeConfig.getName());
 					}
+				}				
+				if (res instanceof GlowLichenResource glow)
+				{
+					List<BlockState> list = new ArrayList<>();
+					for (LocalMaterialBase base : glow.canBePlacedOn)
+					{
+						if (base instanceof ForgeMaterialTag tag)
+						{
+							list.addAll(tag.getTag().getValues().stream().map(Block::defaultBlockState).collect(Collectors.toList()));
+						}
+						else if (base instanceof ForgeMaterialData data)
+						{
+							list.add(data.internalBlock());
+						}
+					}
+					GlowLichenConfiguration config = new GlowLichenConfiguration(glow.nearbyAttempts, glow.canPlaceOnFloor, glow.canPlaceOnCeiling, glow.canPlaceOnWall, glow.chanceOfSpreading, list);
+					biomeGenerationSettingsBuilder
+						.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Feature.GLOW_LICHEN.configured(config).squared()
+						.rangeUniform(VerticalAnchor.aboveBottom(glow.minY), VerticalAnchor.absolute(glow.maxY))
+						.count(UniformInt.of(glow.countMin, glow.countMax)));
 				}
 			}
 		}

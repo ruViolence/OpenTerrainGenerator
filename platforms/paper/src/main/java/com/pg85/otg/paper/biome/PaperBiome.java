@@ -120,7 +120,7 @@ public class PaperBiome implements IBiome
 				GlowLichenConfiguration config = new GlowLichenConfiguration(glow.nearbyAttempts, glow.canPlaceOnFloor, glow.canPlaceOnCeiling, glow.canPlaceOnWall, glow.chanceOfSpreading, list);
 				biomeGenerationSettingsBuilder
 					.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, Feature.GLOW_LICHEN.configured(config).squared()
-					.rangeUniform(VerticalAnchor.aboveBottom(glow.minX), VerticalAnchor.absolute(glow.maxX))
+					.rangeUniform(VerticalAnchor.aboveBottom(glow.minY), VerticalAnchor.absolute(glow.maxY))
 					.count(UniformInt.of(glow.countMin, glow.countMax)));
 			}
 		}
