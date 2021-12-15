@@ -85,16 +85,38 @@ public class MixinConfigPlugin implements IMixinConfigPlugin
 	{
 		org.apache.logging.log4j.Logger logger = LogManager.getLogger(Constants.MOD_ID_SHORT);
 		List<String> cannotBeDuplicateMixins = Arrays.asList("net.minecraft.world.gen.feature.structure.Structure");
-		try {
-			Field field = myTargets.getClass().getSuperclass().getDeclaredField("c");
-			field.setAccessible(true);
-			Collection<String> wrappedSet = (Collection<String>)field.get(myTargets);
+		
+		// Due to a bug in Mixin <8.4, the myTargets set is an unmodifiable collection. This was fixed for 8.3,
+		// but we can't be sure that people are using that (Forge updated some point after 36.2.0 apparently).
+		
+		// Try the new way, .remove will throw an UnsupportedOperationException if it's unmodifiable.
+		try
+		{
 			myTargets.stream().filter(a -> cannotBeDuplicateMixins.contains(a) && otherTargets.contains(a)).collect(Collectors.toList()).forEach(a -> {
-				logger.warn("Detected conflicting mixin for class " + a + " from other mod, disabling OTG mixin to avoid problems.");
-				wrappedSet.remove(a);
+				myTargets.remove(a);
+				logger.warn("Detected conflicting mixin for class " + a + " from other mod, disabling OTG mixin to avoid problems.");				
 			});
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
+		}
+		catch(UnsupportedOperationException ex)
+		{
+			// UnsupportedOperationException so we're using Mixin <8.3
+			try {
+				for(Field field : myTargets.getClass().getSuperclass().getDeclaredFields())
+				{
+					// use equals to compare the data type.
+					if(field.getType().equals(java.util.Collection.class))
+					{
+						field.setAccessible(true);
+						Collection<String> wrappedSet = (Collection<String>)field.get(myTargets);
+						myTargets.stream().filter(a -> cannotBeDuplicateMixins.contains(a) && otherTargets.contains(a)).collect(Collectors.toList()).forEach(a -> {							
+							wrappedSet.remove(a);
+							logger.warn("Detected conflicting mixin for class " + a + " from other mod, disabling OTG mixin to avoid problems.");
+						});
+					}
+				}
+			} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
