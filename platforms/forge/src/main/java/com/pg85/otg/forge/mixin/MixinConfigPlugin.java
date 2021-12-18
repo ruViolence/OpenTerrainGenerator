@@ -1,11 +1,8 @@
 package com.pg85.otg.forge.mixin;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,8 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
-import org.spongepowered.asm.service.MixinService;
-
 import com.pg85.otg.constants.Constants;
 
 /**
@@ -85,10 +80,10 @@ public class MixinConfigPlugin implements IMixinConfigPlugin
 	{
 		org.apache.logging.log4j.Logger logger = LogManager.getLogger(Constants.MOD_ID_SHORT);
 		List<String> cannotBeDuplicateMixins = Arrays.asList("net.minecraft.world.gen.feature.structure.Structure");
-		
+
 		// Due to a bug in Mixin <8.4, the myTargets set is an unmodifiable collection. This was fixed for 8.3,
 		// but we can't be sure that people are using that (Forge updated some point after 36.2.0 apparently).
-		
+
 		// Try the new way, .remove will throw an UnsupportedOperationException if it's unmodifiable.
 		try
 		{
