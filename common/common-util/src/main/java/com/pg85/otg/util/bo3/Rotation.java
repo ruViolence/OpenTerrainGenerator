@@ -31,28 +31,6 @@ public enum Rotation
 	{
 		return ROTATION_ID;
 	}
-
-	public static Rotation FromString(String rotation)
-	{
-		if(rotation.toLowerCase().equals("north"))
-		{
-			return NORTH;
-		}
-		if(rotation.toLowerCase().equals("east"))
-		{
-			return EAST;
-		}
-		if(rotation.toLowerCase().equals("south"))
-		{
-			return SOUTH;
-		}
-		if(rotation.toLowerCase().equals("west"))
-		{
-			return WEST;
-		} else {
-			return WEST; // WEST is the default
-		}		
-	}	 
 	
 	/**
 	 * Get the rotation with the given id. Returns null if the
@@ -103,14 +81,17 @@ public enum Rotation
 
 	public static Rotation getRotation(String string) throws InvalidConfigException
 	{
+		if(string == null || string.trim().isEmpty())
+		{
+			return null;
+		}
+
 		Rotation rotation = null;
 		// Try to parse it as a number
 		try
 		{
 			rotation = getRotation(Integer.parseInt(string));
-		} catch (NumberFormatException e)
-		{
-		}
+		} catch (NumberFormatException e) { }
 
 		if (rotation != null)
 		{
@@ -120,10 +101,8 @@ public enum Rotation
 		// Try to parse it as a String
 		try
 		{
-			rotation = Rotation.valueOf(string.toUpperCase());
-		} catch (IllegalArgumentException e)
-		{
-		}
+			rotation = Rotation.valueOf(string.trim().toUpperCase());
+		} catch (IllegalArgumentException e) { }
 
 		if (rotation != null)
 		{

@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import javax.annotation.Nullable;
 
@@ -45,10 +44,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.ReportedException;
-import net.minecraft.entity.EntityClassification;
 import net.minecraft.util.SharedSeedRandom;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -58,10 +55,8 @@ import net.minecraft.util.math.SectionPos;
 import net.minecraft.world.Blockreader;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeGenerationSettings;
 import net.minecraft.world.biome.BiomeManager;
-import net.minecraft.world.biome.MobSpawnInfo;
 import net.minecraft.world.biome.provider.BiomeProvider;
 import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.chunk.IChunk;
@@ -69,9 +64,6 @@ import net.minecraft.world.gen.ChunkGenerator;
 import net.minecraft.world.gen.DimensionSettings;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.gen.INoiseGenerator;
-import net.minecraft.world.gen.OctavesNoiseGenerator;
-import net.minecraft.world.gen.PerlinNoiseGenerator;
 import net.minecraft.world.gen.Heightmap.Type;
 import net.minecraft.world.gen.carver.ConfiguredCarver;
 import net.minecraft.world.gen.WorldGenRegion;
@@ -82,14 +74,13 @@ import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.feature.structure.StructureManager;
 import net.minecraft.world.gen.feature.structure.StructurePiece;
 import net.minecraft.world.gen.settings.DimensionStructuresSettings;
-import net.minecraft.world.gen.settings.NoiseSettings;
 import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraft.world.gen.settings.StructureSpreadSettings;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.spawner.WorldEntitySpawner;
 import net.minecraft.world.storage.FolderName;
+import net.minecraft.world.gen.NoiseChunkGenerator;
 
-public final class OTGNoiseChunkGenerator extends ChunkGenerator
+public final class OTGNoiseChunkGenerator extends NoiseChunkGenerator
 {
 	// Create a codec to serialise/deserialise OTGNoiseChunkGenerator
 	public static final Codec<OTGNoiseChunkGenerator> CODEC = RecordCodecBuilder.create(
@@ -111,10 +102,10 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 						(p_236096_0_) -> { return p_236096_0_.biomeSource; }
 					),
 					Codec.LONG.fieldOf("seed").stable().forGetter(
-						(p_236093_0_) -> { return p_236093_0_.worldSeed; }
+						(p_236093_0_) -> { return p_236093_0_.seed; }
 					),
 					DimensionSettings.CODEC.fieldOf("settings").forGetter(
-						(p_236090_0_) -> { return p_236090_0_.dimensionSettingsSupplier; }
+						(p_236090_0_) -> { return p_236090_0_.settings; }
 					)
 				).apply(
 					p_236091_0_,
@@ -124,16 +115,9 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		}
 	);
 
-	private final Supplier<DimensionSettings> dimensionSettingsSupplier;
-	private final long worldSeed;
-	private final int noiseHeight;
-	private final INoiseGenerator surfaceNoise;
-	protected final SharedSeedRandom random;
 	private final ShadowChunkGenerator shadowChunkGenerator;
 	private final OTGChunkGenerator internalGenerator;
 	private final OTGChunkDecorator chunkDecorator;
-	protected final BlockState defaultBlock;
-	protected final BlockState defaultFluid;
 	private final Preset preset;
 	private final String dimConfigName;
 	private final DimensionConfig dimConfig;
@@ -158,17 +142,15 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 
 	// TODO: Why are there 2 biome providers, and why does getBiomeProvider() return the second, while we're using the first?
 	// It looks like vanilla just inserts the same biomeprovider twice?
-	@SuppressWarnings("deprecation")
 	private OTGNoiseChunkGenerator(String presetFolderName, String dimConfigName, BiomeProvider biomeProvider1, BiomeProvider biomeProvider2, long seed, Supplier<DimensionSettings> dimensionSettingsSupplier)
 	{
-		super(biomeProvider1, biomeProvider2, overrideStructureSettings(dimensionSettingsSupplier.get().structureSettings(), presetFolderName), seed);
+		super(biomeProvider1, biomeProvider2, seed, overrideStructureSettings(dimensionSettingsSupplier.get(), presetFolderName));
 
 		if (!(biomeProvider1 instanceof ILayerSource))
 		{
 			throw new RuntimeException("OTG has detected an incompatible biome provider- try using otg:otg as the biome source name");
 		}
 
-		this.worldSeed = seed;
 		this.preset = OTG.getEngine().getPresetLoader().getPresetByFolderName(presetFolderName);
 		if(dimConfigName != null && dimConfigName.trim().length() > 0)
 		{
@@ -177,22 +159,13 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		} else {
 			this.dimConfigName = "";
 			this.dimConfig = null;
-		}
-		this.dimensionSettingsSupplier = dimensionSettingsSupplier;		
-		DimensionSettings dimensionsettings = dimensionSettingsSupplier.get();
-		this.defaultBlock = dimensionsettings.getDefaultBlock();
-		this.defaultFluid = dimensionsettings.getDefaultFluid();		
-		NoiseSettings noisesettings = dimensionsettings.noiseSettings();
-		this.random = new SharedSeedRandom(seed);
-		this.surfaceNoise = (INoiseGenerator)(noisesettings.useSimplexSurfaceNoise() ? new PerlinNoiseGenerator(this.random, IntStream.rangeClosed(-3, 0)) : new OctavesNoiseGenerator(this.random, IntStream.rangeClosed(-3, 0)));
-		this.noiseHeight = noisesettings.height();
-
+		}	
 		this.shadowChunkGenerator = new ShadowChunkGenerator(OTG.getEngine().getPluginConfig().getMaxWorkerThreads());
 		this.internalGenerator = new OTGChunkGenerator(this.preset, seed, (ILayerSource) biomeProvider1,((ForgePresetLoader)OTG.getEngine().getPresetLoader()).getGlobalIdMapping(presetFolderName), OTG.getEngine().getLogger());
 		this.chunkDecorator = new OTGChunkDecorator();
 	}
 	
-	private static DimensionStructuresSettings overrideStructureSettings(DimensionStructuresSettings oldSettings, String presetFolderName)
+	private static Supplier<DimensionSettings> overrideStructureSettings(DimensionSettings oldSettings, String presetFolderName)
 	{
 		Preset preset = OTG.getEngine().getPresetLoader().getPresetByFolderName(presetFolderName);
 		IWorldConfig worldConfig = preset.getWorldConfig();
@@ -271,7 +244,7 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 			separationSettings.put(Structure.NETHER_FOSSIL, new StructureSeparationSettings(worldConfig.getNetherFossilSpacing(), worldConfig.getNetherFossilSeparation(), 14357921));
 		}
 		separationSettings.putAll(
-			oldSettings.structureConfig().entrySet().stream().filter(a -> 
+			oldSettings.structureSettings().structureConfig().entrySet().stream().filter(a -> 
 				a.getKey() != Structure.VILLAGE &&
 				a.getKey() != Structure.DESERT_PYRAMID &&
 				a.getKey() != Structure.IGLOO &&
@@ -296,14 +269,17 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		DimensionStructuresSettings newSettings = new DimensionStructuresSettings(
 			worldConfig.getStrongholdsEnabled() ? Optional.of(
 				new StructureSpreadSettings(
-					worldConfig.getStrongHoldDistance(), 
-					worldConfig.getStrongHoldSpread(), 
+					worldConfig.getStrongHoldDistance(),
+					worldConfig.getStrongHoldSpread(),
 					worldConfig.getStrongHoldCount()
 				)
-			) : Optional.empty(), 
+			) : Optional.empty(),
 			Maps.newHashMap(separationSettings.build())
 		);
-		return newSettings;
+
+		oldSettings.structureSettings = newSettings;
+		
+		return () -> { return oldSettings; };
 	}
 
 	public ICachedBiomeProvider getCachedBiomeProvider()
@@ -328,12 +304,18 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 	@Override
 	public ChunkGenerator withSeed(long seed)
 	{
-		return new OTGNoiseChunkGenerator(this.preset.getFolderName(), this.dimConfigName, this.biomeSource.withSeed(seed), seed, this.dimensionSettingsSupplier);
+		return new OTGNoiseChunkGenerator(this.preset.getFolderName(), this.dimConfigName, this.biomeSource.withSeed(seed), seed, this.settings);
 	}
-	
+
+	@Override
+	public int getSeaLevel()
+	{
+		return this.preset.getWorldConfig().getWaterLevelMax();
+	}
+
 	// Base terrain gen
 
-	// Generates the base terrain for a chunk.	
+	// Generates the base terrain for a chunk.
 	@Override
 	public void fillFromNoise(IWorld world, StructureManager manager, IChunk chunk)
 	{
@@ -658,35 +640,6 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		}
 	}
 
-	// Mob spawning on initial chunk spawn (animals).
-	@SuppressWarnings("deprecation")
-	@Override
-	public void spawnOriginalMobs(WorldGenRegion worldGenRegion)
-	{
-		if (!this.dimensionSettingsSupplier.get().disableMobGeneration())
-		{
-			int chunkX = worldGenRegion.getCenterX();
-			int chunkZ = worldGenRegion.getCenterZ();
-			IBiome biome = this.internalGenerator.getCachedBiomeProvider().getBiome(chunkX * Constants.CHUNK_SIZE, chunkZ * Constants.CHUNK_SIZE);
-			SharedSeedRandom sharedseedrandom = new SharedSeedRandom();
-			sharedseedrandom.setDecorationSeed(worldGenRegion.getSeed(), chunkX << 4, chunkZ << 4);
-			WorldEntitySpawner.spawnMobsForChunkGeneration(worldGenRegion, ((ForgeBiome)biome).getBiomeBase(), chunkX, chunkZ, sharedseedrandom);			
-		}
-	}
-	
-	// Mob spawning on chunk tick
-	@Override
-	public List<MobSpawnInfo.Spawners> getMobsAt(Biome biome, StructureManager structureManager, EntityClassification entityClassification, BlockPos blockPos)
-	{
-		// Forge code injected into NoiseChunkGenerator
-		List<MobSpawnInfo.Spawners> spawns = net.minecraftforge.common.world.StructureSpawnManager.getStructureSpawns(structureManager, entityClassification, blockPos);
-		if (spawns != null)
-		{
-			return spawns;
-		}
-		return super.getMobsAt(biome, structureManager, entityClassification, blockPos);
-	}
-
 	// Noise
 
 	@Override
@@ -755,7 +708,7 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 				int y = (noiseY * 8) + pieceY;
 
 				//BlockState state = this.getBlockState(density, y, biomeConfig);
-				BlockState state = this.getBlockState(density, y);
+				BlockState state = this.generateBaseState(density, y);
 				if (blockStates != null)
 				{
 					blockStates[y] = state;
@@ -772,29 +725,6 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		return 0;
 	}
 
-	// MC's NoiseChunkGenerator returns defaultBlock and defaultFluid here, so callers 
-	// apparently don't rely on any blocks (re)placed after base terrain gen, only on
-	// the default block/liquid set for the dimension (stone/water for overworld, 
-	// netherrack/lava for nether), that MC uses for base terrain gen.
-	// We can do the same, no need to pass biome config and fetch replaced blocks etc. 
-	// OTG does place blocks other than defaultBlock/defaultLiquid during base terrain gen 
-	// (for replaceblocks/sagc), but that shouldn't matter for the callers of this method.
-	// Actually, it's probably better if they don't see OTG's replaced blocks, and just see
-	// the default blocks instead, as vanilla MC would do.
-	private BlockState getBlockState(double density, int y)
-	{
-		if (density > 0.0D)
-		{
-			return this.defaultBlock;
-		}
-		else if (y < this.getSeaLevel())
-		{
-			return this.defaultFluid;
-		} else {
-			return Blocks.AIR.defaultBlockState();
-		}
-	}
-
 	// Getters / misc
 
 	@Override
@@ -803,23 +733,11 @@ public final class OTGNoiseChunkGenerator extends ChunkGenerator
 		return CODEC;
 	}
 
-	@Override
-	public int getGenDepth()
-	{
-		return this.noiseHeight;
-	}
-
-	@Override
-	public int getSeaLevel()
-	{
-		return this.dimensionSettingsSupplier.get().seaLevel();
-	}
-
 	public CustomStructureCache getStructureCache(Path worldSaveFolder)
 	{
 		if(this.structureCache == null)
 		{
-			this.structureCache = OTG.getEngine().createCustomStructureCache(this.preset.getFolderName(), worldSaveFolder, this.worldSeed, this.preset.getWorldConfig().getCustomStructureType() == CustomStructureType.BO4);
+			this.structureCache = OTG.getEngine().createCustomStructureCache(this.preset.getFolderName(), worldSaveFolder, this.seed, this.preset.getWorldConfig().getCustomStructureType() == CustomStructureType.BO4);
 		}
 		return this.structureCache;
 	}
