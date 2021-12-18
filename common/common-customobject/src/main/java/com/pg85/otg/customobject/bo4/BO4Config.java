@@ -1238,7 +1238,7 @@ public class BO4Config extends CustomObjectConfigFile
 		this.doReplaceBlocks = readSettings(BO4Settings.DO_REPLACE_BLOCKS, logger, materialReader, manager);
 
 		String fixedRotation = readSettings(BO4Settings.FIXED_ROTATION, logger, materialReader, manager);
-		this.fixedRotation = fixedRotation == null || fixedRotation.trim().length() == 0 ? null : Rotation.FromString(fixedRotation);
+		this.fixedRotation = Rotation.getRotation(fixedRotation);
 
 		// Read the resources
 		readResources(logger, materialReader, manager);
@@ -1633,7 +1633,7 @@ public class BO4Config extends CustomObjectConfigFile
 				if(bo4DataVersion > 2)
 				{
 					String rotationString = StreamHelper.readStringFromBuffer(bufferDecompressed);
-					this.fixedRotation = rotationString == null ? null : Rotation.FromString(rotationString);
+					this.fixedRotation = Rotation.getRotation(rotationString);
 				}
 				
 				int minimumSizeTop = bufferDecompressed.getInt();
