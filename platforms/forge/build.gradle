@@ -140,12 +140,12 @@ dependencies {
 
     // Add any mod dependencies (these are picked up by the development environment)
 
-    implementation fg.deobf("com.sk89q.worldedit:worldedit-forge-mc1.17.1:1.2.7")
+    implementation fg.deobf("com.sk89q.worldedit:worldedit-forge-mc1.17.1:7.2.7")
 
     // Add common projects and non-mod dependencies as libraries, so they're picked up
     // by the development environment
 
-    library 'com.sk89q.worldedit:worldedit-core:1.2.7'
+    library 'com.sk89q.worldedit:worldedit-core:7.2.7'
 
     library 'com.fasterxml.jackson.core:jackson-annotations:2.9.7'
     library 'com.fasterxml.jackson.core:jackson-core:2.9.7'
