@@ -9,7 +9,6 @@ OpenTerrainGenerator for MC 1.17.x is under development, alpha builds are availa
 * <a href="https://github.com/Coll1234567">Josh</a>
 * <a href="https://github.com/SuperCoder7979">SuperCoder79</a>
 * <a href="https://github.com/SXRWahrheit">Wahrheit</a>
-* <a href="https://infotoast.org">Frank from Info Toast</a>
 
 We're always looking for people to contribute or collaborate with. For OTG 1.17, we've completely cleaned up and overhauled the codebase with the aim of making things more modular, so developers and collaborators can implement new settings and modes such as terrain generation noise. If you'd like to contribute, collaborate or become part of Team OTG, join us on the OTG Discord!
 
