@@ -1,5 +1,9 @@
 package com.pg85.otg.customobjects.structures;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import com.pg85.otg.OTG;
 import com.pg85.otg.common.LocalWorld;
 import com.pg85.otg.configuration.biome.BiomeConfig;
@@ -18,10 +22,10 @@ import com.pg85.otg.util.FifoMap;
 import com.pg85.otg.util.helpers.RandomHelper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 // TODO: spawners/particles/moddata for customobjects also use this, so not just structures. refactor?
 /**
@@ -49,30 +53,38 @@ public class CustomStructureCache
     // WorldInfoChunks is persisted to disk, the bo4 plotter's structurecache (of plotted but
     // not yet populated branches) is assembled from WorldInfoChunks when loaded from disk.
     // WorldInfoChunks is used as little as possible, due to its size and slowness.
-    private Map<ChunkCoordinate, StructureDataRegion> worldInfoChunks;
+    private Cache<ChunkCoordinate, StructureDataRegion> worldInfoChunks;
 
     public CustomStructureCache(LocalWorld world)
     {
         this.world = world;
-        this.worldInfoChunks = new HashMap<ChunkCoordinate, StructureDataRegion>();
+        this.worldInfoChunks = CacheBuilder.newBuilder()
+				.expireAfterWrite(1, TimeUnit.MINUTES)
+				.removalListener(new RemovalListener<ChunkCoordinate, StructureDataRegion>() {
+					@Override
+					public void onRemoval(RemovalNotification<ChunkCoordinate, StructureDataRegion> notification) {
+						CustomStructureFileManager.saveStructureData(notification.getKey(), notification.getValue(), CustomStructureCache.this.world);
+					}
+				}).build();
         this.plotter = new CustomStructurePlotter();
         this.bo3StructureCache = new FifoMap<ChunkCoordinate, BO3CustomStructure>(400);
-        loadStructureCache();
     }
     
     // WorldInfoChunks
     
 	private boolean worldInfoChunksContainsKey(ChunkCoordinate chunkCoordinate)
 	{
-		ChunkCoordinate regionCoord = chunkCoordinate.toRegionCoord();		
-		StructureDataRegion chunkRegion = worldInfoChunks.get(regionCoord);
+		ChunkCoordinate regionCoord = chunkCoordinate.toRegionCoord();
+		loadStructureCache(regionCoord);
+		StructureDataRegion chunkRegion = worldInfoChunks.getIfPresent(regionCoord);
 		return chunkRegion != null && chunkRegion.getStructure(chunkCoordinate.getRegionInternalX(), chunkCoordinate.getRegionInternalZ()) != null;
 	}
 	
 	private CustomStructure getFromWorldInfoChunks(ChunkCoordinate chunkCoordinate)
 	{
 		ChunkCoordinate regionCoord = chunkCoordinate.toRegionCoord();		
-		StructureDataRegion chunkRegion = this.worldInfoChunks.get(regionCoord);
+		loadStructureCache(chunkCoordinate);
+		StructureDataRegion chunkRegion = this.worldInfoChunks.getIfPresent(regionCoord);
 		if(chunkRegion != null)
 		{
 			return chunkRegion.getStructure(chunkCoordinate.getRegionInternalX(), chunkCoordinate.getRegionInternalZ());
@@ -80,10 +92,15 @@ public class CustomStructureCache
 		return null;
 	}
 	
-	private void addToWorldInfoChunks(CustomStructure structure, ChunkCoordinate chunkCoordinate, boolean requiresSave)
+	private void addToWorldInfoChunks(CustomStructure structure, ChunkCoordinate chunkCoordinate, boolean requiresSave) {
+		addToWorldInfoChunks(structure, chunkCoordinate, requiresSave, true);
+	}
+
+	private void addToWorldInfoChunks(CustomStructure structure, ChunkCoordinate chunkCoordinate, boolean requiresSave, boolean requiresLoad)
 	{
 		ChunkCoordinate regionCoord = chunkCoordinate.toRegionCoord();
-		StructureDataRegion chunkRegion = this.worldInfoChunks.get(regionCoord);
+		if (requiresLoad) loadStructureCache(regionCoord);
+		StructureDataRegion chunkRegion = this.worldInfoChunks.getIfPresent(regionCoord);
 		if(chunkRegion == null)
 		{
 			chunkRegion = new StructureDataRegion();
@@ -94,7 +111,7 @@ public class CustomStructureCache
 
 	public void markRegionForSaving(ChunkCoordinate regionCoordinate)
 	{
-		StructureDataRegion region = this.worldInfoChunks.get(regionCoordinate);
+		StructureDataRegion region = this.worldInfoChunks.getIfPresent(regionCoordinate);
 		if(region != null)
 		{
 			region.markSaveRequired();
@@ -203,7 +220,8 @@ public class CustomStructureCache
     {
     	if(world.isBo4Enabled())
     	{
-    		return this.worldInfoChunks.containsKey(chunkCoord);
+			loadStructureCache(chunkCoord);
+			return this.worldInfoChunks.getIfPresent(chunkCoord) != null;
     	}
     	return false;
     }
@@ -274,7 +292,7 @@ public class CustomStructureCache
 
     private void saveStructureCache()
     {
-	    CustomStructureFileManager.saveStructureData(this.worldInfoChunks, this.world);
+	    CustomStructureFileManager.saveStructureData(this.worldInfoChunks.asMap(), this.world);
 	    
 	    if(this.world.isBo4Enabled())
 	    {
@@ -282,13 +300,11 @@ public class CustomStructureCache
 	    }
     }
 
-	private void loadStructureCache()
+	private void loadStructureCache(ChunkCoordinate chunkCoordinate)
 	{		
 		OTG.log(LogMarker.DEBUG, "Loading structures and pre-generator data");
 
-        this.worldInfoChunks = new HashMap<ChunkCoordinate, StructureDataRegion>();
-		
-    	Map<CustomStructure, ArrayList<ChunkCoordinate>> loadedStructures = CustomStructureFileManager.loadStructureData(this.world);
+    	Map<CustomStructure, ArrayList<ChunkCoordinate>> loadedStructures = CustomStructureFileManager.loadStructureData(this.world, chunkCoordinate);
 		if(loadedStructures != null)
 		{
 	        if(this.world.isBo4Enabled())
@@ -305,22 +321,22 @@ public class CustomStructureCache
 					
 				for(ChunkCoordinate chunkCoord : loadedStructure.getValue())
 				{
-					addToWorldInfoChunks(loadedStructure.getKey(), chunkCoord, false);
+					addToWorldInfoChunks(loadedStructure.getKey(), chunkCoord, false, false);
 				}
 	
 				for(ModDataFunction<?> modDataFunc : loadedStructure.getKey().modDataManager.modData)
 				{
-					addToWorldInfoChunks(loadedStructure.getKey(), ChunkCoordinate.fromBlockCoords(modDataFunc.x, modDataFunc.z), false);
+					addToWorldInfoChunks(loadedStructure.getKey(), ChunkCoordinate.fromBlockCoords(modDataFunc.x, modDataFunc.z), false, false);
 				}
 	
 				for(SpawnerFunction<?> spawnerFunc : loadedStructure.getKey().spawnerManager.spawnerData)
 				{
-					addToWorldInfoChunks(loadedStructure.getKey(), ChunkCoordinate.fromBlockCoords(spawnerFunc.x, spawnerFunc.z), false);
+					addToWorldInfoChunks(loadedStructure.getKey(), ChunkCoordinate.fromBlockCoords(spawnerFunc.x, spawnerFunc.z), false, false);
 				}
 	
 				for(ParticleFunction<?> particleFunc : loadedStructure.getKey().particlesManager.particleData)
 				{
-					addToWorldInfoChunks(loadedStructure.getKey(), ChunkCoordinate.fromBlockCoords(particleFunc.x, particleFunc.z), false);
+					addToWorldInfoChunks(loadedStructure.getKey(), ChunkCoordinate.fromBlockCoords(particleFunc.x, particleFunc.z), false, false);
 				}
 			}
 		}

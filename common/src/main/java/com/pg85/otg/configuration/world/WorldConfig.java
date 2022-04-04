@@ -577,6 +577,7 @@ public class WorldConfig extends ConfigFile
     {
     	// OTG+
     	this.isOTGPlus = reader.getSetting(WorldStandardValues.IS_OTG_PLUS);
+        if (isOTGPlus) throw new RuntimeException("BO4 is unsupported");
     	this.replaceBlocksList = reader.getSetting(WorldStandardValues.REPLACE_BLOCKS_LIST);
     	//
 

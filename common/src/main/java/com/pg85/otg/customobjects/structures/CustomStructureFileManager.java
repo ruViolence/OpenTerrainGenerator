@@ -362,6 +362,16 @@ public class CustomStructureFileManager
 	// TODO: Since we're using regions, use short/byte for (internal) coords?
 	static void saveStructureData(Map<ChunkCoordinate, StructureDataRegion> worldInfoChunks, LocalWorld world)
 	{
+		int regionsSaved = 0;
+		for (Entry<ChunkCoordinate, StructureDataRegion> cachedRegion : worldInfoChunks.entrySet())
+		{
+			saveStructureData(cachedRegion.getKey(), cachedRegion.getValue(), world);
+		}
+		OTG.log(LogMarker.INFO, regionsSaved + " structure data regions saved.");
+	}
+
+	static void saveStructureData(ChunkCoordinate regionCoord, StructureDataRegion structureData, LocalWorld world)
+	{
 		int dimensionId = world.getDimensionId();
 		
 		// Collect all structure start points (and chunks that have bo3's with spawners/moddata/particles in them)
@@ -374,56 +384,50 @@ public class CustomStructureFileManager
 		// to disk inside their structure start/placeholder, but are only cached/kept in memory in worldInfoChunks.
 		// (BO4CustomStructures only cache data for unspawned structure parts and spawners/moddata/particles, worldInfoChunks 
 		// caches data about fully spawned structure chunks, plottedChunks caches/persists info about plotted chunks etc).
-		int regionsSaved = 0;
-		for (Entry<ChunkCoordinate, StructureDataRegion> cachedRegion : worldInfoChunks.entrySet())
+		if(structureData.requiresSave())
 		{
-			if(cachedRegion.getValue().requiresSave())
+			structureData.markSaved();
+			
+			HashMap<String, HashMap<CustomStructure, ArrayList<ChunkCoordinate>>> structuresPerRegion = new HashMap<String, HashMap<CustomStructure, ArrayList<ChunkCoordinate>>>();
+			for(int internalX = 0; internalX < CustomStructureCache.REGION_SIZE; internalX++)
 			{
-				cachedRegion.getValue().markSaved();
-				regionsSaved++;
-				
-				HashMap<String, HashMap<CustomStructure, ArrayList<ChunkCoordinate>>> structuresPerRegion = new HashMap<String, HashMap<CustomStructure, ArrayList<ChunkCoordinate>>>();			
-				for(int internalX = 0; internalX < CustomStructureCache.REGION_SIZE; internalX++)
+				for(int internalZ = 0; internalZ < CustomStructureCache.REGION_SIZE; internalZ++)
 				{
-					for(int internalZ = 0; internalZ < CustomStructureCache.REGION_SIZE; internalZ++)
+					ChunkCoordinate worldChunkCoord = ChunkCoordinate.fromChunkCoords(
+						(regionCoord.getChunkX() * CustomStructureCache.REGION_SIZE) + internalX, 
+						(regionCoord.getChunkZ() * CustomStructureCache.REGION_SIZE) + internalZ
+					);
+					CustomStructure structureInChunk = structureData.getStructure(internalX, internalZ);
+					if(structureInChunk != null)
 					{
-						ChunkCoordinate worldChunkCoord = ChunkCoordinate.fromChunkCoords(
-							(cachedRegion.getKey().getChunkX() * CustomStructureCache.REGION_SIZE) + internalX, 
-							(cachedRegion.getKey().getChunkZ() * CustomStructureCache.REGION_SIZE) + internalZ
-						);
-						CustomStructure structureInChunk = cachedRegion.getValue().getStructure(internalX, internalZ);
-						if(structureInChunk != null)
-						{
-			    			// BO3's that add spawners/particles/moddata are saved as null structures
-			    			String startBoName = "NULL"; 
-			    			if(structureInChunk.start != null)
-			    			{
-			    				startBoName = structureInChunk.start.bo3Name;
-			    			}
+		    			// BO3's that add spawners/particles/moddata are saved as null structures
+		    			String startBoName = "NULL"; 
+		    			if(structureInChunk.start != null)
+		    			{
+		    				startBoName = structureInChunk.start.bo3Name;
+		    			}
 
-							HashMap<CustomStructure, ArrayList<ChunkCoordinate>> entryByStructureName = structuresPerRegion.get(startBoName);
-							ArrayList<ChunkCoordinate> structureChunks = new ArrayList<ChunkCoordinate>();
-			    			if(entryByStructureName == null)
-			    			{
-			    				entryByStructureName = new HashMap<CustomStructure, ArrayList<ChunkCoordinate>>();
-			    				entryByStructureName.put(structureInChunk, structureChunks);
-			    				structuresPerRegion.put(startBoName, entryByStructureName);
-			    			} else {
-			    				structureChunks = entryByStructureName.get(structureInChunk);
-			    				if(structureChunks == null)
-			    				{
-			    					structureChunks = new ArrayList<ChunkCoordinate>();
-			    					entryByStructureName.put(structureInChunk, structureChunks);
-			    				}
-			    			}
-			    			structureChunks.add(worldChunkCoord);
-						}
+						HashMap<CustomStructure, ArrayList<ChunkCoordinate>> entryByStructureName = structuresPerRegion.get(startBoName);
+						ArrayList<ChunkCoordinate> structureChunks = new ArrayList<ChunkCoordinate>();
+		    			if(entryByStructureName == null)
+		    			{
+		    				entryByStructureName = new HashMap<CustomStructure, ArrayList<ChunkCoordinate>>();
+		    				entryByStructureName.put(structureInChunk, structureChunks);
+		    				structuresPerRegion.put(startBoName, entryByStructureName);
+		    			} else {
+		    				structureChunks = entryByStructureName.get(structureInChunk);
+		    				if(structureChunks == null)
+		    				{
+		    					structureChunks = new ArrayList<ChunkCoordinate>();
+		    					entryByStructureName.put(structureInChunk, structureChunks);
+		    				}
+		    			}
+		    			structureChunks.add(worldChunkCoord);
 					}
 				}
-				saveStructuresRegionFile(world, dimensionId, cachedRegion.getKey(), structuresPerRegion);
 			}
+			saveStructuresRegionFile(world, dimensionId, regionCoord, structuresPerRegion);
 		}
-		OTG.log(LogMarker.INFO, regionsSaved + " structure data regions saved.");
 	}
 
 	private static void saveStructuresRegionFile(LocalWorld world, int dimensionId, ChunkCoordinate regionCoord, HashMap<String, HashMap<CustomStructure, ArrayList<ChunkCoordinate>>> structuresPerRegion)
@@ -733,176 +737,120 @@ public class CustomStructureFileManager
         }
 	}
 	
-	// TODO: Load one region file at a time, on-demand, rather than loading all region files at once.
 	// Almost everything should be set up for it, auto-replacing CustomStructurePlaceHolders take care of most things?
-	public static HashMap<CustomStructure, ArrayList<ChunkCoordinate>> loadStructureData(LocalWorld world)
+	public static HashMap<CustomStructure, ArrayList<ChunkCoordinate>> loadStructureData(LocalWorld world, ChunkCoordinate chunkCoordinate)
 	{
 		int dimensionId = world.getDimensionId();
 
 		HashMap<CustomStructure, ArrayList<ChunkCoordinate>> output = new HashMap<CustomStructure, ArrayList<ChunkCoordinate>>();
 		
+		ChunkCoordinate regionCoord = chunkCoordinate.toRegionCoord();
+		int regionX = regionCoord.getChunkX();
+		int regionZ = regionCoord.getChunkZ();
+
 		File structureDataFolder = new File(
 			world.getWorldSaveDir().getAbsolutePath() + File.separator + 
 			PluginStandardValues.PLUGIN_NAME + File.separator + 
 			(dimensionId != 0 ? "DIM-" + dimensionId + File.separator : "") +
 			WorldStandardValues.StructureDataFolderName + File.separator
 		);
-		
-		HashMap<File, File> saveFiles = new HashMap<File, File>();
-		ArrayList<File> mainFiles = new ArrayList<File>();
-		ArrayList<File> backupFiles = new ArrayList<File>();
-		if(structureDataFolder.exists())
+		File structureDataFile = new File(structureDataFolder, regionX + "_" + regionZ + WorldStandardValues.StructureDataFileExtension);
+		File structureDataBackupFile = new File(structureDataFolder, regionX + "_" + regionZ + WorldStandardValues.StructureDataBackupFileExtension);
+		boolean hasBackup = structureDataBackupFile.exists();
+
+		if (!structureDataFile.exists() && !hasBackup) {
+			return null;
+		}
+
+		boolean bSuccess = false;
+
+		if (structureDataFile.exists())
 		{
-			for(File file : structureDataFolder.listFiles())
-			{
-				if(
-					file.getPath().endsWith(WorldStandardValues.StructureDataFileExtension) && 
-					file.getName().replace(WorldStandardValues.StructureDataFileExtension, "").split("_").length == 2 &&
-					MathHelper.tryParseInt(file.getName().replace(WorldStandardValues.StructureDataFileExtension, "").split("_")[0]) &&
-					MathHelper.tryParseInt(file.getName().replace(WorldStandardValues.StructureDataFileExtension, "").split("_")[1])
-				) {
-					mainFiles.add(file);
-				}
-				else if(
-					file.getPath().endsWith(WorldStandardValues.StructureDataBackupFileExtension) &&
-					file.getName().replace(WorldStandardValues.BackupFileSuffix, "").split("_").length == 2 &&
-					MathHelper.tryParseInt(file.getName().replace(WorldStandardValues.BackupFileSuffix, "").split("_")[0]) &&
-					MathHelper.tryParseInt(file.getName().replace(WorldStandardValues.BackupFileSuffix, "").split("_")[1])
-				)
-				{
-					backupFiles.add(file);
-				}
+			FileInputStream fis = null;
+			HashMap<CustomStructure, ArrayList<ChunkCoordinate>> result = null;
+			try {
+
+				fis = new FileInputStream(structureDataFile);
+				ByteBuffer buffer = fis.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, fis.getChannel().size());
+
+				byte[] compressedBytes = new byte[(int) fis.getChannel().size()];
+				buffer.get(compressedBytes);
+				byte[] decompressedBytes = com.pg85.otg.util.CompressionUtils.decompress(compressedBytes);
+				buffer = ByteBuffer.wrap(decompressedBytes);
+
+				result = parseStructuresFileFromStream(buffer, regionCoord, world);
 			}
-			for(File file : mainFiles)
+			catch (Exception ex)
 			{
-				boolean bFound = false;
-				for(File backupFile : backupFiles)
+				ex.printStackTrace();
+				OTG.log(LogMarker.INFO, "Failed to load " + structureDataFile.getAbsolutePath() + ", trying to load backup.");
+			} finally {
+				if(fis != null)
 				{
-					if(file.getPath().replace(WorldStandardValues.StructureDataFileExtension, "").equals(backupFile.getPath().replace(WorldStandardValues.StructureDataBackupFileExtension, "")))
-					{
-						saveFiles.put(file, backupFile);
-						bFound = true;
-						break;
+					try {
+						fis.getChannel().close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					try {
+						fis.close();
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 				}
-				if(!bFound)
-				{
-					saveFiles.put(file, null);
-				}
+			}
+			if(result != null)
+			{
+				bSuccess = true;
+				mergeRegionData(world, result, output);
 			}
 		}
-				
-		for(Entry<File, File> saveFile : saveFiles.entrySet())
-		{
-			ChunkCoordinate regionCoord = null;
-			boolean bSuccess = false;
-			File structureDataFile = saveFile.getKey();
-			File structureDataBackupFile = saveFile.getValue();
-				
-		    if(
-	    		(structureDataFile == null || !structureDataFile.exists()) &&
-				(structureDataBackupFile == null || !structureDataBackupFile.exists())
-    		)
-		    {
-		    	continue;
-		    }
 
-		    if(structureDataFile != null && structureDataFile.exists())
-		    {			
-		    	FileInputStream fis = null;
-		    	HashMap<CustomStructure, ArrayList<ChunkCoordinate>> result = null;
-				try {
-					
-					int regionX = Integer.parseInt(structureDataFile.getName().replace(WorldStandardValues.StructureDataFileExtension, "").split("_")[0]);
-					int regionZ = Integer.parseInt(structureDataFile.getName().replace(WorldStandardValues.StructureDataFileExtension, "").split("_")[1]);
-		    		regionCoord = ChunkCoordinate.fromChunkCoords(regionX, regionZ);
-					
-			    	fis = new FileInputStream(structureDataFile);			
-		    		ByteBuffer buffer = fis.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, fis.getChannel().size());				
-					
-					byte[] compressedBytes = new byte[(int) fis.getChannel().size()];
-					buffer.get(compressedBytes);
-					byte[] decompressedBytes = com.pg85.otg.util.CompressionUtils.decompress(compressedBytes);
-		    		buffer = ByteBuffer.wrap(decompressedBytes);
-		    							
-		    		result = parseStructuresFileFromStream(buffer, regionCoord, world);
-				}
-				catch (Exception ex)
+		if(!bSuccess && structureDataBackupFile.exists())
+		{
+			FileInputStream fis = null;
+			HashMap<CustomStructure, ArrayList<ChunkCoordinate>> result = null;
+			try {
+				fis = new FileInputStream(structureDataBackupFile);
+				ByteBuffer buffer = fis.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, fis.getChannel().size());
+
+				byte[] compressedBytes = new byte[(int) fis.getChannel().size()];
+				buffer.get(compressedBytes);
+				byte[] decompressedBytes = com.pg85.otg.util.CompressionUtils.decompress(compressedBytes);
+				buffer = ByteBuffer.wrap(decompressedBytes);
+
+				result = parseStructuresFileFromStream(buffer, regionCoord, world);
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			} finally {
+				if(fis != null)
 				{
-					ex.printStackTrace();
-					OTG.log(LogMarker.INFO, "Failed to load " + structureDataFile.getAbsolutePath() + ", trying to load backup.");
-				} finally {
-					if(fis != null)
-					{
-						try {
-							fis.getChannel().close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						try {
-							fis.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
+					try {
+						fis.getChannel().close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					try {
+						fis.close();
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 				}
-				if(result != null)
-				{
-					bSuccess = true;
-					mergeRegionData(world, result, output);
-				}
-		    }
-		    
-		    if(!bSuccess && structureDataBackupFile != null && structureDataBackupFile.exists())
-		    {
-		    	FileInputStream fis = null;
-		    	HashMap<CustomStructure, ArrayList<ChunkCoordinate>> result = null;
-				try {
-		    		int regionX = Integer.parseInt(structureDataBackupFile.getName().replace(WorldStandardValues.BackupFileSuffix, "").split("_")[0]);
-		    		int regionZ = Integer.parseInt(structureDataBackupFile.getName().replace(WorldStandardValues.BackupFileSuffix, "").split("_")[1]);	    		
-		    		regionCoord = ChunkCoordinate.fromChunkCoords(regionX, regionZ);					
-					
-			    	fis = new FileInputStream(structureDataBackupFile);			
-		    		ByteBuffer buffer = fis.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, fis.getChannel().size());				
-					
-					byte[] compressedBytes = new byte[(int) fis.getChannel().size()];
-					buffer.get(compressedBytes);
-					byte[] decompressedBytes = com.pg85.otg.util.CompressionUtils.decompress(compressedBytes);
-		    		buffer = ByteBuffer.wrap(decompressedBytes);
-		    				    		
-		    		result = parseStructuresFileFromStream(buffer, regionCoord, world);
-				}
-				catch (Exception ex)
-				{
-					ex.printStackTrace();
-				} finally {
-					if(fis != null)
-					{
-						try {
-							fis.getChannel().close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						try {
-							fis.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-				if(result != null)
-				{
-					bSuccess = true;
-					mergeRegionData(world, result, output);
-				}
-		    }
-		    if(!bSuccess)
-		    {
-				OTG.log(LogMarker.INFO,
+			}
+			if(result != null)
+			{
+				bSuccess = true;
+				mergeRegionData(world, result, output);
+			}
+		}
+		if(!bSuccess)
+		{
+			OTG.log(LogMarker.INFO,
 					"OTG encountered an error loading " + structureDataFile.getAbsolutePath() + " and could not load a backup, ignoring. "
-					+ "This may result in areas with missing BO4's, smoothing areas, /otg structure info and spawners/particles/moddata."
-				);
-		    }
+							+ "This may result in areas with missing BO4's, smoothing areas, /otg structure info and spawners/particles/moddata."
+			);
 		}
 		
 		return output.size() > 0 ? output : null;

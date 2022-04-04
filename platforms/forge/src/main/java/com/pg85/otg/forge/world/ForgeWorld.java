@@ -1550,6 +1550,7 @@ public class ForgeWorld implements LocalWorld
 			if(dimConfig != null && dimConfig.Settings.IsOTGPlus)		
 			{
 				isOTGPlus = true;
+                throw new RuntimeException("BO4 is unsupported");
 			}
 		}
 		return isOTGPlus;
