@@ -1163,7 +1163,7 @@ public class BukkitWorld implements LocalWorld
 		}
 		else if (org.bukkit.entity.ExperienceOrb.class.isAssignableFrom(clazz))
 		{
-			return new net.minecraft.server.v1_12_R1.EntityExperienceOrb(world, x, y, z, 0);
+			return new net.minecraft.server.v1_12_R1.EntityExperienceOrb(world, x, y, z, 0, null, null);
 		}
 		else if (org.bukkit.entity.Weather.class.isAssignableFrom(clazz))
 		{

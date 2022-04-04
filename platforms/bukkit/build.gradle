@@ -29,7 +29,7 @@ repositories
 dependencies
 {
     compile 'org.bukkit:bukkit:' + project.ext.bukkitVersion
-    compile 'org.spigotmc:spigot:' + project.ext.bukkitVersion
+    compile files('../../libs/paper-1.12.2.jar')
     compileOnly 'com.sk89q.worldedit:worldedit-bukkit:' + project.ext.worldeditVersion
     compile project(':common')
     compile 'org.apache.logging.log4j:log4j-api:2.0-beta9'

@@ -73,3 +73,5 @@ Thumbs.db
 .DS_Store
 *.lock
 *.launch
+
+libs
