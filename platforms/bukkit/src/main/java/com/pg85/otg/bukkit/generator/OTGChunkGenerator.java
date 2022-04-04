@@ -272,7 +272,7 @@ public class OTGChunkGenerator extends ChunkGenerator
             boolean oldCaptureBlockStates = this.world.getWorld().captureBlockStates;
             this.world.getWorld().captureBlockStates = !(blockData.getBlock() instanceof ITileEntity);
             //this.world.getWorld().captureBlockStates = true;
-            IBlockData oldBlockData = chunk.a(blockPos, blockData);
+            IBlockData oldBlockData = chunk.setBlockStateSilent(blockPos, blockData);
             this.world.getWorld().captureBlockStates = oldCaptureBlockStates;
 
             if (oldBlockData == null)
