@@ -35,8 +35,6 @@ shadowJar {
 		include dependency(':jackson-core')
 		include dependency(':jackson-dataformat-yaml')
 		include dependency(':jackson-databind')
-		include dependency(':snakeyaml')
-		include dependency(':commons-lang3')
     }
 	relocate 'com.fasterxml.jackson', 'com.pg85.otg.shaded.fasterxml.jackson'
 	relocate 'org.apache', 'com.pg85.otg.shaded.org.apache'
